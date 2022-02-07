@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from smartrade.cli import query_total_cash, query_tick, query_ticks
+from smartrade.cli import total_cash, distinct_ticks, tick_costs
 import unittest
 
 db_name = "trading_test"
@@ -34,17 +34,17 @@ class TestQuery(unittest.TestCase):
         print("=====END {}=====".format(cls.__name__))
 
     def test_total_cash(self):
-        self.assertAlmostEqual(50977.48, query_total_cash(db_name, '2022-01-01'))
-        self.assertAlmostEqual(35893.74, query_total_cash(db_name, '2022-01-30'))
-        self.assertAlmostEqual(27995.65, query_total_cash(db_name, '2022-02-04'))
-        self.assertAlmostEqual(27995.65, query_total_cash(db_name))
+        self.assertAlmostEqual(50977.48, total_cash(db_name, '2022-01-01'))
+        self.assertAlmostEqual(35893.74, total_cash(db_name, '2022-01-30'))
+        self.assertAlmostEqual(27995.65, total_cash(db_name, '2022-02-04'))
+        self.assertAlmostEqual(27995.65, total_cash(db_name))
 
     def test_query_ticks(self):
-        self.assertEqual(set(expected_amounts.keys()), set(query_ticks(db_name)))
+        self.assertEqual(set(expected_amounts.keys()), set(distinct_ticks(db_name)))
 
     def test_query_tick(self):
         for tick, amount in expected_amounts.items():
-            self.assertAlmostEqual(amount, query_tick(db_name, tick))
+            self.assertAlmostEqual(amount, tick_costs(db_name, tick))
 
 
 if __name__ == '__main__':

@@ -16,15 +16,23 @@ class Inspector:
         if to_date:
             condition['date'] = {"$lte": to_date}
         res = self._transactions.aggregate(
-            [{'$match': condition}, {'$group': {'_id': None, amount: {'$sum': "$amount"}}}])
+            [{'$match': condition},
+             {'$group': {'_id': None, amount: {'$sum': "$amount"}}}])
         return list(res)[0][amount]
 
     def distinct_ticks(self):
         return self._transactions.distinct('ui')
 
-    def query_tick(self, tick):
+    def tick_transactions(self, tick):
         transactions = []
         for doc in self._transactions.find({'ui': tick}):
             transaction = Transaction.from_doc(doc)
             transactions.append(transaction)
         return transactions
+
+    def tick_costs(self, tick):
+        amount = 'total_amount'
+        res = self._transactions.aggregate(
+            [{'$match': {'ui': tick}},
+             {'$group': {'_id': None, amount: {'$sum': "$amount"}}}])
+        return list(res)[0][amount]
