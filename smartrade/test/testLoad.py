@@ -15,7 +15,7 @@ class TestLoad(unittest.TestCase):
 
     def test_load(self):
         valid_transactions, invalid_transactions = load_db("trading_test", "smartrade/test/sample1.csv")
-        self.assertEqual(320, len(valid_transactions))
+        self.assertEqual(324, len(valid_transactions))
         self.assertEqual(2, len(invalid_transactions))
 
 

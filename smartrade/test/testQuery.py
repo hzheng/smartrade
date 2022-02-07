@@ -1,8 +1,28 @@
 # -*- coding: utf-8 -*-
 
-from smartrade.cli import query_tick
+from smartrade.cli import query_total_cash, query_tick, query_ticks
 import unittest
 
+db_name = "trading_test"
+expected_amounts = {
+        'SPY': -522.85,
+        'QQQ': 26.80,
+        'COIN': 81.24,
+        'HOOD': -10114.22,
+        'TWTR': -16212.15,
+        'TSLA': 1353.32,
+        'MSFT': 259.47,
+        'AAPL': -191.54,
+        'GOOG': 443.07,
+        'INTC': -9164.73,
+        'FB': -4057.15,
+        'AMZN': 538.14,
+        'TSM': 235.70,
+        'QCOM': 351.70,
+        'VMW': 503.70,
+        'GBTC': -811.61,
+        'ETHE': -1005.96
+}
 
 class TestQuery(unittest.TestCase):
     @classmethod
@@ -13,23 +33,18 @@ class TestQuery(unittest.TestCase):
     def tearDownClass(cls):
         print("=====END {}=====".format(cls.__name__))
 
-    def test_query(self):
-        db_name = "trading_test"
-        self.assertAlmostEqual(-522.85, query_tick(db_name, 'SPY'))
-        self.assertAlmostEqual(26.80, query_tick(db_name, 'QQQ'))
-        self.assertAlmostEqual(81.24, query_tick(db_name, 'COIN'))
-        self.assertAlmostEqual(-10114.22, query_tick(db_name, 'HOOD'))
-        self.assertAlmostEqual(-7568.15, query_tick(db_name, 'TWTR'))
-        self.assertAlmostEqual(1353.32, query_tick(db_name, 'TSLA'))
-        self.assertAlmostEqual(259.47, query_tick(db_name, 'MSFT'))
-        self.assertAlmostEqual(-191.54, query_tick(db_name, 'AAPL'))
-        self.assertAlmostEqual(443.07, query_tick(db_name, 'GOOG'))
-        self.assertAlmostEqual(-9164.73, query_tick(db_name, 'INTC'))
-        self.assertAlmostEqual(-4057.15, query_tick(db_name, 'FB'))
-        self.assertAlmostEqual(538.14, query_tick(db_name, 'AMZN'))
-        self.assertAlmostEqual(235.70, query_tick(db_name, 'TSM'))
-        self.assertAlmostEqual(351.70, query_tick(db_name, 'QCOM'))
-        self.assertAlmostEqual(503.70, query_tick(db_name, 'VMW'))
+    def test_total_cash(self):
+        self.assertAlmostEqual(50977.48, query_total_cash(db_name, '2022-01-01'))
+        self.assertAlmostEqual(35893.74, query_total_cash(db_name, '2022-01-30'))
+        self.assertAlmostEqual(27995.65, query_total_cash(db_name, '2022-02-04'))
+        self.assertAlmostEqual(27995.65, query_total_cash(db_name))
+
+    def test_query_ticks(self):
+        self.assertEqual(set(expected_amounts.keys()), set(query_ticks(db_name)))
+
+    def test_query_tick(self):
+        for tick, amount in expected_amounts.items():
+            self.assertAlmostEqual(amount, query_tick(db_name, tick))
 
 
 if __name__ == '__main__':

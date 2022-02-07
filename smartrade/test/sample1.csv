@@ -319,4 +319,8 @@
 "01/03/2022","Sell to Open","TWTR 01/07/2022 46.00 C","CALL TWITTER INC $46 EXP 01/07/22","1","$0.09","$0.65","$8.35",
 "01/03/2022","Sell to Open","TWTR 01/07/2022 45.00 C","CALL TWITTER INC $45 EXP 01/07/22","1","$0.17","$0.65","$16.35",
 "01/03/2022","Sell to Open","TWTR 01/07/2022 41.00 P","PUT TWITTER INC $41 EXP 01/07/22","1","$0.22","$0.65","$21.35",
-Transactions Total,"","","","","","",$-22981.83,
+"01/01/2022","Buy","GBTC","GRAYSCALE BITCOIN TR BTC","100","$34.25","$0.00","-$3425.00",virtual buy
+"01/01/2022","Buy","ETHE","GRAYSCALE ETHEREUM COM U","100","$32.36","$0.00","-$3236.00",virtual buy
+"01/01/2022","Buy","TWTR","TWITTER INC","200","$43.22","","-$8644.00",virtual buy
+"01/01/2022","MoneyLink Transfer","","Tfr TD BANK, NATIONAL, HUI ZHENG","","","","$66282.48",virtual transfer
+Transactions Total,"","","","","","",$-22981.83,actual $27995.65 (Y2022 starting cash=$50977.48)
