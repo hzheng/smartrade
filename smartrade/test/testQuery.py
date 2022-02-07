@@ -34,6 +34,7 @@ class TestQuery(unittest.TestCase):
         print("=====END {}=====".format(cls.__name__))
 
     def test_total_cash(self):
+        self.assertAlmostEqual(0.00, total_cash(db_name, '2021-12-31'))
         self.assertAlmostEqual(50977.48, total_cash(db_name, '2022-01-01'))
         self.assertAlmostEqual(35893.74, total_cash(db_name, '2022-01-30'))
         self.assertAlmostEqual(27995.65, total_cash(db_name, '2022-02-04'))
@@ -46,6 +47,7 @@ class TestQuery(unittest.TestCase):
         for tick, amount in expected_amounts.items():
             self.assertAlmostEqual(amount, tick_costs(db_name, tick))
 
+        self.assertAlmostEqual(0.00, tick_costs(db_name, 'NONE'))
 
 if __name__ == '__main__':
     unittest.main()

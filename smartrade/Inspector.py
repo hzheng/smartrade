@@ -18,7 +18,9 @@ class Inspector:
         res = self._transactions.aggregate(
             [{'$match': condition},
              {'$group': {'_id': None, amount: {'$sum': "$amount"}}}])
-        return list(res)[0][amount]
+        for r in res:
+            return r[amount]
+        return 0.0
 
     def distinct_ticks(self):
         return self._transactions.distinct('ui')
@@ -35,4 +37,6 @@ class Inspector:
         res = self._transactions.aggregate(
             [{'$match': {'ui': tick}},
              {'$group': {'_id': None, amount: {'$sum': "$amount"}}}])
-        return list(res)[0][amount]
+        for r in res:
+            return r[amount]
+        return 0.0
