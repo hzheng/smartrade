@@ -8,14 +8,14 @@ expected_amounts = {
         'SPY': -522.85,
         'QQQ': 26.80,
         'COIN': 81.24,
-        'HOOD': -10114.22,
+        'HOOD': -5764.24,
         'TWTR': -16212.15,
         'TSLA': 1353.32,
         'MSFT': 259.47,
         'AAPL': -191.54,
         'GOOG': 443.07,
         'INTC': -9164.73,
-        'FB': -4057.15,
+        'FB': -5307.86,
         'AMZN': 538.14,
         'TSM': 235.70,
         'QCOM': 351.70,
@@ -27,18 +27,18 @@ expected_amounts = {
 class TestQuery(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        print("=====BEGIN {}=====".format(cls.__name__))
+        print("\n=====BEGIN {}=====\n".format(cls.__name__))
 
     @classmethod
     def tearDownClass(cls):
-        print("=====END {}=====".format(cls.__name__))
+        print("\n=====END {}=====\n".format(cls.__name__))
 
     def test_total_cash(self):
         self.assertAlmostEqual(0.00, total_cash(db_name, '2021-12-31'))
         self.assertAlmostEqual(50977.48, total_cash(db_name, '2022-01-01'))
         self.assertAlmostEqual(35893.74, total_cash(db_name, '2022-01-30'))
         self.assertAlmostEqual(27995.65, total_cash(db_name, '2022-02-04'))
-        self.assertAlmostEqual(27995.65, total_cash(db_name))
+        self.assertAlmostEqual(31094.92, total_cash(db_name))
 
     def test_query_ticks(self):
         self.assertEqual(set(expected_amounts.keys()), set(distinct_ticks(db_name)))

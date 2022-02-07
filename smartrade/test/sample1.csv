@@ -1,4 +1,26 @@
+"Transactions  for account ACCOUNT-ALIAS XXXX-XXXX as of 02/07/2022 08:42:41 ET From 01/01/2022 to 02/07/2022",,,,,,,,
 "Date","Action","Symbol","Description","Quantity","Price","Fees & Comm","Amount",
+"02/07/2022 as of 02/04/2022","Sell","FB","META PLATFORMS INC CLASS A","500","$280.00","$0.71","$139999.29",
+"02/07/2022 as of 02/04/2022","Sell","HOOD","ROBINHOOD MKTS INC CLASS A","300","$14.50","$0.02","$4349.98",
+"02/07/2022 as of 02/04/2022","Buy","FB","META PLATFORMS INC CLASS A","500","$282.50","","-$141250.00",
+"02/07/2022 as of 02/04/2022","Expired","QQQ 02/04/2022 341.00 P","PUT INVESCO QQQ TR $341 EXP 02/04/22","10","","","",
+"02/07/2022 as of 02/04/2022","Expired","AMZN 02/04/2022 2795.00 P","PUT AMAZON.COM INC $2795 EXP 02/04/22","2","","","",
+"02/07/2022 as of 02/04/2022","Expired","GOOG 02/04/2022 2570.00 P","PUT ALPHABET INC. $2570 EXP 02/04/22","3","","","",
+"02/07/2022 as of 02/04/2022","Expired","AMZN 02/04/2022 2790.00 P","PUT AMAZON.COM INC $2790 EXP 02/04/22","-2","","","",
+"02/07/2022 as of 02/04/2022","Expired","TWTR 02/04/2022 38.00 C","CALL TWITTER INC $38 EXP 02/04/22","1","","","",
+"02/07/2022 as of 02/04/2022","Expired","TSLA 02/04/2022 780.00 P","PUT TESLA INC $780 EXP 02/04/22","3","","","",
+"02/07/2022 as of 02/04/2022","Expired","TSLA 02/04/2022 770.00 P","PUT TESLA INC $770 EXP 02/04/22","-3","","","",
+"02/07/2022 as of 02/04/2022","Expired","TSLA 02/04/2022 700.00 P","PUT TESLA INC $700 EXP 02/04/22","3","","","",
+"02/07/2022 as of 02/04/2022","Expired","TSLA 02/04/2022 690.00 P","PUT TESLA INC $690 EXP 02/04/22","-3","","","",
+"02/07/2022 as of 02/04/2022","Expired","SPY 02/04/2022 436.00 P","PUT SPDR S&P 500 $436 EXP 02/04/22","10","","","",
+"02/07/2022 as of 02/04/2022","Expired","QQQ 02/04/2022 340.00 P","PUT INVESCO QQQ TR $340 EXP 02/04/22","-10","","","",
+"02/07/2022 as of 02/04/2022","Expired","GOOG 02/04/2022 2560.00 P","PUT ALPHABET INC. $2560 EXP 02/04/22","-3","","","",
+"02/07/2022 as of 02/04/2022","Expired","SPY 02/04/2022 435.00 P","PUT SPDR S&P 500 $435 EXP 02/04/22","-10","","","",
+"02/07/2022 as of 02/04/2022","Expired","AAPL 02/04/2022 145.00 P","PUT APPLE INC $145 EXP 02/04/22","-10","","","",
+"02/07/2022 as of 02/04/2022","Expired","AAPL 02/04/2022 146.00 P","PUT APPLE INC $146 EXP 02/04/22","10","","","",
+"02/07/2022 as of 02/04/2022","Exchange or Exercise","FB 02/04/2022 280.00 P","PUT META PLATFORMS INC $280 EXP 02/04/22","-5","","","",
+"02/07/2022 as of 02/04/2022","Assigned","HOOD 02/04/2022 14.50 C","CALL ROBINHOOD MKTS INC $14.5 EXP 02/04/22","3","","","",
+"02/07/2022 as of 02/04/2022","Assigned","FB 02/04/2022 282.50 P","PUT META PLATFORMS INC $282.5 EXP 02/04/22","5","","","",
 "02/04/2022","Buy to Open","FB 01/20/2023 230.00 C","CALL FACEBOOK INC $230 EXP 01/20/23","1","$41.20","$0.65","-$4120.65",
 "02/04/2022","Sell to Close","COIN 02/11/2022 145.00 P","PUT COINBASE GLOBAL INC $145 EXP 02/11/22","3","$0.23","$1.99","$67.01",
 "02/04/2022","Buy to Close","COIN 02/11/2022 150.00 P","PUT COINBASE GLOBAL INC $150 EXP 02/11/22","3","$0.34","$1.99","-$103.99",
@@ -323,4 +345,4 @@
 "01/01/2022","Buy","ETHE","GRAYSCALE ETHEREUM COM U","100","$32.36","$0.00","-$3236.00",virtual buy
 "01/01/2022","Buy","TWTR","TWITTER INC","200","$43.22","","-$8644.00",virtual buy
 "01/01/2022","MoneyLink Transfer","","Tfr TD BANK, NATIONAL, HUI ZHENG","","","","$66282.48",virtual transfer
-Transactions Total,"","","","","","",$-22981.83,actual $27995.65 (Y2022 starting cash=$50977.48)
+Transactions Total,"","","","","","",$-19882.56,NB: actual $31094.92 == -19882.56+50977.48(Y2022 starting cash)
