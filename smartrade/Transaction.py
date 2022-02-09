@@ -3,6 +3,8 @@
 from dateutil.parser import parse
 from enum import Enum, IntEnum
 
+import copy
+
 class Action(IntEnum):
     BTO = -1
     STC = 1
@@ -16,6 +18,12 @@ class Action(IntEnum):
     JOURNAL = 7
     INVALID = 8
  
+    def is_open(self):
+        return self in (Action.BTO, Action.STO)
+ 
+    def is_close(self):
+        return self in (Action.STC, Action.BTC, Action.EXPIRED, Action.ASSIGNED)
+
     @classmethod
     def from_str(cls, name):
         name = name.upper()
@@ -52,9 +60,9 @@ class InstrumentType(Enum):
 
 class Symbol:
     def __init__(self, text):
+        self._ui = None
         self._type = InstrumentType.OTHER
         self._strike = None
-        self._ui = None
         if text == "": return
 
         tokens = text.split()
@@ -69,6 +77,12 @@ class Symbol:
 
     def is_option(self):
         return self._type == InstrumentType.CALL or self._type == InstrumentType.PUT
+ 
+    def __eq__(self, other):
+        if not isinstance(other, Symbol): return False
+
+        return (self.ui == other.ui and self.type == other.type
+                and self.strike == other.strike and self.expired == other.expired)
 
     def __repr__(self):
         s = str(self._type)
@@ -124,16 +138,15 @@ class Transaction:
         self = cls()
         self._valid = False
         self._action = Action.from_str(map['action'].strip())
-        self._description = map['description']
+        self._description = map.get('description', '')
         if self._action is Action.INVALID:
             return self
 
         try:
-            date = parse(map['date'].strip().split()[0])
+            self._date = parse(map['date'].strip().split()[0])
         except Exception:
             return self
 
-        self._date = date
         self._symbol = Symbol(map['symbol'].strip())
         self._price = self._get_money(map['price'])
         self._fee = self._get_money(map['fee'])
@@ -146,14 +159,59 @@ class Transaction:
         action = self.action
         if action >= Action.ASSIGNED: return True
 
-        quantity = self._quantity
-        if self.is_option():
-            quantity *= 100
-        amt = quantity * self._price * (1 if self._action > 0 else -1) - self._fee 
+        amt = self.share * self._price * (1 if self._action > 0 else -1) - self._fee 
         if abs(amt - self._amount) > 1e-6:
             # print("?", amt, "!=", self._amount)
             return False
         return True
+
+    def merge(self, other):
+        if self.symbol != other.symbol or self.action != other.action or self.date != other.date:
+            return
+
+        res = copy.copy(self)
+        res._fee += other.fee
+        res._amount += other.amount
+        res._quantity += other.quantity
+        res._price = (res.amount - res.fee) / res.share
+        return res
+ 
+    @classmethod
+    def merge_transactions(cls, transactions):
+        if not transactions: return []
+
+        res = [transactions[0]]
+        for tx in transactions[1:]:
+            prev = res[-1]
+            cur = prev.merge(tx)
+            if cur:
+                res[-1] = cur
+            else:
+                res.append(tx)
+        return res
+
+    def _same_option_group(self, other):
+        if self.date != other.date: return False
+
+        symbol1 = self.symbol
+        symbol2 = other.symbol
+        return (symbol1.is_option() and symbol2.is_option()
+                and symbol1.ui == symbol2.ui)
+ 
+    @classmethod
+    def combine_open_transactions(cls, transactions):
+        if not transactions: return []
+
+        res = [[]]
+        for tx in transactions:
+            if not tx.action.is_open(): continue
+
+            prev = res[-1]
+            if not prev or tx._same_option_group(prev[0]):
+                prev.append(tx)
+            else:
+                res.append([tx])
+        return res
 
     def is_option(self):
         return self._symbol.is_option()
@@ -173,7 +231,9 @@ class Transaction:
     def __repr__(self):
         if self.is_valid():
             return "date: {}, action: {}, symbol: ({}), price: {}, quantity: {}, fee: {}, amount: {}".format(
-                self.date, str(self.action), self.symbol, self.price, self.quantity, self.fee, self.amount)
+                self.date, str(self.action), self.symbol,
+                "{:.5f}".format(self.price), self.quantity,
+                "{:.2f}".format(self.fee), self.amount)
         return "INVALID transaction"
 
     def __str__(self):
@@ -199,6 +259,10 @@ class Transaction:
     def quantity(self):
         return self._quantity
 
+    @property
+    def share(self):
+        return self._quantity * (100 if self.is_option() else 1)
+    
     @property
     def fee(self):
         return self._fee
