@@ -5,29 +5,53 @@ from smartrade.test.TestBase import TestBase
 
 import unittest
 
-expected_amounts = {
-        'SPY': -522.85,
-        'QQQ': 26.80,
-        'COIN': 81.24,
-        'HOOD': -5826.32,
-        'TWTR': -19909.64,
-        'TSLA': 1353.32,
-        'MSFT': 153.09,
-        'AAPL': -191.54,
-        'GOOG': 517.46,
-        'INTC': -4770.01,
-        'FB': -5307.86,
-        'AMZN': 538.14,
-        'TSM': 235.70,
-        'QCOM': 351.70,
-        'VMW': 503.70,
-        'NVDA': -6300.65,
-        'AMD': -4804.30,
-        'GBTC': -811.61,
-        'ETHE': -1005.96
-}
-
 class TestQuery(TestBase):
+
+    expected_amounts = {
+        '2022-02-07':
+        {
+            'SPY': -522.85,
+            'QQQ': 26.80,
+            'COIN': 81.24,
+            'HOOD': -5764.24,
+            'TWTR': -16212.15,
+            'TSLA': 1353.32,
+            'MSFT': 259.47,
+            'AAPL': -191.54,
+            'GOOG': 443.07,
+            'INTC': -9164.73,
+            'FB': -5307.86,
+            'AMZN': 538.14,
+            'TSM': 235.70,
+            'QCOM': 351.70,
+            'VMW': 503.70,
+            'GBTC': -811.61,
+            'ETHE': -1005.96
+        },
+        '2022-02-14':
+        {
+            'SPY': -522.85,
+            'QQQ': 26.80,
+            'COIN': 81.24,
+            'HOOD': -5826.32,
+            'TWTR': -19909.64,
+            'TSLA': 1353.32,
+            'MSFT': 153.09,
+            'AAPL': -191.54,
+            'GOOG': 517.46,
+            'INTC': -4770.01,
+            'FB': -5307.86,
+            'AMZN': 538.14,
+            'TSM': 235.70,
+            'QCOM': 351.70,
+            'VMW': 503.70,
+            'NVDA': -6300.65,
+            'AMD': -4804.30,
+            'GBTC': -811.61,
+            'ETHE': -1005.96
+        }
+    }
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -46,11 +70,14 @@ class TestQuery(TestBase):
         self.assertAlmostEqual(20593.13, total_cash(self.DB_NAME))
 
     def test_query_ticks(self):
-        self.assertEqual(set(expected_amounts.keys()), set(distinct_ticks(self.DB_NAME)))
+        for date, expected_amt in self.expected_amounts.items():
+            self.assertEqual(set(expected_amt.keys()),
+                             set(distinct_ticks(self.DB_NAME, date)))
 
     def test_query_tick(self):
-        for tick, amount in expected_amounts.items():
-            self.assertAlmostEqual(amount, tick_costs(self.DB_NAME, tick))
+        for date, expected_amt in self.expected_amounts.items():
+            for tick, amount in expected_amt.items():
+                self.assertAlmostEqual(amount, tick_costs(self.DB_NAME, tick, date))
 
         self.assertAlmostEqual(0.00, tick_costs(self.DB_NAME, 'NONE'))
 

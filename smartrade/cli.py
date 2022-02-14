@@ -17,13 +17,17 @@ def total_cash(db_name, to_date=None):
         to_date = datetime.strptime(to_date,'%Y-%m-%d')
     return inspector.total_cash(to_date)
 
-def distinct_ticks(db_name):
+def distinct_ticks(db_name, to_date=None):
     inspector = Inspector(db_name)
-    return inspector.distinct_ticks()
+    if to_date:
+        to_date = datetime.strptime(to_date,'%Y-%m-%d')
+    return inspector.distinct_ticks(to_date)
 
-def tick_costs(db_name, tick):
+def tick_costs(db_name, tick, to_date=None):
     inspector = Inspector(db_name)
-    return inspector.tick_costs(tick)
+    if to_date:
+        to_date = datetime.strptime(to_date,'%Y-%m-%d')
+    return inspector.tick_costs(tick, to_date)
 
 def group_transactions(db_name, tick):
     return Assembler(db_name).group_transactions(tick)
