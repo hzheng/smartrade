@@ -8,18 +8,20 @@ expected_amounts = {
         'SPY': -522.85,
         'QQQ': 26.80,
         'COIN': 81.24,
-        'HOOD': -5764.24,
-        'TWTR': -16212.15,
+        'HOOD': -5826.32,
+        'TWTR': -19909.64,
         'TSLA': 1353.32,
-        'MSFT': 259.47,
+        'MSFT': 153.09,
         'AAPL': -191.54,
-        'GOOG': 443.07,
-        'INTC': -9164.73,
+        'GOOG': 517.46,
+        'INTC': -4770.01,
         'FB': -5307.86,
         'AMZN': 538.14,
         'TSM': 235.70,
         'QCOM': 351.70,
         'VMW': 503.70,
+        'NVDA': -6300.65,
+        'AMD': -4804.30,
         'GBTC': -811.61,
         'ETHE': -1005.96
 }
@@ -39,7 +41,8 @@ class TestQuery(unittest.TestCase):
         self.assertAlmostEqual(35893.74, total_cash(db_name, '2022-01-30'))
         self.assertAlmostEqual(27995.65, total_cash(db_name, '2022-02-04'))
         self.assertAlmostEqual(31094.92, total_cash(db_name, '2022-02-07'))
-        self.assertAlmostEqual(31094.92, total_cash(db_name))
+        self.assertAlmostEqual(20593.13, total_cash(db_name, '2022-02-14'))
+        self.assertAlmostEqual(20593.13, total_cash(db_name))
 
     def test_query_ticks(self):
         self.assertEqual(set(expected_amounts.keys()), set(distinct_ticks(db_name)))
@@ -52,8 +55,8 @@ class TestQuery(unittest.TestCase):
 
     def test_group_transactions(self):
         twtr_tx = group_transactions(db_name, 'TWTR')
-        self.assertEqual(22, len(twtr_tx))
-        self.assertEqual(6, len([tx for tx in twtr_tx if not tx.completed]))
+        self.assertEqual(25, len(twtr_tx))
+        self.assertEqual(4, len([tx for tx in twtr_tx if not tx.completed]))
         
         vmw_tx = group_transactions(db_name, 'VMW')
         self.assertEqual(6, len(vmw_tx))
