@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from smartrade.Transaction import Transaction, Action
+from smartrade.TransactionGroup import TransactionGroup
 import unittest
 
 
@@ -64,10 +65,10 @@ class TestTransaction(unittest.TestCase):
         tx = transactions[3].merge(transactions[4])
         self.assertAlmostEqual(253.40 + 101.36, tx.amount)
 
-        merged_transactions = Transaction.merge_transactions(transactions)
+        merged_transactions = TransactionGroup.merge(transactions)
         self.assertEqual(3, len(merged_transactions))
 
-        aapl_tx, spy_tx = Transaction.combine_open_transactions(merged_transactions)
+        aapl_tx, spy_tx = TransactionGroup.combine(merged_transactions)
         self.assertEqual(2, len(aapl_tx))
         self.assertEqual(1, len(spy_tx))
 

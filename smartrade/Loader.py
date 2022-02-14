@@ -48,7 +48,8 @@ class Loader:
                 'fee': tx.fee,
                 'amount': tx.amount,
                 'type': str(symbol.type).split('.')[1],
-                'description': tx.description
+                'description': tx.description,
+                'grouped': tx.grouped
             }
             if symbol.ui:
                 transaction['ui'] = symbol.ui

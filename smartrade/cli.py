@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from smartrade.Assembler import Assembler
 from smartrade.Inspector import Inspector
 from smartrade.Loader import Loader
 
@@ -23,6 +24,10 @@ def distinct_ticks(db_name):
 def tick_costs(db_name, tick):
     inspector = Inspector(db_name)
     return inspector.tick_costs(tick)
+
+def group_transactions(db_name, tick):
+    return Assembler(db_name).group_transactions(tick)
+
 
 if __name__ == '__main__':
     pprint("in cli")

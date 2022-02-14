@@ -2,11 +2,11 @@
 
 from smartrade.Transaction import Transaction
 
-from pymongo import MongoClient
+import pymongo
 
 class Inspector:
     def __init__(self, db_name):
-        client = MongoClient()
+        client = pymongo.MongoClient()
         self._db = client[db_name]
         self._transactions = self._db.transactions
 

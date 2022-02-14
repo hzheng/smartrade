@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from smartrade.cli import total_cash, distinct_ticks, tick_costs
+from smartrade.cli import total_cash, distinct_ticks, tick_costs, group_transactions
 import unittest
 
 db_name = "trading_test"
@@ -38,6 +38,7 @@ class TestQuery(unittest.TestCase):
         self.assertAlmostEqual(50977.48, total_cash(db_name, '2022-01-01'))
         self.assertAlmostEqual(35893.74, total_cash(db_name, '2022-01-30'))
         self.assertAlmostEqual(27995.65, total_cash(db_name, '2022-02-04'))
+        self.assertAlmostEqual(31094.92, total_cash(db_name, '2022-02-07'))
         self.assertAlmostEqual(31094.92, total_cash(db_name))
 
     def test_query_ticks(self):
@@ -48,6 +49,19 @@ class TestQuery(unittest.TestCase):
             self.assertAlmostEqual(amount, tick_costs(db_name, tick))
 
         self.assertAlmostEqual(0.00, tick_costs(db_name, 'NONE'))
+
+    def test_group_transactions(self):
+        twtr_tx = group_transactions(db_name, 'TWTR')
+        self.assertEqual(22, len(twtr_tx))
+        self.assertEqual(6, len([tx for tx in twtr_tx if not tx.completed]))
+        
+        vmw_tx = group_transactions(db_name, 'VMW')
+        self.assertEqual(6, len(vmw_tx))
+        self.assertEqual(0, len([tx for tx in vmw_tx if not tx.completed]))
+        expected_profits = [38.40, 48.40, 75.70, 90.80, 91.70, 158.70]
+        for i, profit in enumerate(sorted([tx.profit for tx in vmw_tx])):
+            self.assertAlmostEqual(expected_profits[i], profit)
+
 
 if __name__ == '__main__':
     unittest.main()

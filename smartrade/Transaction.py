@@ -10,7 +10,7 @@ class Action(IntEnum):
     STC = 1
     STO = 2
     BTC = -2
-    EXPIRED = 0
+    # EXPIRED = 0
     ASSIGNED = 3
     TRANSFER = 4
     INTEREST = 5
@@ -22,10 +22,10 @@ class Action(IntEnum):
         return self in (Action.BTO, Action.STO)
  
     def is_close(self):
-        return self in (Action.STC, Action.BTC, Action.EXPIRED, Action.ASSIGNED)
+        return self in (Action.STC, Action.BTC, Action.ASSIGNED)
 
     @classmethod
-    def from_str(cls, name):
+    def from_str(cls, name, qty = 0):
         name = name.upper()
         if name in ('BTO', 'BUY', 'BUY TO OPEN'):
             return cls.BTO
@@ -36,7 +36,7 @@ class Action(IntEnum):
         if name in ('BTC', 'BUY TO CLOSE'):
             return cls.BTC
         if name in ('EXPIRED'):
-            return cls.EXPIRED
+            return cls.BTC if qty > 0 else cls.STC
         if name in ('ASSIGNED'):
             return cls.ASSIGNED
         if name in ('TRANSFER', 'MONEYLINK TRANSFER'):
@@ -118,8 +118,9 @@ class Transaction:
     def from_doc(cls, doc):
         self = cls()
         self._valid = True
-        for attr in ['date', 'quantity', 'price', 'fee', 'amount', 'ui', 'strike', 'expired', 'description']:
+        for attr in ['date', 'quantity', 'price', 'fee', 'amount', 'ui', 'strike', 'expired', 'description', 'grouped']:
             setattr(self, "_" + attr, doc.get(attr, None))
+        assert(self.quantity >= 0)
         self._action = Action.from_str(doc['action'])
         symbol = ""
         ui = doc.get('ui', None)
@@ -137,8 +138,11 @@ class Transaction:
     def from_dict(cls, **map):
         self = cls()
         self._valid = False
-        self._action = Action.from_str(map['action'].strip())
+        qty = self._get_int(map['quantity'])
+        self._action = Action.from_str(map['action'].strip(), qty)
+        self._quantity = abs(qty)
         self._description = map.get('description', '')
+        self._grouped = False
         if self._action is Action.INVALID:
             return self
 
@@ -151,7 +155,6 @@ class Transaction:
         self._price = self._get_money(map['price'])
         self._fee = self._get_money(map['fee'])
         self._amount = self._get_money(map['amount'])
-        self._quantity = self._get_int(map['quantity'])
         self._valid = self._verify()
         return self
 
@@ -175,50 +178,37 @@ class Transaction:
         res._quantity += other.quantity
         res._price = (res.amount - res.fee) / res.share
         return res
+
+    def remove(self, qty):
+        if qty <= 0 or qty > self.quantity:
+            raise ValueError("qty {} should be between 1 and {}".format(qty, self.quantity))
+
+        other = copy.copy(self)
+        ratio = qty / self.quantity
+        other._fee *= ratio
+        self._fee -= other._fee
+        other._amount *= ratio
+        self._amount -= other._amount
+        other._quantity = qty
+        self._quantity -= qty
+        return other
  
-    @classmethod
-    def merge_transactions(cls, transactions):
-        if not transactions: return []
-
-        res = [transactions[0]]
-        for tx in transactions[1:]:
-            prev = res[-1]
-            cur = prev.merge(tx)
-            if cur:
-                res[-1] = cur
-            else:
-                res.append(tx)
-        return res
-
-    def _same_option_group(self, other):
+    def same_option_group(self, other):
         if self.date != other.date: return False
 
         symbol1 = self.symbol
         symbol2 = other.symbol
         return (symbol1.is_option() and symbol2.is_option()
                 and symbol1.ui == symbol2.ui)
- 
-    @classmethod
-    def combine_open_transactions(cls, transactions):
-        if not transactions: return []
-
-        res = [[]]
-        for tx in transactions:
-            if not tx.action.is_open(): continue
-
-            prev = res[-1]
-            if not prev or tx._same_option_group(prev[0]):
-                prev.append(tx)
-            else:
-                res.append([tx])
-        return res
 
     def is_option(self):
         return self._symbol.is_option()
 
     def _get_int(self, text):
-        text = text.strip()
-        return 0 if len(text) == 0 else int(text)
+        try:
+            return int(text.strip())
+        except Exception:
+            return 0
 
     def _get_money(self, text):
         text = text.strip()
@@ -274,3 +264,7 @@ class Transaction:
     @property
     def description(self):
         return self._description
+
+    @property
+    def grouped(self):
+        return self._grouped
