@@ -2,17 +2,19 @@
 
 from smartrade.Transaction import Transaction, Action
 from smartrade.TransactionGroup import TransactionGroup
+from smartrade.test.TestBase import TestBase
+
 import unittest
 
 
-class TestTransaction(unittest.TestCase):
+class TestTransaction(TestBase):
     @classmethod
     def setUpClass(cls):
-        print("\n=====BEGIN {}=====\n".format(cls.__name__))
+        super().setUpClass()
 
     @classmethod
     def tearDownClass(cls):
-        print("\n=====END {}=====\n".format(cls.__name__))
+        super().tearDownClass()
 
     def test_transaction(self):
         transactions = [
@@ -71,6 +73,7 @@ class TestTransaction(unittest.TestCase):
         aapl_tx, spy_tx = TransactionGroup.combine(merged_transactions)
         self.assertEqual(2, len(aapl_tx))
         self.assertEqual(1, len(spy_tx))
+
 
 if __name__ == '__main__':
     unittest.main()

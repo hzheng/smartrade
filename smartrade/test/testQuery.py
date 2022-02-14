@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from smartrade.cli import total_cash, distinct_ticks, tick_costs, group_transactions
+from smartrade.test.TestBase import TestBase
+
 import unittest
 
-db_name = "trading_test"
 expected_amounts = {
         'SPY': -522.85,
         'QQQ': 26.80,
@@ -26,39 +27,39 @@ expected_amounts = {
         'ETHE': -1005.96
 }
 
-class TestQuery(unittest.TestCase):
+class TestQuery(TestBase):
     @classmethod
     def setUpClass(cls):
-        print("\n=====BEGIN {}=====\n".format(cls.__name__))
+        super().setUpClass()
 
     @classmethod
     def tearDownClass(cls):
-        print("\n=====END {}=====\n".format(cls.__name__))
+        super().tearDownClass()
 
     def test_total_cash(self):
-        self.assertAlmostEqual(0.00, total_cash(db_name, '2021-12-31'))
-        self.assertAlmostEqual(50977.48, total_cash(db_name, '2022-01-01'))
-        self.assertAlmostEqual(35893.74, total_cash(db_name, '2022-01-30'))
-        self.assertAlmostEqual(27995.65, total_cash(db_name, '2022-02-04'))
-        self.assertAlmostEqual(31094.92, total_cash(db_name, '2022-02-07'))
-        self.assertAlmostEqual(20593.13, total_cash(db_name, '2022-02-14'))
-        self.assertAlmostEqual(20593.13, total_cash(db_name))
+        self.assertAlmostEqual(0.00, total_cash(self.DB_NAME, '2021-12-31'))
+        self.assertAlmostEqual(50977.48, total_cash(self.DB_NAME, '2022-01-01'))
+        self.assertAlmostEqual(35893.74, total_cash(self.DB_NAME, '2022-01-30'))
+        self.assertAlmostEqual(27995.65, total_cash(self.DB_NAME, '2022-02-04'))
+        self.assertAlmostEqual(31094.92, total_cash(self.DB_NAME, '2022-02-07'))
+        self.assertAlmostEqual(20593.13, total_cash(self.DB_NAME, '2022-02-14'))
+        self.assertAlmostEqual(20593.13, total_cash(self.DB_NAME))
 
     def test_query_ticks(self):
-        self.assertEqual(set(expected_amounts.keys()), set(distinct_ticks(db_name)))
+        self.assertEqual(set(expected_amounts.keys()), set(distinct_ticks(self.DB_NAME)))
 
     def test_query_tick(self):
         for tick, amount in expected_amounts.items():
-            self.assertAlmostEqual(amount, tick_costs(db_name, tick))
+            self.assertAlmostEqual(amount, tick_costs(self.DB_NAME, tick))
 
-        self.assertAlmostEqual(0.00, tick_costs(db_name, 'NONE'))
+        self.assertAlmostEqual(0.00, tick_costs(self.DB_NAME, 'NONE'))
 
     def test_group_transactions(self):
-        twtr_tx = group_transactions(db_name, 'TWTR')
+        twtr_tx = group_transactions(self.DB_NAME, 'TWTR')
         self.assertEqual(25, len(twtr_tx))
         self.assertEqual(4, len([tx for tx in twtr_tx if not tx.completed]))
         
-        vmw_tx = group_transactions(db_name, 'VMW')
+        vmw_tx = group_transactions(self.DB_NAME, 'VMW')
         self.assertEqual(6, len(vmw_tx))
         self.assertEqual(0, len([tx for tx in vmw_tx if not tx.completed]))
         expected_profits = [38.40, 48.40, 75.70, 90.80, 91.70, 158.70]

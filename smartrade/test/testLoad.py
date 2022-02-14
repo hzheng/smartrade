@@ -1,24 +1,26 @@
 # -*- coding: utf-8 -*-
 
 from smartrade.cli import load_db
+from smartrade.test.TestBase import TestBase
+
 import unittest
 
 
-class TestLoad(unittest.TestCase):
+class TestLoad(TestBase):
     @classmethod
     def setUpClass(cls):
-        print("\n=====BEGIN {}=====\n".format(cls.__name__))
+        super().setUpClass()
 
     @classmethod
     def tearDownClass(cls):
-        print("\n=====END {}=====\n".format(cls.__name__))
+        super().tearDownClass()
 
     def test_load(self):
-        valid_transactions, invalid_transactions = load_db("trading_test", "smartrade/test/sample1.csv")
+        valid_transactions, invalid_transactions = load_db(self.DB_NAME, "smartrade/test/sample1.csv")
         self.assertEqual(344, len(valid_transactions))
         self.assertEqual(4, len(invalid_transactions))
         
-        valid_transactions, invalid_transactions = load_db("trading_test", "smartrade/test/sample2.csv", False)
+        valid_transactions, invalid_transactions = load_db(self.DB_NAME, "smartrade/test/sample2.csv", False)
         self.assertEqual(27, len(valid_transactions))
         self.assertEqual(3, len(invalid_transactions))
 
