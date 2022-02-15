@@ -35,8 +35,8 @@ class Loader:
         return valid_transactions, invalid_transactions
 
     def _save(self, transactions, reload):
-        tx_db = self._db.transactions
+        db = self._db
         if reload:
-            tx_db.drop()
+            db.client.drop_database(db.name)
         for tx in transactions:
-            tx_db.insert_one(tx.to_json())
+            db.transactions.insert_one(tx.to_json())
