@@ -35,26 +35,8 @@ class Loader:
         return valid_transactions, invalid_transactions
 
     def _save(self, transactions, reload):
-        db = self._db
+        tx_db = self._db.transactions
         if reload:
-            db.transactions.drop()
+            tx_db.drop()
         for tx in transactions:
-            symbol = tx.symbol
-            transaction = {
-                'date': tx.date,
-                'action': str(tx.action).split('.')[1],
-                'quantity': tx.quantity,
-                'price': tx.price,
-                'fee': tx.fee,
-                'amount': tx.amount,
-                'type': str(symbol.type).split('.')[1],
-                'description': tx.description,
-                'grouped': tx.grouped
-            }
-            if symbol.ui:
-                transaction['ui'] = symbol.ui
-                if symbol.strike:
-                    transaction['strike'] = symbol.strike
-                    transaction['expired'] = symbol.expired
-
-            db.transactions.insert_one(transaction)
+            tx_db.insert_one(tx.to_json())

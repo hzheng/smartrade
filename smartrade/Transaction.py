@@ -77,7 +77,7 @@ class Symbol:
 
     def is_option(self):
         return self._type == InstrumentType.CALL or self._type == InstrumentType.PUT
- 
+
     def __eq__(self, other):
         if not isinstance(other, Symbol): return False
 
@@ -217,6 +217,27 @@ class Transaction:
 
     def is_valid(self):
         return self._valid
+ 
+    def to_json(self, full=True):
+        symbol = self.symbol
+        json = {
+            'date': self.date,
+            'action': str(self.action).split('.')[1],
+            'quantity': self.quantity,
+            'price': self.price,
+            'fee': self.fee,
+            'amount': self.amount,
+            'type': str(symbol.type).split('.')[1],
+        }
+        if full:
+            json['description'] = self.description
+            json['grouped'] = self.grouped
+        if symbol.ui:
+            json['ui'] = symbol.ui
+            if symbol.strike:
+                json['strike'] = symbol.strike
+                json['expired'] = symbol.expired
+        return json
 
     def __repr__(self):
         if self.is_valid():
