@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from smartrade.cli import total_cash, distinct_ticks, tick_costs, group_transactions
+from smartrade.cli import total_cash, distinct_tickers, ticker_costs, group_transactions
 from smartrade.test.TestBase import TestBase
 
 import unittest
@@ -69,17 +69,17 @@ class TestQuery(TestBase):
         self.assertAlmostEqual(20593.13, total_cash(self.DB_NAME, '2022-02-14'))
         self.assertAlmostEqual(20593.13, total_cash(self.DB_NAME))
 
-    def test_query_ticks(self):
+    def test_query_tickers(self):
         for date, expected_amt in self.expected_amounts.items():
             self.assertEqual(set(expected_amt.keys()),
-                             set(distinct_ticks(self.DB_NAME, date)))
+                             set(distinct_tickers(self.DB_NAME, date)))
 
-    def test_query_tick(self):
+    def test_query_ticker(self):
         for date, expected_amt in self.expected_amounts.items():
-            for tick, amount in expected_amt.items():
-                self.assertAlmostEqual(amount, tick_costs(self.DB_NAME, tick, date))
+            for ticker, amount in expected_amt.items():
+                self.assertAlmostEqual(amount, ticker_costs(self.DB_NAME, ticker, date))
 
-        self.assertAlmostEqual(0.00, tick_costs(self.DB_NAME, 'NONE'))
+        self.assertAlmostEqual(0.00, ticker_costs(self.DB_NAME, 'NONE'))
 
     def test_group_transactions(self):
         twtr_tx = group_transactions(self.DB_NAME, 'TWTR')
@@ -93,12 +93,12 @@ class TestQuery(TestBase):
         for i, profit in enumerate(sorted([tx.profit for tx in vmw_tx])):
             self.assertAlmostEqual(expected_profits[i], profit)
         
-        for tick in distinct_ticks(self.DB_NAME):
-            tx = group_transactions(self.DB_NAME, tick, True)
+        for ticker in distinct_tickers(self.DB_NAME):
+            tx = group_transactions(self.DB_NAME, ticker, True)
             self.assertTrue(tx)
 
-        for tick in distinct_ticks(self.DB_NAME):
-            tx = group_transactions(self.DB_NAME, tick)
+        for ticker in distinct_tickers(self.DB_NAME):
+            tx = group_transactions(self.DB_NAME, ticker)
             self.assertFalse(tx)
 
 

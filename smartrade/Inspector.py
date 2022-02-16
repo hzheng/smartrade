@@ -22,22 +22,22 @@ class Inspector:
             return r[amount]
         return 0.0
 
-    def distinct_ticks(self, to_date=None):
+    def distinct_tickers(self, to_date=None):
         condition = {}
         if to_date:
             condition['date'] = {"$lte": to_date}
         return self._transactions.distinct('ui', condition)
 
-    def tick_transactions(self, tick):
+    def ticker_transactions(self, ticker):
         transactions = []
-        for doc in self._transactions.find({'ui': tick}):
+        for doc in self._transactions.find({'ui': ticker}):
             transaction = Transaction.from_doc(doc)
             transactions.append(transaction)
         return transactions
 
-    def tick_costs(self, tick, to_date=None):
+    def ticker_costs(self, ticker, to_date=None):
         amount = 'total_amount'
-        condition = {'ui': tick}
+        condition = {'ui': ticker}
         if to_date:
             condition['date'] = {"$lte": to_date}
         res = self._transactions.aggregate(
