@@ -17,8 +17,8 @@ class TestLoad(TestBase):
 
     def test_load(self):
         valid_transactions, invalid_transactions = load_db(self.DB_NAME, "smartrade/test/sample1.csv")
-        self.assertEqual(344, len(valid_transactions))
-        self.assertEqual(4, len(invalid_transactions))
+        self.assertEqual(345, len(valid_transactions))
+        self.assertEqual(3, len(invalid_transactions))
         
         valid_transactions, invalid_transactions = load_db(self.DB_NAME, "smartrade/test/sample2.csv", False)
         self.assertEqual(27, len(valid_transactions))

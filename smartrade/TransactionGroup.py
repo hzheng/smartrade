@@ -7,16 +7,14 @@ from collections import deque
 class TransactionGroup:
 
     def __init__(self, leading_transactions):
-        self._pairs = {tx: [] for tx in leading_transactions}
+        self._combo = {tx: [] for tx in leading_transactions}
         self._cost = None
         self._profit = None
 
     @classmethod
     def _merge_docs(cls, transaction_docs):
-        res = []
-        for doc in transaction_docs:
-            res.append(Transaction.from_doc(doc))
-        return cls.merge(res)
+        tx = [Transaction.from_doc(doc) for doc in transaction_docs]
+        return cls.merge(tx)
 
     @classmethod
     def merge(cls, transactions):
@@ -39,7 +37,7 @@ class TransactionGroup:
         res = [[]]
         for tx in transactions:
             prev = res[-1]
-            if not prev or tx.same_option_group(prev[0]):
+            if not prev or tx.same_group(prev[0]):
                 prev.append(tx)
             else:
                 res.append([tx])
@@ -61,7 +59,7 @@ class TransactionGroup:
             for group in groups: # search for matching transactions
                 if group._followed_by(close_tx_list):
                     for tx in open_tx_list:
-                        group._pairs[tx] = []
+                        group._combo[tx] = []
                     following_tx_queue.appendleft(close_tx_list)
                     grouped = True
                     break
@@ -70,7 +68,7 @@ class TransactionGroup:
     
     def _followed_by(self, following_tx_list):
         res = False
-        for open_tx, close_tx_list in self._pairs.items():
+        for open_tx, close_tx_list in self._combo.items():
             opened = open_tx.quantity
             for close_tx in close_tx_list:
                 opened -= close_tx.quantity
@@ -78,7 +76,7 @@ class TransactionGroup:
             if opened == 0: continue
 
             for tx in following_tx_list:
-                if open_tx.symbol == tx.symbol: # TODO: need to check date order
+                if open_tx.closed_by(tx):
                     sliced_tx = tx.remove(min(opened, tx.quantity))
                     close_tx_list.append(sliced_tx)
                     res = True
@@ -86,7 +84,7 @@ class TransactionGroup:
 
     def compute_profit(self):
         amount = 0
-        for open_tx, close_tx_list in self._pairs.items():
+        for open_tx, close_tx_list in self._combo.items():
             opened = open_tx.quantity
             amount += open_tx.amount
             for close_transaction in close_tx_list:
@@ -97,6 +95,16 @@ class TransactionGroup:
 
         self._profit = amount
         # TODO: calculate cost
+
+    def to_json(self):
+        combo = []
+        ui = None
+        for otx, ctx in self._combo.items():
+            tx = [otx.to_json(False)]
+            tx.extend([tx.to_json(True) for tx in ctx])
+            combo.append(tx)
+            ui = otx.symbol.ui
+        return {'ui': ui, 'profit': self.profit, 'combo': combo}
 
     @property
     def cost(self):
@@ -112,7 +120,7 @@ class TransactionGroup:
 
     def __repr__(self):
         profit = "" if self.profit is None else "profit={:.2f}".format(self.profit)
-        return "TransationGroup: {}, {}".format(profit, self._pairs)
+        return "TransationGroup: {}, {}".format(profit, self._combo)
 
     def __str__(self):
         return self.__repr__()

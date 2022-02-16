@@ -35,7 +35,7 @@ class Action(IntEnum):
             return cls.STO
         if name in ('BTC', 'BUY TO CLOSE'):
             return cls.BTC
-        if name in ('EXPIRED'):
+        if name in ('EXPIRED', 'EXCHANGE OR EXERCISE'):
             return cls.BTC if qty > 0 else cls.STC
         if name in ('ASSIGNED'):
             return cls.ASSIGNED
@@ -63,6 +63,7 @@ class Symbol:
         self._ui = None
         self._type = InstrumentType.OTHER
         self._strike = None
+        self._expired = None
         if text == "": return
 
         tokens = text.split()
@@ -193,16 +194,17 @@ class Transaction:
         self._quantity -= qty
         return other
  
-    def same_option_group(self, other):
-        if self.date != other.date: return False
-
-        symbol1 = self.symbol
-        symbol2 = other.symbol
-        return (symbol1.is_option() and symbol2.is_option()
-                and symbol1.ui == symbol2.ui)
+    def same_group(self, other):
+        return self.date == other.date and self.symbol.ui == other.symbol.ui
 
     def is_option(self):
         return self._symbol.is_option()
+
+    def closed_by(self, other):
+        if not (self.action.is_open() and other.action.is_close()): return False
+        if self.date > other.date: return False
+
+        return self.symbol == other.symbol
 
     def _get_int(self, text):
         try:
@@ -218,23 +220,25 @@ class Transaction:
     def is_valid(self):
         return self._valid
  
-    def to_json(self, full=True):
+    def to_json(self, hide=None):
         symbol = self.symbol
         json = {
             'date': self.date,
-            'action': str(self.action).split('.')[1],
             'quantity': self.quantity,
             'price': self.price,
             'fee': self.fee,
             'amount': self.amount,
-            'type': str(symbol.type).split('.')[1],
         }
-        if full:
+        if not hide:
+            json['type'] = str(symbol.type).split('.')[1]
+        if hide is None:
+            json['action'] = str(self.action).split('.')[1]
             json['description'] = self.description
             json['grouped'] = self.grouped
         if symbol.ui:
-            json['ui'] = symbol.ui
-            if symbol.strike:
+            if hide is None:
+                json['ui'] = symbol.ui
+            if symbol.strike and not hide:
                 json['strike'] = symbol.strike
                 json['expired'] = symbol.expired
         return json

@@ -92,6 +92,14 @@ class TestQuery(TestBase):
         expected_profits = [38.40, 48.40, 75.70, 90.80, 91.70, 158.70]
         for i, profit in enumerate(sorted([tx.profit for tx in vmw_tx])):
             self.assertAlmostEqual(expected_profits[i], profit)
+        
+        for tick in distinct_ticks(self.DB_NAME):
+            tx = group_transactions(self.DB_NAME, tick, True)
+            self.assertTrue(tx)
+
+        for tick in distinct_ticks(self.DB_NAME):
+            tx = group_transactions(self.DB_NAME, tick)
+            self.assertFalse(tx)
 
 
 if __name__ == '__main__':

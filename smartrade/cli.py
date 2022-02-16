@@ -29,8 +29,8 @@ def tick_costs(db_name, tick, to_date=None):
         to_date = datetime.strptime(to_date,'%Y-%m-%d')
     return inspector.tick_costs(tick, to_date)
 
-def group_transactions(db_name, tick):
-    return Assembler(db_name).group_transactions(tick)
+def group_transactions(db_name, tick, save_db=False):
+    return Assembler(db_name).group_transactions(tick, save_db)
 
 
 if __name__ == '__main__':
