@@ -7,7 +7,7 @@ from collections import deque
 class TransactionGroup:
 
     def __init__(self, leading_transactions):
-        self._combo = {tx: [] for tx in leading_transactions}
+        self._chain = {tx: [] for tx in leading_transactions}
         self._cost = None
         self._profit = None
 
@@ -59,7 +59,7 @@ class TransactionGroup:
             for group in groups: # search for matching transactions
                 if group._followed_by(close_tx_list):
                     for tx in open_tx_list:
-                        group._combo[tx] = []
+                        group._chain[tx] = []
                     following_tx_queue.appendleft(close_tx_list)
                     grouped = True
                     break
@@ -68,7 +68,7 @@ class TransactionGroup:
     
     def _followed_by(self, following_tx_list):
         res = False
-        for open_tx, close_tx_list in self._combo.items():
+        for open_tx, close_tx_list in self._chain.items():
             opened = open_tx.quantity
             for close_tx in close_tx_list:
                 opened -= close_tx.quantity
@@ -84,7 +84,7 @@ class TransactionGroup:
 
     def compute_profit(self):
         amount = 0
-        for open_tx, close_tx_list in self._combo.items():
+        for open_tx, close_tx_list in self._chain.items():
             opened = open_tx.quantity
             amount += open_tx.amount
             for close_transaction in close_tx_list:
@@ -97,14 +97,18 @@ class TransactionGroup:
         # TODO: calculate cost
 
     def to_json(self):
-        combo = []
+        chain = []
         ui = None
-        for otx, ctx in self._combo.items():
+        for otx, ctx in self._chain.items():
             tx = [otx.to_json(False)]
             tx.extend([tx.to_json(True) for tx in ctx])
-            combo.append(tx)
+            chain.append(tx)
             ui = otx.symbol.ui
-        return {'ui': ui, 'profit': self.profit, 'combo': combo}
+        return {'ui': ui, 'profit': self.profit, 'chain': chain}
+
+    @property
+    def chain(self):
+        return self._chain
 
     @property
     def cost(self):
@@ -120,7 +124,7 @@ class TransactionGroup:
 
     def __repr__(self):
         profit = "" if self.profit is None else f"profit={self.profit:.2f}"
-        return f"TransationGroup: {profit}, {self._combo}"
+        return f"TransationGroup: {profit}, {self._chain}"
 
     def __str__(self):
         return self.__repr__()
