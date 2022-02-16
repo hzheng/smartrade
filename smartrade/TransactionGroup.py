@@ -119,8 +119,8 @@ class TransactionGroup:
         return self._profit is not None
 
     def __repr__(self):
-        profit = "" if self.profit is None else "profit={:.2f}".format(self.profit)
-        return "TransationGroup: {}, {}".format(profit, self._combo)
+        profit = "" if self.profit is None else f"profit={self.profit:.2f}"
+        return f"TransationGroup: {profit}, {self._combo}"
 
     def __str__(self):
         return self.__repr__()

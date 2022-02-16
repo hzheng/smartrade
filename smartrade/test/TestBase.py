@@ -8,8 +8,8 @@ class TestBase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        print("\n=====BEGIN {}=====\n".format(cls.__name__))
+        print(f"\n=====BEGIN {cls.__name__}=====\n")
 
     @classmethod
     def tearDownClass(cls):
-        print("\n=====END {}=====\n".format(cls.__name__))
+        print(f"\n=====END {cls.__name__}=====\n")

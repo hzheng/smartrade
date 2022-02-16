@@ -86,15 +86,17 @@ class Symbol:
                 and self.strike == other.strike and self.expired == other.expired)
 
     def __repr__(self):
-        s = str(self._type)
+        s = str(self.type)
         if self._type != InstrumentType.OTHER:
-            s += ": " + self._ui
-            if self._type == InstrumentType.CALL or self._type == InstrumentType.PUT:
-                s += " strike: {}, expired: {}".format(self._strike, self._expired)
+            s += ": " + self.ui
+            if self.type == InstrumentType.CALL or self.type == InstrumentType.PUT:
+                s += f" strike: {self.strike}, expired: {self.expired}"
         return s
 
     def __str__(self):
-        return self.__repr__()
+        if not self.expired: return self.ui
+
+        return f"{self.ui} {self.expired.strftime('%m/%d/%Y')} {self.strike} {'C' if self.type == InstrumentType.CALL else 'P'}"
 
     @property
     def type(self):
@@ -182,7 +184,7 @@ class Transaction:
 
     def remove(self, qty):
         if qty <= 0 or qty > self.quantity:
-            raise ValueError("qty {} should be between 1 and {}".format(qty, self.quantity))
+            raise ValueError(f"qty {qty} should be between 1 and {self.quantity}")
 
         other = copy.copy(self)
         ratio = qty / self.quantity
@@ -244,12 +246,11 @@ class Transaction:
         return json
 
     def __repr__(self):
-        if self.is_valid():
-            return "date: {}, action: {}, symbol: ({}), price: {}, quantity: {}, fee: {}, amount: {}".format(
-                self.date, str(self.action), self.symbol,
-                "{:.5f}".format(self.price), self.quantity,
-                "{:.2f}".format(self.fee), self.amount)
-        return "INVALID transaction"
+        if not self.is_valid(): return "INVALID transaction"
+
+        return (f"date={self.date}, action={str(self.action)}, symbol={self.symbol},"
+                f" price={self.price:.4f}, quantity={self.quantity},"
+                f" fee={self.fee:.2f}, amount={self.amount}")
 
     def __str__(self):
         return self.__repr__()
