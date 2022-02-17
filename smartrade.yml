@@ -1,0 +1,11 @@
+user_cfg_path: ~/.smartrade
+
+database: 
+    test: trading_test
+    dev: trading_dev
+    prod: trading
+
+data_dir:
+    test: smartrade/test
+    dev: $TRADE_DATA
+    prod: $TRADE_DATA

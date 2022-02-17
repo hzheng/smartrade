@@ -4,16 +4,15 @@ from smartrade.Assembler import Assembler
 from smartrade.Inspector import Inspector
 from smartrade.Loader import Loader
 
-from datetime import datetime
-from pprint import pprint
 import sys
 import traceback
 from argparse import ArgumentParser, ArgumentTypeError
 import yaml
 from os import listdir
-from os.path import join
+from os.path import expanduser, dirname, abspath, join
 
-DEFAULT_DB_NAME = "trading_test"
+
+DEFAULT_DATA_DIR = "smartrade/test"
 
 def load_db(db_name, path, reload=True):
     loader = Loader(db_name)
@@ -58,6 +57,7 @@ def subcommand(*args):
 
 
 data_options = (
+    argument('-E', '--env', help='environment (one of test, dev and prod)'),
     argument('-d', '--data-dir', help='directory of imported data'),
     argument('-D', '--database-name', help='database name'),
     argument('-S', '--save-database', action='store_true', help='save to database'),
@@ -74,10 +74,11 @@ filter_options = (
             argument('-t', '--ticker', nargs='+', help="ticker name(s)"),
             argument('-C', '--csv', action='store_true',
                      help="in CSV format"))
-def load(args):
-    """Report transactions."""
-    db_name = args.database_name or DEFAULT_DB_NAME
-    data_dir = args.data_dir or "smartrade/test"
+def load(config, args):
+    """Load transactions."""
+    env = _get_env(args)
+    db_name = args.database_name or config['database'][env]
+    data_dir = args.data_dir or config['data_dir'][env]
     data_files = sorted([join(data_dir, f) for f in listdir(data_dir) if f.endswith('.csv')])
     loader = Loader(db_name)
     loader.load(data_files[0], True)
@@ -93,9 +94,10 @@ def load(args):
             argument('-t', '--ticker', nargs='+', help="ticker name(s)"),
             argument('-C', '--csv', action='store_true',
                      help="in CSV format"))
-def report(args):
+def report(config, args):
     """Report transactions."""
-    db_name = args.database_name or DEFAULT_DB_NAME
+    env = _get_env(args)
+    db_name = args.database_name or config['database'][env]
     inspector = Inspector(db_name)
     for ticker in (args.ticker if args.ticker else inspector.distinct_tickers(args.end_date, args.start_date)):
         ticker = ticker.upper()
@@ -113,6 +115,12 @@ def _display_transaction_groups(ticker, tx_groups):
             for tx in following:
                 print("\t", tx.date, "qty:", tx.quantity, "price:", tx.price, "amount:", tx.amount)
 
+def _get_env(args):
+    env = args.env or 'test'
+    if env not in ('test', 'dev', 'prod'):
+        raise ValueError("env must be one of test, dev and prod")
+    return env
+
 def main():
     # read command args
     args = parser.parse_args()
@@ -120,7 +128,10 @@ def main():
         parser.print_help()
         return
 
-    args.function(args)
+    cfg_path = join(dirname(abspath(__file__)), "../smartrade.yml")
+    with open(cfg_path, 'r') as cfg_file:
+        config = yaml.load(cfg_file, yaml.SafeLoader)
+    args.function(config, args)
 
 
 if __name__ == '__main__':
