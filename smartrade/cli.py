@@ -29,6 +29,10 @@ def ticker_costs(db_name, ticker, to_date=None):
         to_date = datetime.strptime(to_date,'%Y-%m-%d')
     return inspector.ticker_costs(ticker, to_date)
 
+def ticker_transaction_groups(db_name, ticker):
+    inspector = Inspector(db_name)
+    return inspector.ticker_transaction_groups(ticker)
+
 def group_transactions(db_name, ticker, save_db=False):
     return Assembler(db_name).group_transactions(ticker, save_db)
 

@@ -6,8 +6,8 @@ from collections import deque
 
 class TransactionGroup:
 
-    def __init__(self, leading_transactions):
-        self._chain = {tx: [] for tx in leading_transactions}
+    def __init__(self, leading_transactions=None):
+        self._chains = {tx: [] for tx in leading_transactions} if leading_transactions else {}
         self._cost = None
         self._profit = None
 
@@ -59,7 +59,7 @@ class TransactionGroup:
             for group in groups: # search for matching transactions
                 if group._followed_by(close_tx_list):
                     for tx in open_tx_list:
-                        group._chain[tx] = []
+                        group._chains[tx] = []
                     following_tx_queue.appendleft(close_tx_list)
                     grouped = True
                     break
@@ -68,7 +68,7 @@ class TransactionGroup:
     
     def _followed_by(self, following_tx_list):
         res = False
-        for open_tx, close_tx_list in self._chain.items():
+        for open_tx, close_tx_list in self._chains.items():
             opened = open_tx.quantity
             for close_tx in close_tx_list:
                 opened -= close_tx.quantity
@@ -84,7 +84,7 @@ class TransactionGroup:
 
     def compute_profit(self):
         amount = 0
-        for open_tx, close_tx_list in self._chain.items():
+        for open_tx, close_tx_list in self._chains.items():
             opened = open_tx.quantity
             amount += open_tx.amount
             for close_transaction in close_tx_list:
@@ -97,18 +97,41 @@ class TransactionGroup:
         # TODO: calculate cost
 
     def to_json(self):
-        chain = []
+        chains = []
         ui = None
-        for otx, ctx in self._chain.items():
+        for otx, ctx in self._chains.items():
             tx = [otx.to_json(False)]
             tx.extend([tx.to_json(True) for tx in ctx])
-            chain.append(tx)
+            chains.append(tx)
             ui = otx.symbol.ui
-        return {'ui': ui, 'profit': self.profit, 'chain': chain}
+        return {'ui': ui, 'profit': self.profit, 'chains': chains}
+
+    @classmethod
+    def from_doc(cls, doc):
+        self = cls()
+        self._profit = doc['profit']
+        self._cost = doc.get('cost', None)
+        chains = self._chains = {}
+        ui = doc['ui']
+        for chain_array in doc['chains']:
+            leading_tx = chain_array[0]
+            leading_tx['ui'] = ui
+            open_tx = Transaction.from_doc(chain_array[0])
+            close_tx_list = []
+            for tx in chain_array[1:]:
+                tx['ui'] = ui
+                tx['type'] = leading_tx['type']
+                tx['action'] = leading_tx['action']
+                tx['strike'] = leading_tx.get('strike', None)
+                tx['expired'] = leading_tx.get('expired', None)
+                close_tx = Transaction.from_doc(tx)
+                close_tx_list.append(close_tx)
+            chains[open_tx] = close_tx_list
+        return self
 
     @property
-    def chain(self):
-        return self._chain
+    def chains(self):
+        return self._chains
 
     @property
     def cost(self):
@@ -124,7 +147,7 @@ class TransactionGroup:
 
     def __repr__(self):
         profit = "" if self.profit is None else f"profit={self.profit:.2f}"
-        return f"TransationGroup: {profit}, {self._chain}"
+        return f"TransationGroup: {profit}, {self._chains}"
 
     def __str__(self):
         return self.__repr__()

@@ -233,8 +233,8 @@ class Transaction:
         }
         if not hide:
             json['type'] = str(symbol.type).split('.')[1]
-        if hide is None:
             json['action'] = str(self.action).split('.')[1]
+        if hide is None:
             json['description'] = self.description
             json['grouped'] = self.grouped
         if symbol.ui:
