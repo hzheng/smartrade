@@ -3,6 +3,7 @@
 from smartrade.Transaction import Transaction
 from smartrade.TransactionGroup import TransactionGroup
 
+from datetime import datetime
 import pymongo
 
 class Inspector:
@@ -12,11 +13,9 @@ class Inspector:
         self._tx_collection = self._db.transactions
         self._group_collection = self._db.transaction_groups
 
-    def total_cash(self, to_date=None):
+    def total_cash(self, end_date=None, start_date=None):
         amount = 'total_amount'
-        condition = {}
-        if to_date:
-            condition['date'] = {"$lte": to_date}
+        condition = self._date_limit({}, end_date, start_date)
         res = self._tx_collection.aggregate(
             [{'$match': condition},
              {'$group': {'_id': None, amount: {'$sum': "$amount"}}}])
@@ -24,23 +23,33 @@ class Inspector:
             return r[amount]
         return 0.0
 
-    def distinct_tickers(self, to_date=None):
-        condition = {}
-        if to_date:
-            condition['date'] = {"$lte": to_date}
-        return self._tx_collection.distinct('ui', condition)
+    def distinct_tickers(self, end_date=None, start_date=None):
+        return self._tx_collection.distinct('ui', self._date_limit({}, end_date, start_date))
 
-    def ticker_costs(self, ticker, to_date=None):
+    def ticker_costs(self, ticker, end_date=None, start_date=None):
         amount = 'total_amount'
-        condition = {'ui': ticker}
-        if to_date:
-            condition['date'] = {"$lte": to_date}
+        condition = self._date_limit({'ui': ticker}, end_date, start_date)
         res = self._tx_collection.aggregate(
             [{'$match': condition},
              {'$group': {'_id': None, amount: {'$sum': "$amount"}}}])
         for r in res:
             return r[amount]
         return 0.0
+
+    @staticmethod
+    def _date_limit(condition, end_date, start_date):
+        date_limit = {}
+        if end_date:
+            if isinstance(end_date, str):
+                end_date = datetime.strptime(end_date,'%Y-%m-%d')
+            date_limit['$lte'] = end_date
+        if start_date:
+            if isinstance(start_date, str):
+                start_date = datetime.strptime(start_date,'%Y-%m-%d')
+            date_limit['$gte'] = start_date
+        if date_limit:
+            condition['date'] = date_limit
+        return condition
 
     def ticker_transactions(self, ticker):
         return [Transaction.from_doc(doc) for doc in self._tx_collection.find({'ui': ticker})]
