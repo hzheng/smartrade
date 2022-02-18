@@ -23,9 +23,20 @@ class Action(IntEnum):
  
     def is_close(self):
         return self in (Action.STC, Action.BTC, Action.ASSIGNED)
+    
+    def negate(self):
+        if self == self.BTO: return self.STC
+        if self == self.STC: return self.BTO
+        if self == self.STO: return self.BTC
+        if self == self.BTC: return self.STO
+    
+    def to_str(self):
+        return str(self).split(".")[1]
 
     @classmethod
     def from_str(cls, name, qty = 0):
+        if name.startswith("Action."):
+            name = name[7:]
         name = name.upper()
         if name in ('BTO', 'BUY', 'BUY TO OPEN'):
             return cls.BTO
