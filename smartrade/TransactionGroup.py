@@ -10,6 +10,7 @@ class TransactionGroup:
         self._chains = {tx: [] for tx in leading_transactions} if leading_transactions else {}
         self._cost = None
         self._profit = None
+        self._total = None
 
     @classmethod
     def _merge_docs(cls, transaction_docs):
@@ -83,17 +84,19 @@ class TransactionGroup:
         return res
 
     def compute_profit(self):
-        amount = 0
+        total = 0
+        completed = True
         for open_tx, close_tx_list in self._chains.items():
             opened = open_tx.quantity
-            amount += open_tx.amount
+            total += open_tx.amount
             for close_transaction in close_tx_list:
                 opened -= close_transaction.quantity
-                amount += close_transaction.amount
+                total += close_transaction.amount
             if opened != 0:
-                return
+                completed = False
 
-        self._profit = amount
+        self._total = total
+        self._profit = total if completed else None
         # TODO: calculate cost
 
     def to_json(self):
@@ -104,11 +107,12 @@ class TransactionGroup:
             tx.extend([tx.to_json(True) for tx in ctx])
             chains.append(tx)
             ui = otx.symbol.ui
-        return {'ui': ui, 'profit': self.profit, 'chains': chains}
+        return {'ui': ui, 'total': self.total, 'profit': self.profit, 'chains': chains}
 
     @classmethod
     def from_doc(cls, doc):
         self = cls()
+        self._total = doc['total']
         self._profit = doc['profit']
         self._cost = doc.get('cost', None)
         chains = self._chains = {}
@@ -129,6 +133,17 @@ class TransactionGroup:
             chains[open_tx] = close_tx_list
         return self
 
+    @staticmethod
+    def compute_total(tx_groups):
+        total = 0
+        completed = True
+        for group in tx_groups:
+            if group.profit is None:
+                completed = False
+            total += group.total
+        profit = total if completed else None
+        return total, profit
+
     @property
     def chains(self):
         return self._chains
@@ -140,6 +155,10 @@ class TransactionGroup:
     @property
     def profit(self):
         return self._profit
+
+    @property
+    def total(self):
+        return self._total
 
     @property
     def completed(self):
