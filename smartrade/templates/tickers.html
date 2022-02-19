@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}
+Tickers
+{% endblock %}
+
+{% block head %}
+{% endblock %}
+
+{% block header %}
+Ticker List
+{% endblock %}
+
+{% block nav %}
+<a href="/">Home</a>
+{% endblock %}
+
+{% block main %}
+<p>{{'Loaded' if loaded else ''}} Transactions: </p>
+
+<ul>
+    {% for ticker in tickers %}
+    <li><a href="report/{{ticker}}">{{ticker}}</a></li>
+    {% endfor %}
+</ul>
+{% endblock %}

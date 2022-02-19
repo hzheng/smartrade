@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>{% block title %}{% endblock %} - Smartrade</title>
+
+    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}" />
+    {% block head %}
+    <!-- Placeholder for Other Imports -->
+    {% endblock %}
+</head>
+
+<body>
+    <header>
+        <h1>Smarttrade</h1>
+        {% block header %}{% endblock %}
+    </header>
+    <nav>
+        {% block nav %}{% endblock %}
+    </nav>
+    <main>
+        {% block main %}{% endblock %}
+    </main>
+    <aside>
+        {% block aside %}{% endblock %}
+    </aside>
+    <footer> Copyright © 2022 All Rights Reserved </footer>
+</body>
+
+</html>

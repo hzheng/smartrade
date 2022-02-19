@@ -1,0 +1,173 @@
+html {
+  font-family: sans-serif;
+  background: #eee;
+  padding: 1rem;
+}
+
+body {
+  max-width: 960px;
+  margin: 0 auto;
+  background: white;
+}
+
+header, footer {
+  left: 0;
+  width: 100%;
+  text-align: center;
+}
+
+header {
+  top: 0;
+  /* color: white; */
+}
+
+footer {
+  bottom: 0;
+  color: white;
+  background-color: gray;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: serif;
+  color: #377ba8;
+  margin: 1rem 0;
+}
+
+a {
+  color: #377ba8;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid lightgray;
+}
+
+nav {
+  background: lightgray;
+  display: flex;
+  align-items: center;
+  padding: 0 0.5rem;
+}
+
+nav h1 {
+  flex: auto;
+  margin: 0;
+}
+
+nav h1 a {
+  text-decoration: none;
+  padding: 0.25rem 0.5rem;
+}
+
+nav ul  {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+nav ul li a, nav ul li span, header .action {
+  display: block;
+  padding: 0.5rem;
+}
+
+main {
+  padding: 0 1rem 1rem;
+}
+
+main > header {
+  border-bottom: 1px solid lightgray;
+  display: flex;
+  align-items: flex-end;
+}
+
+main > header h1 {
+  flex: auto;
+  margin: 1rem 0 0.25rem 0;
+}
+
+main:last-child {
+  margin-bottom: 0;
+}
+
+main form {
+  margin: 1em 0;
+  display: flex;
+  flex-direction: column;
+}
+
+main label {
+  font-weight: bold;
+  margin-bottom: 0.5em;
+}
+
+main input, main textarea {
+  margin-bottom: 1em;
+}
+
+main textarea {
+  min-height: 12em;
+  resize: vertical;
+}
+
+section {
+  border-style: groove;
+  margin: 6px;
+  border-radius: 8px;
+}
+
+.summary {
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 800;
+  padding-left: 2em;
+}
+
+.summary .ticker {
+  font-weight: 900;
+  color: blue;
+}
+
+table.transaction {
+  background: #E7E9EB;
+  border-collapse: collapse;
+  border-style: hidden;
+  width: 95%;
+  margin: 8px auto
+}
+
+table.transaction th, table.transaction td {
+  border: 1px solid gray;
+  padding: 4px;
+  text-align: center;
+}
+
+table.transaction td.money {
+  text-align: right;
+}
+
+.symbol {
+  font-size: small;
+  text-decoration: dotted underline;
+}
+
+.quantity {
+  font: bold;
+}
+
+.money::before {
+  content:"$";
+}
+
+.money {
+  font-family: Verdana;
+  font-size: small;
+  text-align: right;
+}
+
+.amount {
+  color: green;
+}
+
+.negative {
+  color: red;
+}

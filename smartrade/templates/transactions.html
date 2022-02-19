@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}
+Transactions
+{% endblock %}
+
+{% block head %}
+{% endblock %}
+
+{% block header %}
+Transaction Report
+{% endblock %}
+
+{% block nav %}
+<a href="/">Home</a>
+{% endblock %}
+{% block main %}
+<article>
+    <p>
+    <div class="summary"><span class="ticker">{{ticker}}</span>
+        Total:
+        {% if total is none %}
+        N/A
+        {% else %}
+        <span class="money amount {{'' if total >= 0 else 'negative'}}">{{"%.2f"|format(total)}}
+        </span>
+        {% endif %}
+        Profit:
+        {% if profit is none %}
+        N/A
+        {% else %}
+        <span class="money amount {{'' if profit >= 0 else 'negative'}}">{{"%.2f"|format(profit)}}
+        </span>
+        {% endif %}
+    </div>
+    </p>
+
+    {% for group in groups %}
+    <section>
+        {% for open_tx, close_tx_list in group.chains.items() %}
+        <table class="transaction">
+            <colgroup>
+                <col span="1" style="width: 25%;">
+                <col span="1" style="width: 15%;">
+                <col span="1" style="width: 10%;">
+                <col span="1" style="width: 10%;">
+                <col span="1" style="width: 10%;">
+                <col span="1" style="width: 10%;">
+                <col span="1" style="width: 20%;">
+            </colgroup>
+            {% if loop.index == 1 %}
+            <tbody>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Fee</th>
+                    <th>Amount</th>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td class="symbol" rowspan="100">{{open_tx.symbol}}</td>
+                    <td>{{open_tx.date.strftime("%Y-%m-%d")}}</td>
+                    <td>{{open_tx.action.to_str()}}</td>
+                    <td class="money">{{"%.3f"|format(open_tx.price)}}</td>
+                    <td class="quantity">{{open_tx.quantity}}</td>
+                    <td class="money">{{"%.3f"|format(open_tx.fee)}}</td>
+                    <td class="money amount {{'' if open_tx.amount >= 0 else 'negative'}}">
+                        {{"%.3f"|format(open_tx.amount)}}</span> </td>
+                </tr>
+                <tr>
+                    {% for tx in close_tx_list %}
+                    <td>{{tx.date.strftime("%Y-%m-%d")}}</td>
+                    <td>{{tx.action.to_str()}}</td>
+                    <td class="money">{{"%.3f"|format(tx.price)}}</td>
+                    <td class="quantity">{{tx.quantity}}</td>
+                    <td class="money">{{"%.3f"|format(tx.fee)}}</td>
+                    <td class="money amount {{ '' if tx.amount >= 0 else 'negative' }}">
+                        {{"%.3f"|format(tx.amount)}}</span> </td>
+                    {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+        {% endfor %}
+        <div class="summary">
+            Total:
+            <span class="money amount {{'' if group.total >= 0 else 'negative'}}">{{"%.2f"|format(group.total)}}
+            </span>
+            Profit:
+            {% if group.profit is none %}
+            N/A
+            {% else %}
+            <span class="money amount {{'' if group.profit >= 0 else 'negative'}}">{{"%.2f"|format(group.profit)}}
+            </span>
+            {% endif %}
+        </div>
+    </section>
+    {% endfor %}
+</article>
+{% endblock %}
