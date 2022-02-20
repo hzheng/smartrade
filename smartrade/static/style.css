@@ -128,11 +128,15 @@ section {
 }
 
 table.transaction {
-  background: #E7E9EB;
+  background: #D5F5E3;
   border-collapse: collapse;
   border-style: hidden;
   width: 95%;
   margin: 8px auto
+}
+
+table.transaction.completed {
+  background: #E7E9EB;
 }
 
 table.transaction th, table.transaction td {
@@ -170,4 +174,17 @@ table.transaction td.money {
 
 .negative {
   color: red;
+}
+
+.toggle {
+  cursor: pointer;
+  background-color: #008CBA;
+  border: none;
+  color: white;
+  padding: 4px 6px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  border-radius: 6px;
 }

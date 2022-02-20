@@ -5,6 +5,9 @@
     <title>{% block title %}{% endblock %} - Smartrade</title>
 
     <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='app.js')}}"></script>
     {% block head %}
     <!-- Placeholder for Other Imports -->
     {% endblock %}

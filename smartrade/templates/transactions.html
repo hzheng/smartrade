@@ -51,10 +51,11 @@ Transaction Report
     </div>
 
     <h3>Transactions</h3>
+    <span class="toggle" onclick="$('.completed').parent().toggle()">toggle completed</span>
     {% for group in groups %}
     <section>
         {% for open_tx, close_tx_list in group.chains.items() %}
-        <table class="transaction">
+        <table class="transaction {{'' if group.profit is none else 'completed'}}">
             <colgroup>
                 <col span="1" style="width: 25%;">
                 <col span="1" style="width: 15%;">
