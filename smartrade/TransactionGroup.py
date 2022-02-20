@@ -125,7 +125,6 @@ class TransactionGroup:
             for tx in chain_array[1:]:
                 tx['ui'] = ui
                 tx['type'] = leading_tx['type']
-                tx['action'] = str(Action.from_str(leading_tx['action']).negate())
                 tx['strike'] = leading_tx.get('strike', None)
                 tx['expired'] = leading_tx.get('expired', None)
                 close_tx = Transaction.from_doc(tx)

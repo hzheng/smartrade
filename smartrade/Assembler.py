@@ -15,7 +15,7 @@ class Assembler:
     def group_transactions(self, ticker, save_db=False):
         tx_collection = self._tx_collection
         ungrouped_cond = {'ui': ticker, 'grouped': False}
-        close_action_cond = {'action': {'$in': ['STC', 'BTC', 'ASSIGNED']},
+        close_action_cond = {'action': {'$in': ['STC', 'BTC', 'EXPIRED', 'ASSIGNED', 'EXERCISE']},
                              **ungrouped_cond}
         following_dates = {res['date']
                            for res in tx_collection.find(close_action_cond, {'date': 1})}
@@ -23,7 +23,7 @@ class Assembler:
         leading_cond = {'action': {'$in': ['STO', 'BTO']},
                         'date': {'$nin': list(following_dates)},
                         **ungrouped_cond}
-        following_cond = {'action': {'$in': ['STC', 'BTC', 'ASSIGNED', 'STO', 'BTO']},
+        following_cond = {'action': {'$in': ['STC', 'BTC', 'EXPIRED', 'ASSIGNED', 'EXERCISE', 'STO', 'BTO']},
                           'date': {'$in': list(following_dates)},
                           **ungrouped_cond}
         order = [('date', pymongo.ASCENDING),

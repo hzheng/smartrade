@@ -6,35 +6,30 @@ from enum import Enum, IntEnum
 import copy
 
 class Action(IntEnum):
-    BTO = -1
+    BTO = -2
+    STO = -1
     STC = 1
-    STO = 2
-    BTC = -2
-    # EXPIRED = 0
-    ASSIGNED = 3
-    TRANSFER = 4
-    INTEREST = 5
-    DIVIDEND = 6
-    JOURNAL = 7
-    INVALID = 8
+    BTC = 2
+    EXPIRED = 3
+    ASSIGNED = 4
+    EXERCISE = 5
+    TRANSFER = 6
+    INTEREST = 7
+    DIVIDEND = 8
+    JOURNAL = 9
+    INVALID = 10
  
     def is_open(self):
-        return self in (Action.BTO, Action.STO)
+        return self <= Action.STO
  
     def is_close(self):
-        return self in (Action.STC, Action.BTC, Action.ASSIGNED)
-    
-    def negate(self):
-        if self == self.BTO: return self.STC
-        if self == self.STC: return self.BTO
-        if self == self.STO: return self.BTC
-        if self == self.BTC: return self.STO
-    
+        return Action.STC <= self <= Action.EXERCISE
+ 
     def to_str(self):
         return str(self).split(".")[1]
 
     @classmethod
-    def from_str(cls, name, qty = 0):
+    def from_str(cls, name):
         if name.startswith("Action."):
             name = name[7:]
         name = name.upper()
@@ -46,10 +41,13 @@ class Action(IntEnum):
             return cls.STO
         if name in ('BTC', 'BUY TO CLOSE'):
             return cls.BTC
-        if name in ('EXPIRED', 'EXCHANGE OR EXERCISE'):
-            return cls.BTC if qty > 0 else cls.STC
+        if name in ('EXPIRED'):
+            # return cls.BTC if qty > 0 else cls.STC
+            return cls.EXPIRED
         if name in ('ASSIGNED'):
             return cls.ASSIGNED
+        if name in ('EXCHANGE OR EXERCISE'):
+            return cls.EXERCISE
         if name in ('TRANSFER', 'MONEYLINK TRANSFER'):
             return cls.TRANSFER
         if name in ('DIVIDEND', 'CASH DIVIDEND', 'PR YR CASH DIV'):
@@ -153,7 +151,7 @@ class Transaction:
         self = cls()
         self._valid = False
         qty = self._get_int(map['quantity'])
-        self._action = Action.from_str(map['action'].strip(), qty)
+        self._action = Action.from_str(map['action'].strip())
         self._quantity = abs(qty)
         self._description = map.get('description', '')
         self._grouped = False
@@ -174,9 +172,9 @@ class Transaction:
 
     def _verify(self):
         action = self.action
-        if action >= Action.ASSIGNED: return True
+        if action >= Action.EXERCISE: return True
 
-        amt = self.share * self._price * (1 if self._action > 0 else -1) - self._fee 
+        amt = self.share * self._price * (-1 if abs(self.action) == Action.BTC else 1) - self._fee 
         if abs(amt - self._amount) > 1e-6:
             # print("?", amt, "!=", self._amount)
             return False
@@ -190,7 +188,7 @@ class Transaction:
         res._fee += other.fee
         res._amount += other.amount
         res._quantity += other.quantity
-        res._price = (res.amount - res.fee) / res.share
+        res._price = abs((res.amount - res.fee) / res.share)
         return res
 
     def remove(self, qty):
@@ -241,10 +239,10 @@ class Transaction:
             'price': self.price,
             'fee': self.fee,
             'amount': self.amount,
+            'action': str(self.action).split('.')[1]
         }
         if not hide:
             json['type'] = str(symbol.type).split('.')[1]
-            json['action'] = str(self.action).split('.')[1]
         if hide is None:
             json['description'] = self.description
             json['grouped'] = self.grouped
