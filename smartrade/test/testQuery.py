@@ -83,7 +83,7 @@ class TestQuery(TestBase):
 
     def test_group_transactions(self):
         twtr_tx = group_transactions(self.DB_NAME, 'TWTR')
-        self.assertEqual(25, len(twtr_tx))
+        self.assertEqual(23, len(twtr_tx))
         self.assertEqual(4, len([tx for tx in twtr_tx if not tx.completed]))
         
         vmw_tx = group_transactions(self.DB_NAME, 'VMW')
