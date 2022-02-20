@@ -8,9 +8,11 @@ class TransactionGroup:
 
     def __init__(self, leading_transactions=None):
         self._chains = {tx: [] for tx in leading_transactions} if leading_transactions else {}
+        self._positions = None
         self._cost = None
         self._profit = None
         self._total = None
+        self._ui = None
 
     @classmethod
     def _merge_docs(cls, transaction_docs):
@@ -83,20 +85,24 @@ class TransactionGroup:
                     res = True
         return res
 
-    def compute_profit(self):
+    def inventory(self):
         total = 0
-        completed = True
+        positions = {}
         for open_tx, close_tx_list in self._chains.items():
             opened = open_tx.quantity
             total += open_tx.amount
+            symbol = open_tx.symbol
+            self._ui = symbol.ui
             for close_transaction in close_tx_list:
                 opened -= close_transaction.quantity
                 total += close_transaction.amount
             if opened != 0:
-                completed = False
-
+                symbol_str = str(open_tx.symbol)
+                positions[symbol_str] = (positions.get(symbol_str, 0)
+                                     + opened * (1 if open_tx.action == Action.BTO else -1))
         self._total = total
-        self._profit = total if completed else None
+        self._profit = None if positions else total
+        self._positions = positions
         # TODO: calculate cost
 
     def to_json(self):
@@ -136,16 +142,37 @@ class TransactionGroup:
     def compute_total(tx_groups):
         total = 0
         completed = True
+        positions_list = {}
         for group in tx_groups:
+            group.inventory()
             if group.profit is None:
                 completed = False
             total += group.total
+            ui = group.ui
+            if not positions_list.get(ui, None):
+                positions_list[ui] = {}
+            positions = positions_list[ui]
+            for symbol, qty in group.positions.items():
+                new_qty = positions.get(symbol, 0) + qty
+                if new_qty:
+                    positions[symbol] = new_qty
+                else:
+                    del positions[symbol]
+
         profit = total if completed else None
-        return total, profit
+        return total, profit, positions_list
 
     @property
     def chains(self):
         return self._chains
+
+    @property
+    def positions(self):
+        return self._positions
+
+    @property
+    def ui(self):
+        return self._ui
 
     @property
     def cost(self):

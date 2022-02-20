@@ -34,7 +34,23 @@ Transaction Report
         {% endif %}
     </div>
     </p>
+    <h3>Open Positions</h3>
+    <div>
+        {% if positions[ticker] %}
+        <table>
+            {% for symbol, quantity in positions[ticker].items() %}
+            <tr>
+                <td class="symbol">{{symbol}}</td>
+                <td class="quantity">{{quantity}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+            None
+        {% endif %}
+    </div>
 
+    <h3>Transactions</h3>
     {% for group in groups %}
     <section>
         {% for open_tx, close_tx_list in group.chains.items() %}

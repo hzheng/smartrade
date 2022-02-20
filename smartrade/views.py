@@ -46,5 +46,7 @@ def report(ticker):
     inspector = Inspector(db_name)
     ticker = ticker.upper()
     tx_groups = inspector.ticker_transaction_groups(ticker)
-    total, profit = TransactionGroup.compute_total(tx_groups)
-    return render_template("transactions.html", ticker=ticker, total=total, profit=profit, groups=tx_groups)
+    total, profit, positions = TransactionGroup.compute_total(tx_groups)
+    return render_template("transactions.html",
+                           ticker=ticker, total=total, profit=profit,
+                           positions=positions, groups=tx_groups)
