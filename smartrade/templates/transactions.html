@@ -70,8 +70,8 @@ Transaction Report
                     <td class="money amount {{'' if open_tx.amount >= 0 else 'negative'}}">
                         {{"%.3f"|format(open_tx.amount)}}</span> </td>
                 </tr>
+                {% for tx in close_tx_list %}
                 <tr>
-                    {% for tx in close_tx_list %}
                     <td>{{tx.date.strftime("%Y-%m-%d")}}</td>
                     <td>{{tx.action.to_str()}}</td>
                     <td class="money">{{"%.3f"|format(tx.price)}}</td>
@@ -79,8 +79,8 @@ Transaction Report
                     <td class="money">{{"%.3f"|format(tx.fee)}}</td>
                     <td class="money amount {{ '' if tx.amount >= 0 else 'negative' }}">
                         {{"%.3f"|format(tx.amount)}}</span> </td>
-                    {% endfor %}
                 </tr>
+                {% endfor %}
             </tbody>
         </table>
         {% endfor %}
