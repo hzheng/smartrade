@@ -111,7 +111,14 @@ Transaction Report
             {% else %}
             <span class="money amount {{'' if group.profit >= 0 else 'negative'}}">{{"%.2f"|format(group.profit)}}
             </span>
+            ROI
+            <span class="amount {{'' if group.roi >= 0 else 'negative'}}">{{"%.2f"|format(group.roi * 100)}}%
+            </span>
             {% endif %}
+            Cost:
+            <span class="money amount">{{"%.2f"|format(group.cost)}}</span>
+            Period:
+            <span class="amount">{{group.period}}</span>
         </div>
     </section>
     {% endfor %}

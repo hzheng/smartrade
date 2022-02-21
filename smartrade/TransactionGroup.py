@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from smartrade.Transaction import Transaction, Action
+from smartrade.Transaction import InstrumentType, Transaction, Action
 
 from collections import deque
+from datetime import datetime
+import math
 
 class TransactionGroup:
 
@@ -13,6 +15,8 @@ class TransactionGroup:
         self._profit = None
         self._total = None
         self._ui = None
+        self._period = None
+        self._roi = None
 
     @classmethod
     def _merge_docs(cls, transaction_docs):
@@ -88,22 +92,71 @@ class TransactionGroup:
     def inventory(self):
         total = 0
         positions = {}
-        for open_tx, close_tx_list in self._chains.items():
+        first_date = datetime.max
+        last_date = datetime.min
+        for open_tx, close_tx_list in self.chains.items():
             opened = open_tx.quantity
             total += open_tx.amount
             symbol = open_tx.symbol
             self._ui = symbol.ui
-            for close_transaction in close_tx_list:
-                opened -= close_transaction.quantity
-                total += close_transaction.amount
+            first_date = min(first_date, open_tx.date)
+            last_date = max(first_date, open_tx.date)
+            for close_tx in close_tx_list:
+                opened -= close_tx.quantity
+                total += close_tx.amount
+                first_date = min(first_date, close_tx.date)
+                last_date = max(first_date, close_tx.date)
             if opened != 0:
                 symbol_str = str(open_tx.symbol)
                 positions[symbol_str] = (positions.get(symbol_str, 0)
                                      + opened * (1 if open_tx.action == Action.BTO else -1))
         self._total = total
-        self._profit = None if positions else total
+        profit = self._profit = (None if positions else total)
         self._positions = positions
-        # TODO: calculate cost
+        cost = self._cost = self.get_cost()
+        assert(cost > 0)
+        days = self._period = (last_date.date() - first_date.date()).days + 1
+        if profit is None: return
+
+        roi = profit / cost
+        if profit > 0:
+            if days < 365:
+                roi = (1 + roi) ** (52 / math.ceil(days / 7)) - 1
+            else:
+                roi = math.exp(math.log(1 + roi) * (365 / days)) - 1
+        self._roi = roi
+
+    def get_cost(self):
+        open_tx = self.chains.keys()
+        options = [set(), set(), set(), set()]
+        first_tx = next(iter(open_tx))
+        for tx in open_tx:
+            symbol = tx.symbol
+            if not symbol.is_option(): continue
+
+            index = (0 if tx.action == Action.BTO else 1)
+            if symbol.type == InstrumentType.PUT:
+                index += 2
+            options[index].add(symbol.strike)
+
+        if not any(options): return abs(first_tx.amount) # only stock
+        
+        if not (options[2] or options[3]): # only calls
+            if not options[1]: return -first_tx.amount # only buy call
+            if not options[0]: # only sell call
+                return list(options[1])[0] * 100 * first_tx.quantity
+            # assume short call spread
+            return (list(options[0])[0] - list(options[1])[0]) * 100 * first_tx.quantity
+        
+        if not (options[0] or options[1]): # only puts
+            if not options[3]: return -first_tx.amount # only buy put
+            if not options[2]: # only sell put
+                return list(options[3])[0] * 100 * first_tx.quantity
+            # assume short put spread
+            return (list(options[3])[0] - list(options[2])[0]) * 100 * first_tx.quantity
+
+        # has calls and puts, assume short iron condor
+        return (list(options[3])[0] - list(options[2])[0]) * 100 * first_tx.quantity
 
     def to_json(self):
         chains = []
@@ -183,8 +236,16 @@ class TransactionGroup:
         return self._profit
 
     @property
+    def roi(self):
+        return self._roi
+
+    @property
     def total(self):
         return self._total
+
+    @property
+    def period(self):
+        return self._period
 
     @property
     def completed(self):
