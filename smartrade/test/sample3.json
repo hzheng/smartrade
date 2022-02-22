@@ -1,0 +1,204 @@
+[
+    {
+        "type": "RECEIVE_AND_DELIVER",
+        "subAccount": "2",
+        "settlementDate": "2022-02-22",
+        "sma": 0,
+        "requirementReallocationAmount": 4100,
+        "dayTradeBuyingPowerEffect": 0,
+        "netAmount": 0,
+        "transactionDate": "2022-02-22T07:42:01+0000",
+        "transactionSubType": "OA",
+        "transactionId": 40862744826,
+        "cashBalanceEffectFlag": true,
+        "description": "Removal of Option due to assignment 1.0 SOXL 100 18 Feb 2022 41.0 PUT",
+        "fees": {
+            "rFee": 0,
+            "additionalFee": 0,
+            "cdscFee": 0,
+            "regFee": 0,
+            "otherCharges": 0,
+            "commission": 0,
+            "optRegFee": 0,
+            "secFee": 0
+        },
+        "transactionItem": {
+            "amount": 1,
+            "price": 0,
+            "instrument": {
+                "symbol": "SOXL_021822P41",
+                "cusip": "0SOXL.NI20041000"
+            }
+        }
+    },
+    {
+        "type": "TRADE",
+        "subAccount": "2",
+        "settlementDate": "2022-02-23",
+        "sma": -2050,
+        "requirementReallocationAmount": 0,
+        "dayTradeBuyingPowerEffect": 0,
+        "netAmount": -4100,
+        "transactionDate": "2022-02-22T07:42:01+0000",
+        "transactionSubType": "OA",
+        "transactionId": 40862543372,
+        "cashBalanceEffectFlag": true,
+        "description": "Option Assignment",
+        "fees": {
+            "rFee": 0,
+            "additionalFee": 0,
+            "cdscFee": 0,
+            "regFee": 0,
+            "otherCharges": 0,
+            "commission": 0,
+            "optRegFee": 0,
+            "secFee": 0
+        },
+        "transactionItem": {
+            "amount": 100,
+            "price": 41,
+            "instruction": "BUY",
+            "instrument": {
+                "symbol": "SOXL",
+                "cusip": "25459W458"
+            }
+        }
+    },
+    {
+        "type": "RECEIVE_AND_DELIVER",
+        "subAccount": "1",
+        "settlementDate": "2022-02-18",
+        "netAmount": 0,
+        "transactionDate": "2022-02-18T06:00:01+0000",
+        "transactionSubType": "PM",
+        "transactionId": 40832910904,
+        "cashBalanceEffectFlag": true,
+        "description": "CASH ALTERNATIVES PURCHASE",
+        "fees": {
+            "rFee": 0,
+            "additionalFee": 0,
+            "cdscFee": 0,
+            "regFee": 0,
+            "otherCharges": 0,
+            "commission": 0,
+            "optRegFee": 0,
+            "secFee": 0
+        },
+        "transactionItem": {
+            "accountId": 253697379,
+            "amount": 10282.81,
+            "cost": 0,
+            "instrument": {
+                "symbol": "MMDA1",
+                "cusip": "9ZZZFD104",
+                "assetType": "CASH_EQUIVALENT",
+                "type": "MONEY_MARKET"
+            }
+        }
+    },
+    {
+        "type": "JOURNAL",
+        "subAccount": "2",
+        "settlementDate": "2022-02-18",
+        "netAmount": -10282.81,
+        "transactionDate": "2022-02-18T06:00:01+0000",
+        "transactionSubType": "PM",
+        "transactionId": 40832910891,
+        "cashBalanceEffectFlag": true,
+        "description": "CASH ALTERNATIVES PURCHASE",
+        "fees": {
+            "rFee": 0,
+            "additionalFee": 0,
+            "cdscFee": 0,
+            "regFee": 0,
+            "otherCharges": 0,
+            "commission": 0,
+            "optRegFee": 0,
+            "secFee": 0
+        },
+        "transactionItem": {
+            "accountId": 253697379,
+            "cost": 0
+        }
+    },
+    {
+        "type": "TRADE",
+        "subAccount": "2",
+        "settlementDate": "2022-02-18",
+        "orderId": "7669250240",
+        "netAmount": 140.34,
+        "transactionDate": "2022-02-17T20:14:39+0000",
+        "orderDate": "2022-02-17T20:14:39+0000",
+        "transactionSubType": "SL",
+        "transactionId": 40822676996,
+        "cashBalanceEffectFlag": true,
+        "description": "SELL TRADE",
+        "fees": {
+            "rFee": 0,
+            "additionalFee": 0,
+            "cdscFee": 0,
+            "regFee": 0.01,
+            "otherCharges": 0,
+            "commission": 0.65,
+            "optRegFee": 0.01,
+            "secFee": 0
+        },
+        "transactionItem": {
+            "accountId": 253697379,
+            "amount": 1,
+            "price": 1.41,
+            "cost": 141,
+            "instruction": "SELL",
+            "positionEffect": "OPENING",
+            "instrument": {
+                "symbol": "SOXL_021822P41",
+                "underlyingSymbol": "SOXL",
+                "optionExpirationDate": "2022-02-18T06:00:00+0000",
+                "putCall": "PUT",
+                "cusip": "0SOXL.NI20041000",
+                "description": "SOXL Feb 18 2022 41.0 Put",
+                "assetType": "OPTION"
+            }
+        }
+    },
+    {
+        "type": "TRADE",
+        "subAccount": "2",
+        "settlementDate": "2022-02-18",
+        "orderId": "7664823336",
+        "netAmount": -6350.66,
+        "transactionDate": "2022-02-17T15:23:23+0000",
+        "orderDate": "2022-02-17T15:23:23+0000",
+        "transactionSubType": "BY",
+        "transactionId": 40817689194,
+        "cashBalanceEffectFlag": true,
+        "description": "BUY TRADE",
+        "fees": {
+            "rFee": 0,
+            "additionalFee": 0,
+            "cdscFee": 0,
+            "regFee": 0.01,
+            "otherCharges": 0,
+            "commission": 0.65,
+            "optRegFee": 0.01,
+            "secFee": 0
+        },
+        "transactionItem": {
+            "accountId": 253697379,
+            "amount": 1,
+            "price": 63.5,
+            "cost": -6350,
+            "instruction": "BUY",
+            "positionEffect": "OPENING",
+            "instrument": {
+                "symbol": "NVDA_031723C215",
+                "underlyingSymbol": "NVDA",
+                "optionExpirationDate": "2023-03-17T05:00:00+0000",
+                "putCall": "CALL",
+                "cusip": "0NVDA.CH30215000",
+                "description": "NVDA Mar 17 2023 215.0 Call",
+                "assetType": "OPTION"
+            }
+        }
+    }
+]

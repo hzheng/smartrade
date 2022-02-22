@@ -27,11 +27,10 @@ def list():
 def load():
     db_name = app.config['DATABASE']
     data_dir = app.config['DATA_DIR']
-    data_files = sorted([join(data_dir, f) for f in listdir(data_dir) if f.endswith('.csv')])
+    data_files = sorted([join(data_dir, f) for f in listdir(data_dir) if f.endswith('.csv') or f.endswith('.json')])
     loader = Loader(db_name)
-    loader.load(data_files[0], True)
-    for f in data_files[1:]:
-        loader.load(f, False)
+    for i, f in enumerate(data_files):
+        loader.load(f, i == 0)
     assembler = Assembler(db_name)
     inspector = Inspector(db_name)
     tickers = inspector.distinct_tickers()

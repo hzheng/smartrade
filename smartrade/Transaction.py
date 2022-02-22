@@ -86,7 +86,7 @@ class Symbol:
             self._expired = parse(tokens[1])
 
     def is_option(self):
-        return self._type == InstrumentType.CALL or self._type == InstrumentType.PUT
+        return self.type == InstrumentType.CALL or self.type == InstrumentType.PUT
 
     def __eq__(self, other):
         if not isinstance(other, Symbol): return False
@@ -174,9 +174,9 @@ class Transaction:
         action = self.action
         if action >= Action.EXERCISE: return True
 
-        amt = self.share * self._price * (-1 if abs(self.action) == Action.BTC else 1) - self._fee 
-        if abs(amt - self._amount) > 1e-6:
-            # print("?", amt, "!=", self._amount)
+        amt = self.share * self.price * (-1 if abs(self.action) == Action.BTC else 1) - self.fee 
+        if abs(amt - self.amount) > 1e-6:
+            # print("?", amt, "!=", self.amount)
             return False
         return True
 
@@ -218,12 +218,16 @@ class Transaction:
         return self.symbol == other.symbol
 
     def _get_int(self, text):
+        if not isinstance(text, str): return text
+
         try:
             return int(text.strip())
         except Exception:
             return 0
 
     def _get_money(self, text):
+        if not isinstance(text, str): return text
+
         text = text.strip()
         if len(text) == 0 or (text[0] != '$' and text[0] != '-'): return 0
         return -float(text[2:]) if text[0] == '-' else float(text[1:])
@@ -286,7 +290,7 @@ class Transaction:
 
     @property
     def share(self):
-        return self._quantity * (100 if self.is_option() else 1)
+        return self.quantity * (100 if self.is_option() else 1)
     
     @property
     def fee(self):

@@ -69,7 +69,7 @@ class TestQuery(TestBase):
         self.assertAlmostEqual(27995.65, total_cash(self.DB_NAME, '2022-02-04'))
         self.assertAlmostEqual(31094.92, total_cash(self.DB_NAME, '2022-02-07'))
         self.assertAlmostEqual(20593.13, total_cash(self.DB_NAME, '2022-02-14'))
-        self.assertAlmostEqual(20593.13, total_cash(self.DB_NAME))
+        self.assertAlmostEqual(10282.81, total_cash(self.DB_NAME, '2022-02-23'))
 
     def test_query_tickers(self):
         for date, expected_amt in self.expected_amounts.items():
@@ -117,8 +117,13 @@ class TestQuery(TestBase):
         total, profit, position_list = TransactionGroup.compute_total(twtr_groups)
         self.assertAlmostEqual(-19909.64, total)
         self.assertIsNone(profit)
-        print(position_list)
         self.assertEqual(2, len(position_list['TWTR']))
+        
+        nvda_groups = ticker_transaction_groups(self.DB_NAME, 'NVDA')
+        total, profit, position_list = TransactionGroup.compute_total(nvda_groups)
+        self.assertIsNone(profit)
+        self.assertEqual(2, len(position_list['NVDA']))
+        self.assertAlmostEqual(-12651.31, total)
 
 if __name__ == '__main__':
     unittest.main()
