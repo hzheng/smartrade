@@ -79,7 +79,7 @@ def load(config, args):
     env = _get_env(args)
     db_name = args.database_name or config['database'][env]
     data_dir = args.data_dir or config['data_dir'][env]
-    data_files = sorted([join(data_dir, f) for f in listdir(data_dir) if f.endswith('.csv')])
+    data_files = sorted([join(data_dir, f) for f in listdir(data_dir) if f.endswith('.csv') or f.endswith('.json')])
     loader = Loader(db_name)
     loader.load(data_files[0], True)
     for f in data_files[1:]:
