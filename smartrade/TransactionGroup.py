@@ -15,7 +15,7 @@ class TransactionGroup:
         self._profit = None
         self._total = None
         self._ui = None
-        self._period = None
+        self._duration = None
         self._roi = None
 
     @classmethod
@@ -115,7 +115,7 @@ class TransactionGroup:
         self._positions = positions
         cost = self._cost = self.get_cost()
         assert(cost > 0)
-        days = self._period = (last_date.date() - first_date.date()).days + 1
+        days = self._duration = (last_date.date() - first_date.date()).days + 1
         if profit is None: return
 
         roi = profit / cost
@@ -244,8 +244,8 @@ class TransactionGroup:
         return self._total
 
     @property
-    def period(self):
-        return self._period
+    def duration(self):
+        return self._duration
 
     @property
     def completed(self):

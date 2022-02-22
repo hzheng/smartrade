@@ -103,22 +103,19 @@ Transaction Report
         {% endfor %}
         <div class="summary">
             Total:
-            <span class="money amount {{'' if group.total >= 0 else 'negative'}}">{{"%.2f"|format(group.total)}}
-            </span>
+            <span class="money amount {{'' if group.total >= 0 else 'negative'}}">{{"%.2f"|format(group.total)}}</span>
+            Cost:
+            <span class="money amount">{{"%.2f"|format(group.cost)}}</span>
             Profit:
             {% if group.profit is none %}
             N/A
             {% else %}
-            <span class="money amount {{'' if group.profit >= 0 else 'negative'}}">{{"%.2f"|format(group.profit)}}
-            </span>
+            <span class="money amount {{'' if group.profit >= 0 else 'negative'}}">{{"%.2f"|format(group.profit)}}</span>
             ROI
-            <span class="amount {{'' if group.roi >= 0 else 'negative'}}">{{"%.2f"|format(group.roi * 100)}}%
-            </span>
+            <span class="amount {{'' if group.roi >= 0 else 'negative'}}">{{"%.2f"|format(group.roi * 100)}}%</span>
             {% endif %}
-            Cost:
-            <span class="money amount">{{"%.2f"|format(group.cost)}}</span>
-            Period:
-            <span class="amount">{{group.period}}</span>
+            Duration:
+            <span class="amount">{{group.duration}}</span>
         </div>
     </section>
     {% endfor %}
