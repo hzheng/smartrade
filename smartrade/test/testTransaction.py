@@ -25,6 +25,10 @@ class TestTransaction(TestBase):
         symbol = Symbol(symbol_str)
         self.assertEqual(symbol_str, symbol.to_str())
 
+        symbol_str = "HOOD_031122C14"
+        symbol = Symbol(symbol_str)
+        self.assertEqual(symbol_str, symbol.to_str())
+
     def test_transaction(self):
         transactions = [
             Transaction.from_dict(

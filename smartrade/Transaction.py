@@ -124,7 +124,7 @@ class Symbol:
     def to_str(self):
         if not self.expired: return self.ui
 
-        return f"{self.ui}_{self.expired.strftime('%m%d%y')}{'C' if self.type == InstrumentType.CALL else 'P'}{self.strike}"
+        return f"{self.ui}_{self.expired.strftime('%m%d%y')}{'C' if self.type == InstrumentType.CALL else 'P'}{self.strike:g}"
 
     @property
     def type(self):
