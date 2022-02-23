@@ -13,6 +13,7 @@ __url__ = "https://github.com/hzheng/smartrade"
 __description__ = "a Python application that helps trading decision"
 
 import os
+import yaml
 from flask import Flask
 
 def create_app(config=None):
@@ -23,7 +24,10 @@ def create_app(config=None):
     # environment configuration
     conf_path_env = 'FLASK_CONF_PATH'
     if conf_path_env in os.environ:
-        app.config.from_envvar(conf_path_env)
+        # app.config.from_envvar(conf_path_env)
+        with open(os.environ[conf_path_env], 'r') as cfg_file:
+            yaml_conf = yaml.load(cfg_file, yaml.SafeLoader)
+            app.config.update(yaml_conf)
     # app specified configuration
     if config:
         if isinstance(config, dict):

@@ -18,15 +18,15 @@ def index():
 
 @app.route("/list")
 def list():
-    db_name = app.config['DATABASE']
+    db_name = app.config['database']
     inspector = Inspector(db_name)
     tickers = inspector.distinct_tickers()
     return render_template("tickers.html", tickers=tickers)
 
 @app.route("/load")
 def load():
-    db_name = app.config['DATABASE']
-    data_dir = app.config['DATA_DIR']
+    db_name = app.config['database']
+    data_dir = app.config['data_dir']
     data_files = sorted([join(data_dir, f) for f in listdir(data_dir) if f.endswith('.csv') or f.endswith('.json')])
     loader = Loader(db_name)
     for i, f in enumerate(data_files):
@@ -38,10 +38,9 @@ def load():
         assembler.group_transactions(ticker, True)
     return render_template("tickers.html", tickers=tickers, loaded=True)
 
-
 @app.route("/report/<ticker>")
 def report(ticker):
-    db_name = app.config['DATABASE']
+    db_name = app.config['database']
     inspector = Inspector(db_name)
     ticker = ticker.upper()
     tx_groups = inspector.ticker_transaction_groups(ticker)

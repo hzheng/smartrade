@@ -1,3 +1,4 @@
 flask>=2.0.0
 Jinja2>=3.00
 PyYAML>=5.1.1
+tda-api>=1.5.1

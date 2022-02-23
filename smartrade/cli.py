@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from smartrade.Assembler import Assembler
+from smartrade.BrokerClient import BrokerClient
 from smartrade.Inspector import Inspector
 from smartrade.Loader import Loader
+from smartrade.TDAmeritradeClient import TDAmeritradeClient
 
+import json
 import sys
 import traceback
 from argparse import ArgumentParser, ArgumentTypeError
@@ -11,8 +14,6 @@ import yaml
 from os import listdir
 from os.path import expanduser, dirname, abspath, join
 
-
-DEFAULT_DATA_DIR = "smartrade/test"
 
 def load_db(db_name, path, reload=True):
     loader = Loader(db_name)
@@ -36,6 +37,18 @@ def ticker_transaction_groups(db_name, ticker):
 
 def group_transactions(db_name, ticker, save_db=False):
     return Assembler(db_name).group_transactions(ticker, save_db)
+
+def get_broker(config, account_alias):
+    cfg_path = expanduser(config['user_cfg_path'])
+    with open(join(cfg_path, 'config.yml'), 'r') as cfg_file:
+        config = yaml.load(cfg_file, yaml.SafeLoader)
+        account_cfg = config['accounts'][account_alias]
+        account_cfg['token_path'] = join(cfg_path, "token-" + account_alias + ".json")
+        broker = account_cfg['broker'] + "Client"
+        for cls in BrokerClient.__subclasses__():
+            if cls.__name__ == broker:
+                return cls(account_cfg)
+        raise ConfigurationError(f"no broker named {broker} found")
 
 
 # ============Command Argument Parse============
@@ -115,11 +128,39 @@ def _display_transaction_groups(ticker, tx_groups):
             for tx in following:
                 print("\t", tx.date, "qty:", tx.quantity, "price:", tx.price, "amount:", tx.amount)
 
+@subcommand(
+    argument('-a', '--account', help='account name'),
+    argument('symbols', nargs="+", help="symbol"))
+def quote(config, args):
+    """Quote a symbol(s)."""
+    client = get_broker(config, args.account or "a")
+    print(client.get_quotes(args.symbols))
+
+@subcommand(*filter_options,
+    argument('-a', '--account', help='account name'))
+def transaction(config, args):
+    """Get transactions."""
+    account = args.account or "a"
+    client = get_broker(config, account)
+    tx = client.get_transactions()
+    print(json.dumps(tx, indent=4, sort_keys=True))
+
 def _get_env(args):
     env = args.env or 'test'
     if env not in ('test', 'dev', 'prod'):
         raise ValueError("env must be one of test, dev and prod")
     return env
+
+class ClientError(Exception):
+    """Client-side error"""
+
+
+class ConfigurationError(ClientError):
+    """Configuration error"""
+
+
+class ParameterError(ClientError):
+    """Parameter error"""
 
 def main():
     # read command args
@@ -139,6 +180,8 @@ if __name__ == '__main__':
     try:
         main()
         exit_code = 0
+    except (ConfigurationError, yaml.YAMLError) as ce:
+        print("Please fix the configuration setting:", ce)
     except OSError as oe:
         print("Please fix the OS-related problem:", oe)
     except Exception as e:
