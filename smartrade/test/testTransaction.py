@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from smartrade.Transaction import Transaction, Action
+from smartrade.Transaction import Transaction, Action, Symbol
 from smartrade.TransactionGroup import TransactionGroup
 from smartrade.test.TestBase import TestBase
 
@@ -15,6 +15,15 @@ class TestTransaction(TestBase):
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
+
+    def test_symbol(self):
+        symbol_str = "TWTR 02/04/2022 38.00 C"
+        symbol = Symbol(symbol_str)
+        self.assertEqual(symbol_str, str(symbol))
+
+        symbol_str = "HOOD_031122C14.5"
+        symbol = Symbol(symbol_str)
+        self.assertEqual(symbol_str, symbol.to_str())
 
     def test_transaction(self):
         transactions = [

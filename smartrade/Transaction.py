@@ -75,6 +75,20 @@ class Symbol:
         self._expired = None
         if text == "": return
 
+        if "_" in text:
+            self._parse1(text)
+        else:
+            self._parse2(text)
+
+    def _parse1(self, text):
+        """Format: HOOD_031122C14.5"""
+        self._ui, tokens = text.split('_')
+        self._type = InstrumentType.CALL if tokens[6] == 'C' else InstrumentType.PUT
+        self._strike = float(tokens[7:])
+        self._expired = parse(tokens[:6])
+
+    def _parse2(self, text):
+        """Format: TWTR 02/04/2022 38.00 C"""
         tokens = text.split()
         self._ui = tokens[0]
         count = len(tokens)
@@ -105,7 +119,12 @@ class Symbol:
     def __str__(self):
         if not self.expired: return self.ui
 
-        return f"{self.ui} {self.expired.strftime('%m/%d/%Y')} {self.strike} {'C' if self.type == InstrumentType.CALL else 'P'}"
+        return f"{self.ui} {self.expired.strftime('%m/%d/%Y')} {self.strike:.2f} {'C' if self.type == InstrumentType.CALL else 'P'}"
+
+    def to_str(self):
+        if not self.expired: return self.ui
+
+        return f"{self.ui}_{self.expired.strftime('%m%d%y')}{'C' if self.type == InstrumentType.CALL else 'P'}{self.strike}"
 
     @property
     def type(self):
