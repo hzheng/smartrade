@@ -14,18 +14,26 @@ __description__ = "a Python application that helps trading decision"
 
 import os
 import yaml
+
 from flask import Flask
+
+from smartrade.BrokerClient import BrokerClient
+from smartrade.TDAmeritradeClient import TDAmeritradeClient
+from smartrade.TransactionGroup import TransactionGroup
 
 def create_app(config=None):
     app = Flask(__name__)
     app_name = os.environ.get('FLASK_APP', "smartrade")
     # default configuration
     app.config.from_object(f"{app_name}.settings")
-    # environment configuration
-    conf_path_env = 'FLASK_CONF_PATH'
-    if conf_path_env in os.environ:
-        # app.config.from_envvar(conf_path_env)
-        with open(os.environ[conf_path_env], 'r') as cfg_file:
+    # user configuration
+    conf_path = 'FLASK_CONF_PATH'
+    if conf_path in os.environ:
+        # app.config.from_envvar(conf_path)
+        conf_file = os.environ[conf_path]
+        client = BrokerClient.get_broker(conf_file, app.config['ACCOUNT_ALIAS'])
+        TransactionGroup.set_broker(client)
+        with open(conf_file, 'r') as cfg_file:
             yaml_conf = yaml.load(cfg_file, yaml.SafeLoader)
             app.config.update(yaml_conf)
     # app specified configuration

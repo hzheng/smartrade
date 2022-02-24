@@ -109,19 +109,16 @@ class TestQuery(TestBase):
         self.assertAlmostEqual(-1187.21, fb_groups[0].profit)
         total, profit, position_list = TransactionGroup.compute_total(fb_groups)
         self.assertAlmostEqual(-5307.86, total)
-        self.assertIsNone(profit)
         self.assertEqual(1, len(position_list['FB']))
 
         twtr_groups = ticker_transaction_groups(self.DB_NAME, 'TWTR')
         self.assertEqual(23, len(twtr_groups))
         total, profit, position_list = TransactionGroup.compute_total(twtr_groups)
         self.assertAlmostEqual(-19909.64, total)
-        self.assertIsNone(profit)
         self.assertEqual(2, len(position_list['TWTR']))
         
         nvda_groups = ticker_transaction_groups(self.DB_NAME, 'NVDA')
         total, profit, position_list = TransactionGroup.compute_total(nvda_groups)
-        self.assertIsNone(profit)
         self.assertEqual(2, len(position_list['NVDA']))
         self.assertAlmostEqual(-12651.31, total)
 

@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from smartrade.Transaction import InstrumentType, Transaction, Action
-
 from collections import deque
 from datetime import datetime
 import math
 
+from smartrade.Transaction import InstrumentType, Transaction, Action
+
 class TransactionGroup:
+
+    _broker = None
 
     def __init__(self, leading_transactions=None):
         self._chains = {tx: [] for tx in leading_transactions} if leading_transactions else {}
@@ -17,6 +19,10 @@ class TransactionGroup:
         self._ui = None
         self._duration = None
         self._roi = None
+
+    @classmethod
+    def set_broker(cls, broker):
+        cls._broker = broker
 
     @classmethod
     def _merge_docs(cls, transaction_docs):
@@ -107,17 +113,15 @@ class TransactionGroup:
                 first_date = min(first_date, close_tx.date)
                 last_date = max(first_date, close_tx.date)
             if opened != 0:
-                symbol_str = str(open_tx.symbol)
+                symbol_str = open_tx.symbol.to_str()
                 positions[symbol_str] = (positions.get(symbol_str, 0)
                                      + opened * (1 if open_tx.action == Action.BTO else -1))
         self._total = total
-        profit = self._profit = (None if positions else total)
         self._positions = positions
-        cost = self._cost = self.get_cost()
+        cost = self._cost = self._get_cost()
         assert(cost > 0)
+        profit = self._profit = total + self._get_market_value()
         days = self._duration = (last_date.date() - first_date.date()).days + 1
-        if profit is None: return
-
         roi = profit / cost
         if profit > 0:
             if days < 365:
@@ -126,7 +130,16 @@ class TransactionGroup:
                 roi = math.exp(math.log(1 + roi) * (365 / days)) - 1
         self._roi = roi
 
-    def get_cost(self):
+    def _get_market_value(self):
+        if not self._broker: return 0
+
+        val = 0
+        for symbol, qty in self.positions.items():
+            price = self._broker.get_quotes(symbol)[symbol]
+            val += price * qty * (100 if '_' in symbol else 1)
+        return val
+
+    def _get_cost(self):
         open_tx = self.chains.keys()
         options = [set(), set(), set(), set()]
         first_tx = next(iter(open_tx))
@@ -194,13 +207,12 @@ class TransactionGroup:
     @staticmethod
     def compute_total(tx_groups):
         total = 0
-        completed = True
+        profit = 0
         positions_list = {}
         for group in tx_groups:
             group.inventory()
-            if group.profit is None:
-                completed = False
             total += group.total
+            profit += group.profit
             ui = group.ui
             if not positions_list.get(ui, None):
                 positions_list[ui] = {}
@@ -212,7 +224,6 @@ class TransactionGroup:
                 else:
                     del positions[symbol]
 
-        profit = total if completed else None
         return total, profit, positions_list
 
     @property
@@ -249,7 +260,7 @@ class TransactionGroup:
 
     @property
     def completed(self):
-        return self._profit is not None
+        return not self.positions
 
     def __repr__(self):
         profit = "" if self.profit is None else f"profit={self.profit:.2f}"

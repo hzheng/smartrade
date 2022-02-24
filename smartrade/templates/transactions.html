@@ -18,20 +18,8 @@ Transaction Report
 <article>
     <p>
     <div class="summary"><span class="ticker">{{ticker}}</span>
-        Total:
-        {% if total is none %}
-        N/A
-        {% else %}
-        <span class="money amount {{'' if total >= 0 else 'negative'}}">{{"%.2f"|format(total)}}
-        </span>
-        {% endif %}
-        Profit:
-        {% if profit is none %}
-        N/A
-        {% else %}
-        <span class="money amount {{'' if profit >= 0 else 'negative'}}">{{"%.2f"|format(profit)}}
-        </span>
-        {% endif %}
+        total profit:
+        <span class="money amount {{'' if profit >= 0 else 'negative'}}">{{"%.2f"|format(profit)}}</span>
     </div>
     </p>
     <h3>Open Positions</h3>
@@ -46,7 +34,7 @@ Transaction Report
             {% endfor %}
         </table>
         {% else %}
-            None
+        None
         {% endif %}
     </div>
 
@@ -55,7 +43,7 @@ Transaction Report
     {% for group in groups %}
     <section>
         {% for open_tx, close_tx_list in group.chains.items() %}
-        <table class="transaction {{'' if group.profit is none else 'completed'}}">
+        <table class="transaction {{'' if group.positions|length > 0 else 'completed'}}">
             <colgroup>
                 <col span="1" style="width: 25%;">
                 <col span="1" style="width: 15%;">
@@ -102,18 +90,17 @@ Transaction Report
         </table>
         {% endfor %}
         <div class="summary">
-            Total:
-            <span class="money amount {{'' if group.total >= 0 else 'negative'}}">{{"%.2f"|format(group.total)}}</span>
+            Profit:
+            <span
+                class="money amount {{'' if group.profit >= 0 else 'negative'}}">{{"%.2f"|format(group.profit)}}</span>
+            ROI:
+            {% if group.positions|length == 0 %}
+            <span class="amount {{'' if group.roi >= 0 else 'negative'}}">{{"%.2f"|format(group.roi * 100)}}%</span>
+            {% else %}
+            N/A
+            {% endif %}
             Cost:
             <span class="money amount">{{"%.2f"|format(group.cost)}}</span>
-            Profit:
-            {% if group.profit is none %}
-            N/A
-            {% else %}
-            <span class="money amount {{'' if group.profit >= 0 else 'negative'}}">{{"%.2f"|format(group.profit)}}</span>
-            ROI
-            <span class="amount {{'' if group.roi >= 0 else 'negative'}}">{{"%.2f"|format(group.roi * 100)}}%</span>
-            {% endif %}
             Duration:
             <span class="amount">{{group.duration}}</span>
         </div>

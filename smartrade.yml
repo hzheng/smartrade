@@ -1,11 +1,15 @@
-user_cfg_path: ~/.smartrade
+# configuration for cli
 
-database: 
+conf_path: ~/.smartrade/config.yml
+
+DATABASE: 
     test: trading_test
     dev: trading_dev
-    prod: trading
+    prod: trading_prod
 
-data_dir:
+DATA_DIR:
     test: smartrade/test
     dev: $TRADE_DATA
     prod: $TRADE_DATA
+
+ACCOUNT_ALIAS: account0

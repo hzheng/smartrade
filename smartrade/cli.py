@@ -1,18 +1,21 @@
 # -*- coding: utf-8 -*-
 
+import sys
+import traceback
+import yaml
+from argparse import ArgumentParser, ArgumentTypeError
+from os import listdir
+from os.path import expanduser, dirname, abspath, join
+
+import json
+
 from smartrade.Assembler import Assembler
 from smartrade.BrokerClient import BrokerClient
+from smartrade.exceptions import ConfigurationError
 from smartrade.Inspector import Inspector
 from smartrade.Loader import Loader
 from smartrade.TDAmeritradeClient import TDAmeritradeClient
-
-import json
-import sys
-import traceback
-from argparse import ArgumentParser, ArgumentTypeError
-import yaml
-from os import listdir
-from os.path import expanduser, dirname, abspath, join
+from smartrade.TransactionGroup import TransactionGroup
 
 
 def load_db(db_name, path, reload=True):
@@ -39,16 +42,8 @@ def group_transactions(db_name, ticker, save_db=False):
     return Assembler(db_name).group_transactions(ticker, save_db)
 
 def get_broker(config, account_alias):
-    cfg_path = expanduser(config['user_cfg_path'])
-    with open(join(cfg_path, 'config.yml'), 'r') as cfg_file:
-        config = yaml.load(cfg_file, yaml.SafeLoader)
-        account_cfg = config['accounts'][account_alias]
-        account_cfg['token_path'] = join(cfg_path, "token-" + account_alias + ".json")
-        broker = account_cfg['broker'] + "Client"
-        for cls in BrokerClient.__subclasses__():
-            if cls.__name__ == broker:
-                return cls(account_cfg)
-        raise ConfigurationError(f"no broker named {broker} found")
+    cfg_path = expanduser(config['conf_path'])
+    return BrokerClient.get_broker(cfg_path, account_alias)
 
 
 # ============Command Argument Parse============
@@ -84,15 +79,16 @@ filter_options = (
 )
 
 @subcommand(*data_options, *filter_options,
-            argument('-t', '--ticker', nargs='+', help="ticker name(s)"),
-            argument('-C', '--csv', action='store_true',
-                     help="in CSV format"))
+            argument('-a', '--account', help='account name'),
+            argument('-t', '--ticker', nargs='+', help="ticker name(s)"))
 def load(config, args):
     """Load transactions."""
     env = _get_env(args)
-    db_name = args.database_name or config['database'][env]
-    data_dir = args.data_dir or config['data_dir'][env]
+    db_name = args.database_name or config['DATABASE'][env]
+    data_dir = args.data_dir or config['DATA_DIR'][env]
     data_files = sorted([join(data_dir, f) for f in listdir(data_dir) if f.endswith('.csv') or f.endswith('.json')])
+    client = get_broker(config, args.account or config['ACCOUNT_ALIAS'])
+    TransactionGroup.set_broker(client)
     loader = Loader(db_name)
     loader.load(data_files[0], True)
     for f in data_files[1:]:
@@ -104,14 +100,15 @@ def load(config, args):
         _display_transaction_groups(ticker, assembler.group_transactions(ticker, args.save_database))
 
 @subcommand(*data_options, *filter_options,
-            argument('-t', '--ticker', nargs='+', help="ticker name(s)"),
-            argument('-C', '--csv', action='store_true',
-                     help="in CSV format"))
+            argument('-a', '--account', help='account name'),
+            argument('-t', '--ticker', nargs='+', help="ticker name(s)"))
 def report(config, args):
     """Report transactions."""
     env = _get_env(args)
-    db_name = args.database_name or config['database'][env]
+    db_name = args.database_name or config['DATABASE'][env]
     inspector = Inspector(db_name)
+    client = get_broker(config, args.account or config['ACCOUNT_ALIAS'])
+    TransactionGroup.set_broker(client)
     for ticker in (args.ticker if args.ticker else inspector.distinct_tickers(args.end_date, args.start_date)):
         ticker = ticker.upper()
         _display_transaction_groups(ticker, inspector.ticker_transaction_groups(ticker))
@@ -133,15 +130,14 @@ def _display_transaction_groups(ticker, tx_groups):
     argument('symbols', nargs="+", help="symbol"))
 def quote(config, args):
     """Quote a symbol(s)."""
-    client = get_broker(config, args.account or "a")
+    client = get_broker(config, args.account or config['ACCOUNT_ALIAS'])
     print(client.get_quotes(args.symbols))
 
 @subcommand(*filter_options,
     argument('-a', '--account', help='account name'))
 def transaction(config, args):
     """Get transactions."""
-    account = args.account or "a"
-    client = get_broker(config, account)
+    client = get_broker(config, args.account or config['ACCOUNT_ALIAS'])
     tx = client.get_transactions()
     print(json.dumps(tx, indent=4, sort_keys=True))
 
@@ -150,17 +146,6 @@ def _get_env(args):
     if env not in ('test', 'dev', 'prod'):
         raise ValueError("env must be one of test, dev and prod")
     return env
-
-class ClientError(Exception):
-    """Client-side error"""
-
-
-class ConfigurationError(ClientError):
-    """Configuration error"""
-
-
-class ParameterError(ClientError):
-    """Parameter error"""
 
 def main():
     # read command args
