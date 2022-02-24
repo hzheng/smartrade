@@ -127,6 +127,19 @@ section {
   color: blue;
 }
 
+table.total {
+  border-collapse: collapse;
+  border-style: hidden;
+  width: 95%;
+  margin: 8px auto
+}
+
+table.total th, table.total td {
+  border: 1px solid gray;
+  padding: 4px;
+  text-align: center;
+}
+
 table.transaction {
   background: #D5F5E3;
   border-collapse: collapse;

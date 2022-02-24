@@ -15,17 +15,26 @@ Smartrade
 <p>Welcome to the Smartrade</p>
 
 <section>
-    <table>
+    <table class="total">
         <tbody>
             <tr>
+                <th>Total Market Value</th>
+                <th>Total Profit</th>
+                <th>Total Cash</th>
                 <th>Total Investment</th>
                 <th>Total Interest</th>
-                <th>Total Cash</th>
+                <th>Total Dividend</th>
+                <th>Total Trading</th>
             </tr>
             <tr>
+                <td class="money">{{"%.2f"|format(total_market_value)}}</td>
+                <td class="money amount {{'' if total_profit >= 0 else 'negative'}}">
+                    {{"%.2f"|format(total_profit)}}</td>
+                <td class="money">{{"%.2f"|format(total_cash)}}</td>
                 <td class="money">{{"%.2f"|format(total_investment)}}</td>
                 <td class="money">{{"%.2f"|format(total_interest)}}</td>
-                <td class="money">{{"%.2f"|format(total_cash)}}</td>
+                <td class="money">{{"%.2f"|format(total_dividend)}}</td>
+                <td class="money">{{"%.2f"|format(total_trading)}}</td>
             </tr>
         </tbody>
     </table>

@@ -32,9 +32,21 @@ def total_interest(db_name, start_date=None, end_date=None):
     inspector = Inspector(db_name)
     return inspector.total_interest(start_date, end_date)
 
+def total_dividend(db_name, start_date=None, end_date=None):
+    inspector = Inspector(db_name)
+    return inspector.total_dividend(start_date, end_date)
+
+def total_trading(db_name, start_date=None, end_date=None):
+    inspector = Inspector(db_name)
+    return inspector.total_trading(start_date, end_date)
+
 def total_cash(db_name, start_date=None, end_date=None):
     inspector = Inspector(db_name)
     return inspector.total_cash(start_date, end_date)
+
+def total_profit(db_name, start_date=None, end_date=None):
+    inspector = Inspector(db_name)
+    return inspector.total_profit(start_date, end_date)
 
 def distinct_tickers(db_name, start_date=None, end_date=None):
     inspector = Inspector(db_name)
@@ -54,7 +66,11 @@ def group_transactions(db_name, ticker, save_db=False):
 def get_broker(config, account_alias):
     cfg_path = expanduser(config['conf_path'])
     return BrokerClient.get_broker(cfg_path, account_alias)
-
+    
+def get_config():
+    cfg_path = join(dirname(abspath(__file__)), "../smartrade.yml")
+    with open(cfg_path, 'r') as cfg_file:
+        return yaml.load(cfg_file, yaml.SafeLoader)
 
 # ============Command Argument Parse============
 
@@ -166,10 +182,7 @@ def main():
         parser.print_help()
         return
 
-    cfg_path = join(dirname(abspath(__file__)), "../smartrade.yml")
-    with open(cfg_path, 'r') as cfg_file:
-        config = yaml.load(cfg_file, yaml.SafeLoader)
-    args.function(config, args)
+    args.function(get_config(), args)
 
 
 if __name__ == '__main__':

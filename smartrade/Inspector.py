@@ -20,6 +20,14 @@ class Inspector:
     def total_interest(self, start_date=None, end_date=None):
         return self._total_amount({'action': {'$in': ['INTEREST']}}, start_date, end_date)
 
+    def total_dividend(self, start_date=None, end_date=None):
+        return self._total_amount({'action': {'$in': ['DIVIDEND']}}, start_date, end_date)
+
+    def total_trading(self, start_date=None, end_date=None):
+        return -self._total_amount({'action':
+                                    {'$in': ['BTO', 'STO', 'STC', 'BTC', 'EXPIRED', 'ASSIGNED', 'EXERCISE']}},
+                                   start_date, end_date)
+
     def total_cash(self, start_date=None, end_date=None):
         return self._total_amount(None, start_date, end_date)
 
@@ -47,6 +55,16 @@ class Inspector:
         for r in res:
             return r[amount]
         return 0.0
+
+    def total_profit(self, start_date=None, end_date=None):
+        total_market_value = 0
+        total_profit = 0
+        for ticker in self.distinct_tickers(start_date, end_date):
+            tx_groups = self.ticker_transaction_groups(ticker)
+            total, profit, _ = TransactionGroup.compute_total(tx_groups)
+            total_profit += profit
+            total_market_value += profit - total
+        return total_profit, total_market_value
 
     @staticmethod
     def _date_limit(condition, start_date, end_date):

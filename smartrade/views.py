@@ -10,7 +10,6 @@ from smartrade.Assembler import Assembler
 from smartrade.Inspector import Inspector
 from smartrade.Loader import Loader
 from smartrade.TransactionGroup import TransactionGroup
-from smartrade.cli import total_investment
 
 @app.route("/")
 def index():
@@ -18,9 +17,18 @@ def index():
     inspector = Inspector(db_name)
     total_investment = inspector.total_investment()
     total_interest = inspector.total_interest()
+    total_dividend = inspector.total_dividend()
     total_cash = inspector.total_cash()
+    total_trading = inspector.total_trading()
+    total_profit, total_market_value = inspector.total_profit()
+    total_market_value += total_cash
     return render_template("home.html", total_investment=total_investment,
-                           total_interest=total_interest, total_cash=total_cash)
+                           total_interest=total_interest,
+                           total_dividend=total_dividend,
+                           total_trading=total_trading,
+                           total_profit=total_profit,
+                           total_cash=total_cash,
+                           total_market_value=total_market_value)
 
 @app.route("/list")
 def list():
