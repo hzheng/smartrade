@@ -10,10 +10,15 @@ from smartrade.Assembler import Assembler
 from smartrade.Inspector import Inspector
 from smartrade.Loader import Loader
 from smartrade.TransactionGroup import TransactionGroup
+from smartrade.cli import total_investment
 
 @app.route("/")
 def index():
-    return render_template("home.html")
+    db_name = app.config['DATABASE']
+    inspector = Inspector(db_name)
+    total_investment = inspector.total_investment()
+    total_cash = inspector.total_cash()
+    return render_template("home.html", total_investment=total_investment, total_cash=total_cash)
 
 @app.route("/list")
 def list():

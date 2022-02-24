@@ -4,9 +4,10 @@ import sys
 import traceback
 import yaml
 from argparse import ArgumentParser, ArgumentTypeError
+from dateutil.parser import parse
+from pprint import pprint
 from os import listdir
 from os.path import expanduser, dirname, abspath, join
-
 import json
 
 from smartrade.Assembler import Assembler
@@ -21,6 +22,10 @@ from smartrade.TransactionGroup import TransactionGroup
 def load_db(db_name, path, reload=True):
     loader = Loader(db_name)
     return loader.load(path, reload)
+
+def total_investment(db_name, end_date=None, start_date=None):
+    inspector = Inspector(db_name)
+    return inspector.total_investment(end_date, start_date)
 
 def total_cash(db_name, end_date=None, start_date=None):
     inspector = Inspector(db_name)
@@ -131,14 +136,16 @@ def _display_transaction_groups(ticker, tx_groups):
 def quote(config, args):
     """Quote a symbol(s)."""
     client = get_broker(config, args.account or config['ACCOUNT_ALIAS'])
-    print(client.get_quotes(args.symbols))
+    pprint(client.get_quotes(args.symbols))
 
 @subcommand(*filter_options,
     argument('-a', '--account', help='account name'))
 def transaction(config, args):
     """Get transactions."""
     client = get_broker(config, args.account or config['ACCOUNT_ALIAS'])
-    tx = client.get_transactions()
+    start_date = parse(args.start_date) if args.start_date else None
+    end_date = parse(args.end_date) if args.end_date else None
+    tx = client.get_transactions(start_date, end_date)
     print(json.dumps(tx, indent=4, sort_keys=True))
 
 def _get_env(args):

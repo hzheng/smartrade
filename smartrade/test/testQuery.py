@@ -2,7 +2,8 @@
 
 from turtle import position
 from smartrade.TransactionGroup import TransactionGroup
-from smartrade.cli import ticker_transaction_groups, total_cash, distinct_tickers, ticker_costs, group_transactions
+from smartrade.cli import distinct_tickers, group_transactions, \
+    ticker_costs, ticker_transaction_groups, total_cash, total_investment
 from smartrade.test.TestBase import TestBase
 
 import unittest
@@ -61,6 +62,11 @@ class TestQuery(TestBase):
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
+
+    def test_total_investment(self):
+        self.assertAlmostEqual(0.00, total_investment(self.DB_NAME, '2021-12-31'))
+        self.assertAlmostEqual(66282.48, total_investment(self.DB_NAME, '2022-01-01'))
+        self.assertAlmostEqual(66282.48, total_investment(self.DB_NAME, '2022-02-23'))
 
     def test_total_cash(self):
         self.assertAlmostEqual(0.00, total_cash(self.DB_NAME, '2021-12-31'))

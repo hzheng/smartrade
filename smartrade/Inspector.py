@@ -13,6 +13,17 @@ class Inspector:
         self._tx_collection = self._db.transactions
         self._group_collection = self._db.transaction_groups
 
+    def total_investment(self, end_date=None, start_date=None):
+        amount = 'total_amount'
+        condition = self._date_limit({}, end_date, start_date)
+        condition['action'] = {'$in': ['TRANSFER']}
+        res = self._tx_collection.aggregate(
+            [{'$match': condition},
+             {'$group': {'_id': None, amount: {'$sum': "$amount"}}}])
+        for r in res:
+            return r[amount]
+        return 0.0
+
     def total_cash(self, end_date=None, start_date=None):
         amount = 'total_amount'
         condition = self._date_limit({}, end_date, start_date)

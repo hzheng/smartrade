@@ -121,7 +121,11 @@ class TransactionGroup:
         cost = self._cost = self._get_cost()
         assert(cost > 0)
         profit = self._profit = total + self._get_market_value()
+        if positions:
+            last_date = datetime.today()
         days = self._duration = (last_date.date() - first_date.date()).days + 1
+        if positions: return
+
         roi = profit / cost
         if profit > 0:
             if days < 365:
@@ -135,7 +139,7 @@ class TransactionGroup:
 
         val = 0
         for symbol, qty in self.positions.items():
-            price = self._broker.get_quotes(symbol)[symbol]
+            price = self._broker.get_quotes(symbol)[symbol]['last']
             val += price * qty * (100 if '_' in symbol else 1)
         return val
 
