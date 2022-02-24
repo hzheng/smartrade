@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from dateutil.parser import parse
+import copy
 from enum import Enum, IntEnum
 
-import copy
+from dateutil.parser import parse
 
 class Action(IntEnum):
     BTO = -2

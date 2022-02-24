@@ -17,8 +17,10 @@ def index():
     db_name = app.config['DATABASE']
     inspector = Inspector(db_name)
     total_investment = inspector.total_investment()
+    total_interest = inspector.total_interest()
     total_cash = inspector.total_cash()
-    return render_template("home.html", total_investment=total_investment, total_cash=total_cash)
+    return render_template("home.html", total_investment=total_investment,
+                           total_interest=total_interest, total_cash=total_cash)
 
 @app.route("/list")
 def list():

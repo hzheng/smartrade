@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
+from dateutil.parser import parse
+import pymongo
+
 from smartrade.Transaction import Transaction
 from smartrade.TransactionGroup import TransactionGroup
 
-from datetime import datetime
-import pymongo
 
 class Inspector:
     def __init__(self, db_name):
@@ -13,10 +14,20 @@ class Inspector:
         self._tx_collection = self._db.transactions
         self._group_collection = self._db.transaction_groups
 
-    def total_investment(self, end_date=None, start_date=None):
+    def total_investment(self, start_date=None, end_date=None):
+        return self._total_amount({'action': {'$in': ['TRANSFER']}}, start_date, end_date)
+
+    def total_interest(self, start_date=None, end_date=None):
+        return self._total_amount({'action': {'$in': ['INTEREST']}}, start_date, end_date)
+
+    def total_cash(self, start_date=None, end_date=None):
+        return self._total_amount(None, start_date, end_date)
+
+    def _total_amount(self, restritions, start_date=None, end_date=None):
         amount = 'total_amount'
-        condition = self._date_limit({}, end_date, start_date)
-        condition['action'] = {'$in': ['TRANSFER']}
+        condition = self._date_limit({}, start_date, end_date)
+        if restritions:
+            condition.update(restritions)
         res = self._tx_collection.aggregate(
             [{'$match': condition},
              {'$group': {'_id': None, amount: {'$sum': "$amount"}}}])
@@ -24,22 +35,12 @@ class Inspector:
             return r[amount]
         return 0.0
 
-    def total_cash(self, end_date=None, start_date=None):
-        amount = 'total_amount'
-        condition = self._date_limit({}, end_date, start_date)
-        res = self._tx_collection.aggregate(
-            [{'$match': condition},
-             {'$group': {'_id': None, amount: {'$sum': "$amount"}}}])
-        for r in res:
-            return r[amount]
-        return 0.0
+    def distinct_tickers(self, start_date=None, end_date=None):
+        return self._tx_collection.distinct('ui', self._date_limit({}, start_date, end_date))
 
-    def distinct_tickers(self, end_date=None, start_date=None):
-        return self._tx_collection.distinct('ui', self._date_limit({}, end_date, start_date))
-
-    def ticker_costs(self, ticker, end_date=None, start_date=None):
+    def ticker_costs(self, ticker, start_date=None, end_date=None):
         amount = 'total_amount'
-        condition = self._date_limit({'ui': ticker}, end_date, start_date)
+        condition = self._date_limit({'ui': ticker}, start_date, end_date)
         res = self._tx_collection.aggregate(
             [{'$match': condition},
              {'$group': {'_id': None, amount: {'$sum': "$amount"}}}])
@@ -48,15 +49,15 @@ class Inspector:
         return 0.0
 
     @staticmethod
-    def _date_limit(condition, end_date, start_date):
+    def _date_limit(condition, start_date, end_date):
         date_limit = {}
         if end_date:
             if isinstance(end_date, str):
-                end_date = datetime.strptime(end_date,'%Y-%m-%d')
+                end_date = parse(end_date)
             date_limit['$lte'] = end_date
         if start_date:
             if isinstance(start_date, str):
-                start_date = datetime.strptime(start_date,'%Y-%m-%d')
+                start_date = parse(start_date)
             date_limit['$gte'] = start_date
         if date_limit:
             condition['date'] = date_limit

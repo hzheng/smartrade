@@ -14,11 +14,22 @@ Smartrade
 {% block main %}
 <p>Welcome to the Smartrade</p>
 
-<p>
-    Total Investment: <span class="money">{{"%.2f"|format(total_investment)}}</span>
-    Total Cash: <span class="money">{{"%.2f"|format(total_cash)}}</span>
-
-</p>
+<section>
+    <table>
+        <tbody>
+            <tr>
+                <th>Total Investment</th>
+                <th>Total Interest</th>
+                <th>Total Cash</th>
+            </tr>
+            <tr>
+                <td class="money">{{"%.2f"|format(total_investment)}}</td>
+                <td class="money">{{"%.2f"|format(total_interest)}}</td>
+                <td class="money">{{"%.2f"|format(total_cash)}}</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
 
 <li><a href="list">List tickers</a></li>
 <li><a href="load">Load data</a></li>

@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 
+import json
 import sys
 import traceback
 import yaml
 from argparse import ArgumentParser, ArgumentTypeError
-from dateutil.parser import parse
-from pprint import pprint
 from os import listdir
 from os.path import expanduser, dirname, abspath, join
-import json
+from pprint import pprint
+
+from dateutil.parser import parse
 
 from smartrade.Assembler import Assembler
 from smartrade.BrokerClient import BrokerClient
@@ -23,21 +24,25 @@ def load_db(db_name, path, reload=True):
     loader = Loader(db_name)
     return loader.load(path, reload)
 
-def total_investment(db_name, end_date=None, start_date=None):
+def total_investment(db_name, start_date=None, end_date=None):
     inspector = Inspector(db_name)
-    return inspector.total_investment(end_date, start_date)
+    return inspector.total_investment(start_date, end_date)
 
-def total_cash(db_name, end_date=None, start_date=None):
+def total_interest(db_name, start_date=None, end_date=None):
     inspector = Inspector(db_name)
-    return inspector.total_cash(end_date, start_date)
+    return inspector.total_interest(start_date, end_date)
 
-def distinct_tickers(db_name, end_date=None, start_date=None):
+def total_cash(db_name, start_date=None, end_date=None):
     inspector = Inspector(db_name)
-    return inspector.distinct_tickers(end_date, start_date)
+    return inspector.total_cash(start_date, end_date)
 
-def ticker_costs(db_name, ticker, end_date=None, start_date=None):
+def distinct_tickers(db_name, start_date=None, end_date=None):
     inspector = Inspector(db_name)
-    return inspector.ticker_costs(ticker, end_date, start_date)
+    return inspector.distinct_tickers(start_date, end_date)
+
+def ticker_costs(db_name, ticker, start_date=None, end_date=None):
+    inspector = Inspector(db_name)
+    return inspector.ticker_costs(ticker, start_date, end_date)
 
 def ticker_transaction_groups(db_name, ticker):
     inspector = Inspector(db_name)
@@ -100,7 +105,7 @@ def load(config, args):
         loader.load(f, False)
     assembler = Assembler(db_name)
     inspector = Inspector(db_name)
-    for ticker in (args.ticker if args.ticker else inspector.distinct_tickers(args.end_date, args.start_date)):
+    for ticker in (args.ticker if args.ticker else inspector.distinct_tickers(args.start_date, args.end_date)):
         ticker = ticker.upper()
         _display_transaction_groups(ticker, assembler.group_transactions(ticker, args.save_database))
 
@@ -114,7 +119,7 @@ def report(config, args):
     inspector = Inspector(db_name)
     client = get_broker(config, args.account or config['ACCOUNT_ALIAS'])
     TransactionGroup.set_broker(client)
-    for ticker in (args.ticker if args.ticker else inspector.distinct_tickers(args.end_date, args.start_date)):
+    for ticker in (args.ticker if args.ticker else inspector.distinct_tickers(args.start_date, args.end_date)):
         ticker = ticker.upper()
         _display_transaction_groups(ticker, inspector.ticker_transaction_groups(ticker))
 

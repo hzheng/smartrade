@@ -3,7 +3,7 @@
 from turtle import position
 from smartrade.TransactionGroup import TransactionGroup
 from smartrade.cli import distinct_tickers, group_transactions, \
-    ticker_costs, ticker_transaction_groups, total_cash, total_investment
+    ticker_costs, ticker_transaction_groups, total_cash, total_interest, total_investment
 from smartrade.test.TestBase import TestBase
 
 import unittest
@@ -64,28 +64,32 @@ class TestQuery(TestBase):
         super().tearDownClass()
 
     def test_total_investment(self):
-        self.assertAlmostEqual(0.00, total_investment(self.DB_NAME, '2021-12-31'))
-        self.assertAlmostEqual(66282.48, total_investment(self.DB_NAME, '2022-01-01'))
-        self.assertAlmostEqual(66282.48, total_investment(self.DB_NAME, '2022-02-23'))
+        self.assertAlmostEqual(0.00, total_investment(self.DB_NAME, end_date='2021-12-31'))
+        self.assertAlmostEqual(66282.48, total_investment(self.DB_NAME, end_date='2022-01-01'))
+        self.assertAlmostEqual(66282.48, total_investment(self.DB_NAME, end_date='2022-02-23'))
+
+    def test_total_interest(self):
+        self.assertAlmostEqual(0.00, total_interest(self.DB_NAME, end_date='2022-01-01'))
+        self.assertAlmostEqual(0.24, total_interest(self.DB_NAME, end_date='2022-02-23'))
 
     def test_total_cash(self):
-        self.assertAlmostEqual(0.00, total_cash(self.DB_NAME, '2021-12-31'))
-        self.assertAlmostEqual(50977.48, total_cash(self.DB_NAME, '2022-01-01'))
-        self.assertAlmostEqual(35893.74, total_cash(self.DB_NAME, '2022-01-30'))
-        self.assertAlmostEqual(27995.65, total_cash(self.DB_NAME, '2022-02-04'))
-        self.assertAlmostEqual(31094.92, total_cash(self.DB_NAME, '2022-02-07'))
-        self.assertAlmostEqual(20593.13, total_cash(self.DB_NAME, '2022-02-14'))
-        self.assertAlmostEqual(10282.81, total_cash(self.DB_NAME, '2022-02-23'))
+        self.assertAlmostEqual(0.00, total_cash(self.DB_NAME, end_date='2021-12-31'))
+        self.assertAlmostEqual(50977.48, total_cash(self.DB_NAME, end_date='2022-01-01'))
+        self.assertAlmostEqual(35893.74, total_cash(self.DB_NAME, end_date='2022-01-30'))
+        self.assertAlmostEqual(27995.65, total_cash(self.DB_NAME, end_date='2022-02-04'))
+        self.assertAlmostEqual(31094.92, total_cash(self.DB_NAME, end_date='2022-02-07'))
+        self.assertAlmostEqual(20593.13, total_cash(self.DB_NAME, end_date='2022-02-14'))
+        self.assertAlmostEqual(10282.81, total_cash(self.DB_NAME, end_date='2022-02-23'))
 
     def test_query_tickers(self):
         for date, expected_amt in self.expected_amounts.items():
             self.assertEqual(set(expected_amt.keys()),
-                             set(distinct_tickers(self.DB_NAME, date)))
+                             set(distinct_tickers(self.DB_NAME, end_date=date)))
 
     def test_query_ticker(self):
         for date, expected_amt in self.expected_amounts.items():
             for ticker, amount in expected_amt.items():
-                self.assertAlmostEqual(amount, ticker_costs(self.DB_NAME, ticker, date))
+                self.assertAlmostEqual(amount, ticker_costs(self.DB_NAME, ticker, end_date=date))
 
         self.assertAlmostEqual(0.00, ticker_costs(self.DB_NAME, 'NONE'))
 
@@ -127,6 +131,7 @@ class TestQuery(TestBase):
         total, profit, position_list = TransactionGroup.compute_total(nvda_groups)
         self.assertEqual(2, len(position_list['NVDA']))
         self.assertAlmostEqual(-12651.31, total)
+
 
 if __name__ == '__main__':
     unittest.main()
