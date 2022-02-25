@@ -31,7 +31,7 @@ def create_app(config=None):
     if conf_path in os.environ:
         # app.config.from_envvar(conf_path)
         conf_file = os.environ[conf_path]
-        client = BrokerClient.get_broker(conf_file, app.config['ACCOUNT_ALIAS'])
+        client = BrokerClient.get_brokers(conf_file)[0]
         TransactionGroup.set_broker(client)
         with open(conf_file, 'r') as cfg_file:
             yaml_conf = yaml.load(cfg_file, yaml.SafeLoader)

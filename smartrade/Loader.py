@@ -8,10 +8,9 @@ import csv
 import json
 
 class Loader:
-    def __init__(self, db_name, format='schwab'):
+    def __init__(self, db_name):
         client = MongoClient()
         self._db = client[db_name]
-        self._format = format
 
     def load(self, path, reload=True):
         valid_transactions, invalid_transactions = self._parse_file(path)

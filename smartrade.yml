@@ -11,5 +11,3 @@ DATA_DIR:
     test: smartrade/test
     dev: $TRADE_DATA
     prod: $TRADE_DATA
-
-ACCOUNT_ALIAS: account0

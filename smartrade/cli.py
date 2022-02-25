@@ -63,9 +63,9 @@ def ticker_transaction_groups(db_name, ticker):
 def group_transactions(db_name, ticker, save_db=False):
     return Assembler(db_name).group_transactions(ticker, save_db)
 
-def get_broker(config, account_alias):
+def get_broker(config):
     cfg_path = expanduser(config['conf_path'])
-    return BrokerClient.get_broker(cfg_path, account_alias)
+    return BrokerClient.get_brokers(cfg_path)[0]
     
 def get_config():
     cfg_path = join(dirname(abspath(__file__)), "../smartrade.yml")
@@ -113,7 +113,7 @@ def load(config, args):
     db_name = args.database_name or config['DATABASE'][env]
     data_dir = args.data_dir or config['DATA_DIR'][env]
     data_files = sorted([join(data_dir, f) for f in listdir(data_dir) if f.endswith('.csv') or f.endswith('.json')])
-    client = get_broker(config, args.account or config['ACCOUNT_ALIAS'])
+    client = get_broker(config)
     TransactionGroup.set_broker(client)
     loader = Loader(db_name)
     loader.load(data_files[0], True)
@@ -133,7 +133,7 @@ def report(config, args):
     env = _get_env(args)
     db_name = args.database_name or config['DATABASE'][env]
     inspector = Inspector(db_name)
-    client = get_broker(config, args.account or config['ACCOUNT_ALIAS'])
+    client = get_broker(config)
     TransactionGroup.set_broker(client)
     for ticker in (args.ticker if args.ticker else inspector.distinct_tickers(args.start_date, args.end_date)):
         ticker = ticker.upper()
@@ -156,17 +156,17 @@ def _display_transaction_groups(ticker, tx_groups):
     argument('symbols', nargs="+", help="symbol"))
 def quote(config, args):
     """Quote a symbol(s)."""
-    client = get_broker(config, args.account or config['ACCOUNT_ALIAS'])
+    client = get_broker(config)
     pprint(client.get_quotes(args.symbols))
 
 @subcommand(*filter_options,
     argument('-a', '--account', help='account name'))
 def transaction(config, args):
     """Get transactions."""
-    client = get_broker(config, args.account or config['ACCOUNT_ALIAS'])
+    client = get_broker(config)
     start_date = parse(args.start_date) if args.start_date else None
     end_date = parse(args.end_date) if args.end_date else None
-    tx = client.get_transactions(start_date, end_date)
+    tx = client.get_transactions(args.account, start_date, end_date)
     print(json.dumps(tx, indent=4, sort_keys=True))
 
 def _get_env(args):

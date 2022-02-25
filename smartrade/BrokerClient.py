@@ -8,19 +8,23 @@ from smartrade.exceptions import ConfigurationError
 
 class BrokerClient:
 
-    def get_transactions(self, start_date=None, end_date=None): ...
+    def get_accounts(self): ...
+
+    def get_transactions(self, account_alias, start_date=None, end_date=None): ...
 
     def get_quotes(self, symbols): ...
 
     @classmethod
-    def get_broker(cls, config_path, account_alias):
+    def get_brokers(cls, config_path):
+        brokers = []
         config_dir = dirname(config_path)
         with open(config_path, 'r') as cfg_file:
             config = yaml.load(cfg_file, yaml.SafeLoader)
-            account_cfg = config['accounts'][account_alias]
-            account_cfg['token_path'] = join(config_dir, account_alias + "_token.json")
-            broker = account_cfg['broker'] + "Client"
-            for subclass in cls.__subclasses__():
-                if subclass.__name__ == broker:
-                    return subclass(account_cfg)
-            raise ConfigurationError(f"no broker named {broker} found")
+            for client in config['broker_client']:
+                account_cfg = dict(client, token=join(config_dir, client['token']))
+                broker = client['broker'] + "Client"
+                for subclass in cls.__subclasses__():
+                    if subclass.__name__ == broker:
+                        brokers.append(subclass(account_cfg))
+                        break
+        return brokers

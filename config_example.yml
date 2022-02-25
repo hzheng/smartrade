@@ -1,0 +1,8 @@
+broker_client:
+    - broker: TDAmeritrade
+      api_key: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX@AMER.OAUTHAP
+      redirect_uri: http://localhost:8080/home
+      token: token_file_name.json
+      accounts:
+          - alias1: 12345
+          - alias2: 67890

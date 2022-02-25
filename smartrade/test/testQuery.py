@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from turtle import position
-from smartrade.TransactionGroup import TransactionGroup
 from smartrade.cli import get_broker, distinct_tickers, get_config, group_transactions, \
     ticker_costs, ticker_transaction_groups, total_cash, total_dividend, total_interest, total_investment, total_profit, total_trading
 from smartrade.test.TestBase import TestBase
+from smartrade.TransactionGroup import TransactionGroup
 
 import unittest
 
@@ -59,7 +58,7 @@ class TestQuery(TestBase):
     def setUpClass(cls):
         super().setUpClass()
         config = get_config()
-        TransactionGroup.set_broker(get_broker(config, config['ACCOUNT_ALIAS']))
+        TransactionGroup.set_broker(get_broker(config))
 
     @classmethod
     def tearDownClass(cls):
