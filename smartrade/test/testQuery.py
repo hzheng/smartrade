@@ -73,7 +73,7 @@ class TestQuery(TestBase):
         expected_values = {
             '2021-12-31': [0, 0, 0, 0, 0],
             '2022-01-01': [66282.48, 0, 0, 50977.48, 15305.00],
-            '2022-02-23': [66282.48, 0.24, 0, 10282.81, 55999.91]
+            '2022-02-23': [66282.48, 0.24, 0, 16652.11, 49630.61]
         }
         for (end_date, expected) in expected_values.items():
             self.assertAlmostEqual(expected[4], expected[0] + expected[1] + expected[2] - expected[3])

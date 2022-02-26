@@ -42,9 +42,10 @@ def load():
     db_name = app.config['DATABASE']
     data_dir = app.config['DATA_DIR']
     data_files = sorted([join(data_dir, f) for f in listdir(data_dir) if f.endswith('.csv') or f.endswith('.json')])
-    loader = Loader(db_name)
+    loader = Loader(db_name, app.config['broker'])
     for i, f in enumerate(data_files):
         loader.load(f, i == 0)
+    loader.live_load()
     assembler = Assembler(db_name)
     inspector = Inspector(db_name)
     tickers = inspector.distinct_tickers()

@@ -95,6 +95,8 @@ data_options = (
     argument('-d', '--data-dir', help='directory of imported data'),
     argument('-D', '--database-name', help='database name'),
     argument('-S', '--save-database', action='store_true', help='save to database'),
+    argument('-l', '--live', action='store_true',
+             help="live load"),
     argument('-r', '--reload', action='store_true',
              help="empty database before importing")
 )
@@ -105,6 +107,7 @@ filter_options = (
 )
 
 @subcommand(*data_options, *filter_options,
+            argument('-v', '--verbose', action='store_true', help='show transaction groups'),
             argument('-a', '--account', help='account name'),
             argument('-t', '--ticker', nargs='+', help="ticker name(s)"))
 def load(config, args):
@@ -115,17 +118,32 @@ def load(config, args):
     data_files = sorted([join(data_dir, f) for f in listdir(data_dir) if f.endswith('.csv') or f.endswith('.json')])
     client = get_broker(config)
     TransactionGroup.set_broker(client)
-    loader = Loader(db_name)
-    loader.load(data_files[0], True)
-    for f in data_files[1:]:
-        loader.load(f, False)
+    loader = Loader(db_name, client)
+    start_date = parse(args.start_date) if args.start_date else None
+    end_date = parse(args.end_date) if args.end_date else None
+    if args.live:
+        transactions, invalid_transactions = loader.live_load(
+            args.account, start_date=start_date, end_date=end_date)
+        i = 0
+        for tx in transactions:
+            i += 1
+            print(i, "=======", tx)
+    else:
+        loader.load(data_files[0], args.reload)
+        for f in data_files[1:]:
+            loader.load(f, False)
     assembler = Assembler(db_name)
     inspector = Inspector(db_name)
     for ticker in (args.ticker if args.ticker else inspector.distinct_tickers(args.start_date, args.end_date)):
         ticker = ticker.upper()
-        _display_transaction_groups(ticker, assembler.group_transactions(ticker, args.save_database))
+        tx_groups = assembler.group_transactions(ticker, args.save_database)
+        if args.verbose:
+            _display_transaction_groups(ticker, tx_groups)
+        else:
+            print(f"ticker {ticker} has {len(tx_groups)} group(s)")
 
 @subcommand(*data_options, *filter_options,
+            argument('-v', '--verbose', action='store_true', help='show transaction groups'),
             argument('-a', '--account', help='account name'),
             argument('-t', '--ticker', nargs='+', help="ticker name(s)"))
 def report(config, args):
@@ -137,7 +155,11 @@ def report(config, args):
     TransactionGroup.set_broker(client)
     for ticker in (args.ticker if args.ticker else inspector.distinct_tickers(args.start_date, args.end_date)):
         ticker = ticker.upper()
-        _display_transaction_groups(ticker, inspector.ticker_transaction_groups(ticker))
+        tx_groups = inspector.ticker_transaction_groups(ticker)
+        if args.verbose:
+            _display_transaction_groups(ticker, tx_groups)
+        else:
+            print(f"ticker {ticker} has {len(tx_groups)} group(s)")
 
 def _display_transaction_groups(ticker, tx_groups):
     print("=========ticker:", ticker)
@@ -167,7 +189,7 @@ def transaction(config, args):
     start_date = parse(args.start_date) if args.start_date else None
     end_date = parse(args.end_date) if args.end_date else None
     tx = client.get_transactions(args.account, start_date, end_date)
-    print(json.dumps(tx, indent=4, sort_keys=True))
+    print(json.dumps(tx, indent=4, sort_keys=False))
 
 def _get_env(args):
     env = args.env or 'test'

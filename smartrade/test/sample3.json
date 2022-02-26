@@ -1,5 +1,143 @@
 [
     {
+        "type": "TRADE",
+        "subAccount": "2",
+        "settlementDate": "2022-02-23",
+        "orderId": "7684856415",
+        "netAmount": 2249.33,
+        "transactionDate": "2022-02-22T15:22:59+0000",
+        "orderDate": "2022-02-22T15:22:59+0000",
+        "transactionSubType": "SL",
+        "transactionId": 40870773311,
+        "cashBalanceEffectFlag": true,
+        "description": "SELL TRADE",
+        "fees": {
+            "rFee": 0.0,
+            "additionalFee": 0.0,
+            "cdscFee": 0.0,
+            "regFee": 0.02,
+            "otherCharges": 0.0,
+            "commission": 0.65,
+            "optRegFee": 0.01,
+            "secFee": 0.01
+        },
+        "transactionItem": {
+            "accountId": 253697379,
+            "amount": 1.0,
+            "price": 22.5,
+            "cost": 2250.0,
+            "instruction": "SELL",
+            "positionEffect": "CLOSING",
+            "instrument": {
+                "symbol": "AMD_012023C120",
+                "underlyingSymbol": "AMD",
+                "optionExpirationDate": "2023-01-20T06:00:00+0000",
+                "putCall": "CALL",
+                "cusip": "0AMD..AK30120000",
+                "description": "AMD Jan 20 2023 120.0 Call",
+                "assetType": "OPTION"
+            }
+        }
+    },
+    {
+        "type": "TRADE",
+        "subAccount": "2",
+        "settlementDate": "2022-02-24",
+        "orderId": "7684005818",
+        "netAmount": 4119.97,
+        "transactionDate": "2022-02-22T14:53:25+0000",
+        "orderDate": "2022-02-22T14:49:21+0000",
+        "transactionSubType": "SL",
+        "transactionId": 40869824108,
+        "cashBalanceEffectFlag": true,
+        "description": "SELL TRADE",
+        "fees": {
+            "rFee": 0.0,
+            "additionalFee": 0.0,
+            "cdscFee": 0.0,
+            "regFee": 0.03,
+            "otherCharges": 0.0,
+            "commission": 0.0,
+            "optRegFee": 0.0,
+            "secFee": 0.02
+        },
+        "transactionItem": {
+            "accountId": 253697379,
+            "amount": 100.0,
+            "price": 41.2,
+            "cost": 4120.0,
+            "instruction": "SELL",
+            "instrument": {
+                "symbol": "SOXL",
+                "cusip": "25459W458",
+                "assetType": "EQUITY"
+            }
+        }
+    },
+    {
+        "type": "TRADE",
+        "subAccount": "2",
+        "settlementDate": "2022-02-23",
+        "netAmount": -4100.0,
+        "transactionDate": "2022-02-22T06:00:01+0000",
+        "transactionSubType": "OA",
+        "transactionId": 40862543372,
+        "cashBalanceEffectFlag": true,
+        "description": "OPTION ASSIGNMENT",
+        "fees": {
+            "rFee": 0.0,
+            "additionalFee": 0.0,
+            "cdscFee": 0.0,
+            "regFee": 0.0,
+            "otherCharges": 0.0,
+            "commission": 0.0,
+            "optRegFee": 0.0,
+            "secFee": 0.0
+        },
+        "transactionItem": {
+            "amount": 100.0,
+            "price": 41.0,
+            "cost": -4100.0,
+            "instruction": "BUY",
+            "instrument": {
+                "symbol": "SOXL",
+                "cusip": "25459W458",
+                "assetType": "EQUITY"
+            }
+        }
+    },
+    {
+        "type": "RECEIVE_AND_DELIVER",
+        "subAccount": "2",
+        "settlementDate": "2022-02-22",
+        "netAmount": 0.0,
+        "transactionDate": "2022-02-22T06:00:01+0000",
+        "transactionSubType": "OA",
+        "transactionId": 40862744826,
+        "cashBalanceEffectFlag": true,
+        "description": "REMOVAL OF OPTION DUE TO ASSIGNMENT",
+        "fees": {
+            "rFee": 0.0,
+            "additionalFee": 0.0,
+            "cdscFee": 0.0,
+            "regFee": 0.0,
+            "otherCharges": 0.0,
+            "commission": 0.0,
+            "optRegFee": 0.0,
+            "secFee": 0.0
+        },
+        "transactionItem": {
+            "accountId": 253697379,
+            "amount": 1.0,
+            "cost": 0.0,
+            "instrument": {
+                "optionExpirationDate": "2022-02-18T06:00:00+0000",
+                "cusip": "0SOXL.NI20041000",
+                "assetType": "OPTION"
+            }
+        }
+    },
+    {
         "type": "RECEIVE_AND_DELIVER",
         "subAccount": "2",
         "settlementDate": "2022-02-22",
@@ -11,7 +149,7 @@
         "transactionSubType": "OA",
         "transactionId": 40862744826,
         "cashBalanceEffectFlag": true,
-        "description": "Removal of Option due to assignment 1.0 SOXL 100 18 Feb 2022 41.0 PUT",
+        "description": "IGNORE: Removal of Option due to assignment 1.0 SOXL 100 18 Feb 2022 41.0 PUT",
         "fees": {
             "rFee": 0,
             "additionalFee": 0,
@@ -43,7 +181,7 @@
         "transactionSubType": "OA",
         "transactionId": 40862543372,
         "cashBalanceEffectFlag": true,
-        "description": "Option Assignment",
+        "description": "IGNORE: Option Assignment",
         "fees": {
             "rFee": 0,
             "additionalFee": 0,

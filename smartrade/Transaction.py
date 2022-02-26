@@ -195,7 +195,7 @@ class Transaction:
 
         amt = self.share * self.price * (-1 if abs(self.action) == Action.BTC else 1) - self.fee 
         if abs(amt - self.amount) > 1e-6:
-            # print("?", amt, "!=", self.amount)
+            # print("?", amt, "!=", self.amount, self)
             return False
         return True
 
@@ -278,11 +278,9 @@ class Transaction:
         return json
 
     def __repr__(self):
-        if not self.is_valid(): return "INVALID transaction"
-
         return (f"date={self.date}, action={str(self.action)}, symbol={self.symbol},"
                 f" price={self.price:.4f}, quantity={self.quantity},"
-                f" fee={self.fee:.2f}, amount={self.amount}")
+                f" fee={self.fee:.2f}, amount={self.amount}{'' if self.is_valid() else ' INVALID'}")
 
     def __str__(self):
         return self.__repr__()
