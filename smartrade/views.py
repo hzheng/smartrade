@@ -15,20 +15,35 @@ from smartrade.TransactionGroup import TransactionGroup
 def index():
     db_name = app.config['DATABASE']
     inspector = Inspector(db_name)
-    total_investment = inspector.total_investment()
-    total_interest = inspector.total_interest()
-    total_dividend = inspector.total_dividend()
-    total_cash = inspector.total_cash()
-    total_trading = inspector.total_trading()
     total_profit, total_market_value = inspector.total_profit()
+    total_cash = inspector.total_cash()
     total_market_value += total_cash
-    return render_template("home.html", total_investment=total_investment,
-                           total_interest=total_interest,
-                           total_dividend=total_dividend,
-                           total_trading=total_trading,
-                           total_profit=total_profit,
-                           total_cash=total_cash,
-                           total_market_value=total_market_value)
+    summary = {
+        'total_investment': inspector.total_investment(),
+        'total_interest': inspector.total_interest(),
+        'total_dividend': inspector.total_dividend(),
+        'total_trading': inspector.total_trading(),
+        'total_profit': total_profit,
+        'total_market_value': total_market_value,
+        'total_cash': total_cash
+    }
+    broker = app.config['broker']
+    positions = inspector.total_positions().values()
+    position_map = {symbol: qty for pos_map in positions for symbol, qty in pos_map.items()}
+    values=[{}, {}, 0, 0]
+    quotes = broker.get_quotes(position_map.keys())
+    for symbol, price in quotes.items():
+        quantity = position_map[symbol]
+        index = 0
+        if '_' in symbol:
+            index = 1
+            price *= 100
+        value = quantity * price
+        values[index][symbol] = (quantity, price, value)
+        values[index + 2] += value
+    return render_template("home.html", summary=summary,
+                           positions=positions, values=values,
+                           period=inspector.transaction_period())
 
 @app.route("/list")
 def list():

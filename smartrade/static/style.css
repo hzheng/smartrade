@@ -140,6 +140,13 @@ table.total th, table.total td {
   text-align: center;
 }
 
+table.total td.label {
+  font-size: medium;
+  font-weight: 700;
+  text-align: left;
+  padding-left: 2em;
+}
+
 table.transaction {
   background: #D5F5E3;
   border-collapse: collapse;

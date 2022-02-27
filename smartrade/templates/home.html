@@ -14,12 +14,14 @@ Smartrade
 {% block main %}
 <p>Welcome to the Smartrade</p>
 
+<p>Transactions ({{period[0].strftime('%m/%d/%Y')}} - {{period[1].strftime('%m/%d/%Y')}})</p>
 <section>
     <table class="total">
         <tbody>
             <tr>
                 <th>Total Market Value</th>
                 <th>Total Profit</th>
+                <th>Total Profit(%)</th>
                 <th>Total Cash</th>
                 <th>Total Investment</th>
                 <th>Total Interest</th>
@@ -27,14 +29,59 @@ Smartrade
                 <th>Total Trading</th>
             </tr>
             <tr>
-                <td class="money">{{"%.2f"|format(total_market_value)}}</td>
-                <td class="money amount {{'' if total_profit >= 0 else 'negative'}}">
-                    {{"%.2f"|format(total_profit)}}</td>
-                <td class="money">{{"%.2f"|format(total_cash)}}</td>
-                <td class="money">{{"%.2f"|format(total_investment)}}</td>
-                <td class="money">{{"%.2f"|format(total_interest)}}</td>
-                <td class="money">{{"%.2f"|format(total_dividend)}}</td>
-                <td class="money">{{"%.2f"|format(total_trading)}}</td>
+                <td class="money">{{"%.2f"|format(summary.total_market_value)}}</td>
+                <td class="money amount {{'' if summary.total_profit >= 0 else 'negative'}}">
+                    {{"%.2f"|format(summary.total_profit)}}</td>
+                <td class="amount {{'' if summary.total_profit >= 0 else 'negative'}}">
+                    {{"%.2f"|format(summary.total_profit / summary.total_investment * 100)}}%</td>
+                <td class="money">{{"%.2f"|format(summary.total_cash)}}</td>
+                <td class="money">{{"%.2f"|format(summary.total_investment)}}</td>
+                <td class="money">{{"%.2f"|format(summary.total_interest)}}</td>
+                <td class="money">{{"%.2f"|format(summary.total_dividend)}}</td>
+                <td class="money">{{"%.2f"|format(summary.total_trading)}}</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<section>
+    <table class="total">
+        <tbody>
+            <tr>
+                <th>Symbol</th>
+                <th>Quanity</th>
+                <th>Price</th>
+                <th>Market value</th>
+            </tr>
+            <tr>
+                <td class="label" colspan="4">Stocks</td>
+            </tr>
+            {% for symbol, (quantity, price, value) in values[0].items() %}
+            <tr>
+                <td class="symbol">{{symbol}}</td>
+                <td class="quantity">{{quantity}}</td>
+                <td class="quantity">{{"%.3f"|format(price)}}</td>
+                <td class="quantity">{{"%.2f"|format(value)}}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="3">Total value</td>
+                <td>{{"%.2f"|format(values[2])}}</td>
+            </tr>
+            <tr>
+                <td class="label" colspan="4">Options</td>
+            </tr>
+            {% for symbol, (quantity, price, value) in values[1].items() %}
+            <tr>
+                <td class="symbol">{{symbol}}</td>
+                <td class="quantity">{{quantity}}</td>
+                <td class="quantity">{{"%.3f"|format(price)}}</td>
+                <td class="quantity">{{"%.2f"|format(value)}}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="3">Total value</td>
+                <td>{{"%.2f"|format(values[3])}}</td>
             </tr>
         </tbody>
     </table>

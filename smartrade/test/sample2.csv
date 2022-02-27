@@ -1,5 +1,7 @@
 "Transactions  for account ACCOUNT-ALIAS XXXX-XXXX as of 02/14/2022 09:26:19 ET From 02/08/2022 to 02/14/2022",,,,,,,,
 "Date","Action","Symbol","Description","Quantity","Price","Fees & Comm","Amount",
+"02/17/2022","Bank Interest","","BANK INT 021622-021622 SCHWAB BANK","","","","$0.01",
+"02/16/2022 as of 02/15/2022","Bank Interest","","BANK INT 011622-021522 SCHWAB BANK","","","","$0.29",
 "02/14/2022 as of 02/11/2022","Expired","TWTR 02/11/2022 40.00 C","CALL TWITTER INC $40 EXP 02/11/22","6","","","",
 "02/14/2022 as of 02/11/2022","Expired","TWTR 02/11/2022 43.00 C","CALL TWITTER INC $43 EXP 02/11/22","1","","","",
 "02/14/2022 as of 02/11/2022","Expired","HOOD 02/11/2022 15.50 C","CALL ROBINHOOD MKTS INC $15.5 EXP 02/11/22","12","","","",

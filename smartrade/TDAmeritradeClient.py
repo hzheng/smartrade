@@ -42,7 +42,5 @@ class TDAmeritradeClient(BrokerClient):
     def get_quotes(self, symbols):
         r = self._client.get_quotes(symbols)
         assert r.status_code == 200, r.raise_for_status()
-        return {symbol:
-                {'bid': prices['bidPrice'], 'ask': prices['askPrice'],
-                    'last': prices['lastPrice'], 'close': prices['closePrice']}
-        for (symbol, prices) in r.json().items()}
+        return {symbol: (prices['bidPrice'] + prices['askPrice']) / 2
+                for (symbol, prices) in r.json().items()}

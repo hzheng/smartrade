@@ -13,6 +13,13 @@ class Inspector:
         self._db = client[db_name]
         self._tx_collection = self._db.transactions
         self._group_collection = self._db.transaction_groups
+    
+    def transaction_period(self, account_alias=None):
+        for obj in self._db.transactions.find().sort([("date", pymongo.ASCENDING)]).limit(1):
+            start_date = obj['date']
+        for obj in self._db.transactions.find().sort([("date", pymongo.DESCENDING)]).limit(1):
+            end_date = obj['date']
+        return (start_date, end_date)
 
     def total_investment(self, start_date=None, end_date=None):
         return self._total_amount({'action': {'$in': ['TRANSFER']}}, start_date, end_date)
@@ -65,6 +72,15 @@ class Inspector:
             total_profit += profit
             total_market_value += profit - total
         return total_profit, total_market_value
+
+    def total_positions(self, start_date=None, end_date=None):
+        tickers = self.distinct_tickers(start_date, end_date)
+        positions = {}
+        for ticker in tickers:
+            tx_groups = self.ticker_transaction_groups(ticker)
+            *_, position = TransactionGroup.compute_total(tx_groups)
+            positions.update(position)
+        return positions
 
     @staticmethod
     def _date_limit(condition, start_date, end_date):

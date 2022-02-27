@@ -139,7 +139,7 @@ class TransactionGroup:
 
         val = 0
         for symbol, qty in self.positions.items():
-            price = self._broker.get_quotes(symbol)[symbol]['last']
+            price = self._broker.get_quotes(symbol)[symbol]
             val += price * qty * (100 if '_' in symbol else 1)
         return val
 
@@ -227,7 +227,6 @@ class TransactionGroup:
                     positions[symbol] = new_qty
                 else:
                     del positions[symbol]
-
         return total, profit, positions_list
 
     @property

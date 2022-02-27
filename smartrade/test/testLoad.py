@@ -21,7 +21,7 @@ class TestLoad(TestBase):
         self.assertEqual(3, len(invalid_transactions))
  
         valid_transactions, invalid_transactions = load_db(self.DB_NAME, "smartrade/test/sample2.csv", False)
-        self.assertEqual(27, len(valid_transactions))
+        self.assertEqual(29, len(valid_transactions))
         self.assertEqual(3, len(invalid_transactions))
  
         valid_transactions, invalid_transactions = load_db(self.DB_NAME, "smartrade/test/sample3.json", False)
