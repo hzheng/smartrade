@@ -41,16 +41,11 @@ def index():
         value = quantity * price
         values[index][symbol] = (quantity, price, value)
         values[index + 2] += value
-    return render_template("home.html", summary=summary,
-                           positions=positions, values=values,
-                           period=inspector.transaction_period())
 
-@app.route("/list")
-def list():
-    db_name = app.config['DATABASE']
-    inspector = Inspector(db_name)
     tickers = inspector.distinct_tickers()
-    return render_template("tickers.html", tickers=tickers)
+    return render_template("home.html", summary=summary, positions=positions,
+                           values=values, tickers=tickers,
+                           period=inspector.transaction_period())
 
 @app.route("/load")
 def load():

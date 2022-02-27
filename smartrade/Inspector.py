@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
 from dateutil.parser import parse
 import pymongo
 
@@ -15,6 +16,7 @@ class Inspector:
         self._group_collection = self._db.transaction_groups
     
     def transaction_period(self, account_alias=None):
+        start_date = end_date = datetime.now()
         for obj in self._db.transactions.find().sort([("date", pymongo.ASCENDING)]).limit(1):
             start_date = obj['date']
         for obj in self._db.transactions.find().sort([("date", pymongo.DESCENDING)]).limit(1):

@@ -14,7 +14,10 @@ Smartrade
 {% block main %}
 <p>Welcome to the Smartrade</p>
 
-<p>Transactions ({{period[0].strftime('%m/%d/%Y')}} - {{period[1].strftime('%m/%d/%Y')}})</p>
+<p>Transactions ({{period[0].strftime('%m/%d/%Y')}} - {{period[1].strftime('%m/%d/%Y')}})
+    <a href="load">Reload data</a>
+</p>
+
 <section>
     <table class="total">
         <tbody>
@@ -87,7 +90,14 @@ Smartrade
     </table>
 </section>
 
-<li><a href="list">List tickers</a></li>
-<li><a href="load">Load data</a></li>
+<section>
+    Transactions by tickers
+    <ul>
+        {% for ticker in tickers %}
+        <li><a href="report/{{ticker}}">{{ticker}}</a></li>
+        {% endfor %}
+    </ul>
+</section>
+
 
 {% endblock %}
