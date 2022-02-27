@@ -77,6 +77,8 @@ class TransactionGroup:
                     grouped = True
                     break
             assert(grouped)
+        for group in groups:
+            group._inventory()
         return groups
     
     def _followed_by(self, following_tx_list):
@@ -95,7 +97,7 @@ class TransactionGroup:
                     res = True
         return res
 
-    def inventory(self):
+    def _inventory(self):
         total = 0
         positions = {}
         first_date = datetime.max
@@ -183,14 +185,11 @@ class TransactionGroup:
             tx.extend([tx.to_json(True) for tx in ctx])
             chains.append(tx)
             ui = otx.symbol.ui
-        return {'ui': ui, 'total': self.total, 'profit': self.profit, 'chains': chains}
+        return {'ui': ui, 'chains': chains}
 
     @classmethod
     def from_doc(cls, doc):
         self = cls()
-        self._total = doc['total']
-        self._profit = doc['profit']
-        self._cost = doc.get('cost', None)
         chains = self._chains = {}
         ui = doc['ui']
         for chain_array in doc['chains']:
@@ -206,6 +205,7 @@ class TransactionGroup:
                 close_tx = Transaction.from_doc(tx)
                 close_tx_list.append(close_tx)
             chains[open_tx] = close_tx_list
+        self._inventory()
         return self
 
     @staticmethod
@@ -214,7 +214,6 @@ class TransactionGroup:
         profit = 0
         positions_list = {}
         for group in tx_groups:
-            group.inventory()
             total += group.total
             profit += group.profit
             ui = group.ui

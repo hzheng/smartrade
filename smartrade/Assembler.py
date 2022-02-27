@@ -36,7 +36,6 @@ class Assembler:
         following_tx = tx_collection.find(following_cond).sort(order)
         groups = TransactionGroup.assemble(leading_tx, following_tx)
         for group in groups:
-            group.inventory()
             if save_db:
                 self._group_collection.insert_one(group.to_json())
         if save_db:
