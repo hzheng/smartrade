@@ -35,10 +35,10 @@ def index():
     for symbol, price in quotes.items():
         quantity = position_map[symbol]
         index = 0
+        value = quantity * price
         if '_' in symbol:
             index = 1
-            price *= 100
-        value = quantity * price
+            value *= 100
         values[index][symbol] = (quantity, price, value)
         values[index + 2] += value
 
