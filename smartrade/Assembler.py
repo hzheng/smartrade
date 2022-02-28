@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from smartrade.TransactionGroup import TransactionGroup
-
 import pymongo
+
+from smartrade.TransactionGroup import TransactionGroup
 
 
 class Assembler:

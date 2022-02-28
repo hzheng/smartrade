@@ -4,7 +4,6 @@ import csv
 import datetime
 import json
 
-from dateutil.parser import parse
 import pymongo
 
 from smartrade.Transaction import Transaction
@@ -13,12 +12,14 @@ from smartrade.Transaction import Transaction
 class Loader:
     def __init__(self, db_name, broker=None):
         client = pymongo.MongoClient()
-        self._db = client[db_name]
+        db = client[db_name]
+        self._transactions = db.transactions
+        self._transaction_groups = db.transaction_groups
         self._broker = broker
     
     def live_load(self, account_alias=None, start_date=None, end_date=None):
         if not start_date:
-            for obj in self._db.transactions.find().sort([("date", pymongo.DESCENDING)]).limit(1):
+            for obj in self._transactions.find().sort([("date", pymongo.DESCENDING)]).limit(1):
                 start_date = obj['date'] + datetime.timedelta(1)
         json_obj = self._broker.get_transactions(account_alias, start_date, end_date)
         valid_transactions, invalid_transactions = self._get_transactions(json_obj)
@@ -125,11 +126,11 @@ class Loader:
         return valid_transactions, invalid_transactions
 
     def _save(self, transactions, reload):
-        db = self._db
         if reload:
-            db.client.drop_database(db.name)
+            self._transactions.drop()
+            self._transaction_groups.drop()
         for tx in transactions:
-            db.transactions.insert_one(tx.to_json())
+            self._transactions.insert_one(tx.to_json())
 
     @classmethod
     def _get_symbol(cls, instrument):

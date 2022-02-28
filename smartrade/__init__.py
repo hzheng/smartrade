@@ -18,6 +18,7 @@ import yaml
 from flask import Flask
 
 from smartrade.BrokerClient import BrokerClient
+from smartrade.MarketDataProvider import MarketDataProvider
 from smartrade.TDAmeritradeClient import TDAmeritradeClient
 from smartrade.TransactionGroup import TransactionGroup
 
@@ -31,9 +32,11 @@ def create_app(config=None):
     if conf_path in os.environ:
         # app.config.from_envvar(conf_path)
         conf_file = os.environ[conf_path]
-        client = BrokerClient.get_brokers(conf_file)[0]
-        app.config['broker'] = client
-        TransactionGroup.set_broker(client)
+        broker = BrokerClient.get_brokers(conf_file)[0]
+        app.config['broker'] = broker
+        provider = MarketDataProvider(broker, app.config['DATABASE'])
+        app.config['provider'] = provider
+        TransactionGroup.set_provider(provider)
         with open(conf_file, 'r') as cfg_file:
             yaml_conf = yaml.load(cfg_file, yaml.SafeLoader)
             app.config.update(yaml_conf)

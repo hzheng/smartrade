@@ -8,7 +8,7 @@ from smartrade.Transaction import InstrumentType, Transaction, Action
 
 class TransactionGroup:
 
-    _broker = None
+    _provider = None
 
     def __init__(self, leading_transactions=None):
         self._chains = {tx: [] for tx in leading_transactions} if leading_transactions else {}
@@ -21,8 +21,8 @@ class TransactionGroup:
         self._roi = None
 
     @classmethod
-    def set_broker(cls, broker):
-        cls._broker = broker
+    def set_provider(cls, broker):
+        cls._provider = broker
 
     @classmethod
     def _merge_docs(cls, transaction_docs):
@@ -137,11 +137,11 @@ class TransactionGroup:
         self._roi = roi
 
     def _get_market_value(self):
-        if not self._broker: return 0
+        if not self._provider: return 0
 
         val = 0
         for symbol, qty in self.positions.items():
-            price = self._broker.get_quotes(symbol)[symbol]
+            price = self._provider.get_quotes(symbol)[symbol]
             val += price * qty * (100 if '_' in symbol else 1)
         return val
 

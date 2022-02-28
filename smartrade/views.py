@@ -27,11 +27,11 @@ def index():
         'total_market_value': total_market_value,
         'total_cash': total_cash
     }
-    broker = app.config['broker']
+    provider = app.config['provider']
     positions = inspector.total_positions().values()
     position_map = {symbol: qty for pos_map in positions for symbol, qty in pos_map.items()}
     values=[{}, {}, 0, 0]
-    quotes = broker.get_quotes(position_map.keys())
+    quotes = provider.get_quotes(position_map.keys())
     for symbol, price in quotes.items():
         quantity = position_map[symbol]
         index = 0

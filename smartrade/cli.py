@@ -16,6 +16,7 @@ from smartrade.BrokerClient import BrokerClient
 from smartrade.exceptions import ConfigurationError
 from smartrade.Inspector import Inspector
 from smartrade.Loader import Loader
+from smartrade.MarketDataProvider import MarketDataProvider
 from smartrade.TDAmeritradeClient import TDAmeritradeClient
 from smartrade.TransactionGroup import TransactionGroup
 
@@ -72,6 +73,10 @@ def get_config():
     with open(cfg_path, 'r') as cfg_file:
         return yaml.load(cfg_file, yaml.SafeLoader)
 
+def get_provider(config, db_name):
+    broker = get_broker(config)
+    return MarketDataProvider(broker, db_name)
+
 # ============Command Argument Parse============
 
 parser = ArgumentParser(description='Transaction tracking')
@@ -116,9 +121,10 @@ def load(config, args):
     db_name = args.database_name or config['DATABASE'][env]
     data_dir = args.data_dir or config['DATA_DIR'][env]
     data_files = sorted([join(data_dir, f) for f in listdir(data_dir) if f.endswith('.csv') or f.endswith('.json')])
-    client = get_broker(config)
-    TransactionGroup.set_broker(client)
-    loader = Loader(db_name, client)
+    broker = get_broker(config)
+    provider = MarketDataProvider(broker, db_name)
+    TransactionGroup.set_provider(provider)
+    loader = Loader(db_name, broker)
     start_date = parse(args.start_date) if args.start_date else None
     end_date = parse(args.end_date) if args.end_date else None
     if args.live:
@@ -151,8 +157,8 @@ def report(config, args):
     env = _get_env(args)
     db_name = args.database_name or config['DATABASE'][env]
     inspector = Inspector(db_name)
-    client = get_broker(config)
-    TransactionGroup.set_broker(client)
+    provider = get_provider(config, db_name)
+    TransactionGroup.set_provider(provider)
     for ticker in (args.ticker if args.ticker else inspector.distinct_tickers(args.start_date, args.end_date)):
         ticker = ticker.upper()
         tx_groups = inspector.ticker_transaction_groups(ticker)
@@ -174,12 +180,17 @@ def _display_transaction_groups(ticker, tx_groups):
                 print("\t", tx.date, "qty:", tx.quantity, "price:", tx.price, "amount:", tx.amount)
 
 @subcommand(
+    *data_options,
+    argument('-t', '--date', help='date'),
     argument('-a', '--account', help='account name'),
     argument('symbols', nargs="+", help="symbol"))
 def quote(config, args):
     """Quote a symbol(s)."""
-    client = get_broker(config)
-    pprint(client.get_quotes(args.symbols))
+    env = _get_env(args)
+    db_name = args.database_name or config['DATABASE'][env]
+    provider = get_provider(config, db_name)
+    pprint(provider.get_quotes(args.symbols, args.date))
+
 
 @subcommand(*filter_options,
     argument('-a', '--account', help='account name'))
