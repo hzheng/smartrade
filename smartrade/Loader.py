@@ -3,6 +3,7 @@
 import csv
 import datetime
 import json
+import re
 
 import pymongo
 
@@ -10,18 +11,22 @@ from smartrade.Transaction import Transaction
 
 
 class Loader:
-    def __init__(self, db_name, broker=None):
+    def __init__(self, db_name, account, broker=None):
         client = pymongo.MongoClient()
         db = client[db_name]
         self._transactions = db.transactions
         self._transaction_groups = db.transaction_groups
+        self._account = account[-4:]
+        self._account_cond = {'account' : account[-4:]}
         self._broker = broker
     
-    def live_load(self, account_alias=None, start_date=None, end_date=None):
+    def live_load(self, start_date=None, end_date=None):
+        if not self._broker: raise ValueError("Broker is null")
+
         if not start_date:
-            for obj in self._transactions.find().sort([("date", pymongo.DESCENDING)]).limit(1):
+            for obj in self._transactions.find(self._account_cond).sort([("date", pymongo.DESCENDING)]).limit(1):
                 start_date = obj['date'] + datetime.timedelta(1)
-        json_obj = self._broker.get_transactions(account_alias, start_date, end_date)
+        json_obj = self._broker.get_transactions(self._account, start_date, end_date)
         valid_transactions, invalid_transactions = self._get_transactions(json_obj)
         self._save(valid_transactions, False)
         return valid_transactions, invalid_transactions
@@ -32,19 +37,28 @@ class Loader:
         return valid_transactions, invalid_transactions
 
     def _parse_file(self, path):
-        if path.endswith(".csv"): # schwab format
+        path = path.upper()
+        if path.endswith(".CSV"): # schwab format
             return self._parse_csv(path)
-        if path.endswith(".json"): # tdameritrade format
+        if path.endswith(".JSON"): # tdameritrade format
             return self._parse_json(path)
+        raise ValueError(f"unsupported file extension: {path}")
 
     def _parse_csv(self, path):
         valid_transactions = []
         invalid_transactions = []
         with open(path) as csv_file:
-            for row in csv.reader(csv_file):
+            reader = csv.reader(csv_file)
+            row = next(reader)[0]
+            account = re.match('.*account ([^ ]+) .*', row).groups()[0][-4:]
+            if account != self._account: return [], []
+
+            for row in reader:
                 try:
                     date, action, symbol, description, quantity, price, fee, amount, _ = row
-                    tx = Transaction.from_dict(date=date, action=action, symbol=symbol, quantity=quantity, price=price, fee=fee, amount=amount, description=description)
+                    tx = Transaction.from_dict(
+                        account=account, date=date, action=action, symbol=symbol,
+                        quantity=quantity, price=price, fee=fee, amount=amount, description=description)
                     if tx.is_valid():
                         valid_transactions.append(tx)
                     else:
@@ -67,6 +81,8 @@ class Loader:
                 continue
 
             tx_item = obj['transactionItem']
+            if str(tx_item.get('accountId', None))[-4:] != self._account: continue
+ 
             date = obj['transactionDate']
             amount = obj.get('netAmount', None)
             quantity = tx_item.get('amount', None)
@@ -118,7 +134,9 @@ class Loader:
                 invalid_transactions.append(obj)
                 continue
 
-            tx = Transaction.from_dict(date=date, action=action, symbol=symbol, quantity=quantity, price=price, fee=total_fee, amount=amount, description=description)
+            tx = Transaction.from_dict(account=self._account, date=date, action=action,
+                                       symbol=symbol, quantity=quantity, price=price,
+                                       fee=total_fee, amount=amount, description=description)
             if tx.is_valid():
                 valid_transactions.append(tx)
             else:

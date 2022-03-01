@@ -5,6 +5,7 @@ import unittest
 
 class TestBase(unittest.TestCase):
     DB_NAME = "trading_test"
+    ACCOUNT1 = "7379"
 
     @classmethod
     def setUpClass(cls):

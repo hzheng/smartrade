@@ -21,48 +21,48 @@ from smartrade.TDAmeritradeClient import TDAmeritradeClient
 from smartrade.TransactionGroup import TransactionGroup
 
 
-def load_db(db_name, path, reload=True):
-    loader = Loader(db_name)
+def load_db(db_name, account, path, reload=True):
+    loader = Loader(db_name, account)
     return loader.load(path, reload)
 
-def total_investment(db_name, start_date=None, end_date=None):
-    inspector = Inspector(db_name)
+def total_investment(db_name, account, start_date=None, end_date=None):
+    inspector = Inspector(db_name, account)
     return inspector.total_investment(start_date, end_date)
 
-def total_interest(db_name, start_date=None, end_date=None):
-    inspector = Inspector(db_name)
+def total_interest(db_name, account, start_date=None, end_date=None):
+    inspector = Inspector(db_name, account)
     return inspector.total_interest(start_date, end_date)
 
-def total_dividend(db_name, start_date=None, end_date=None):
-    inspector = Inspector(db_name)
+def total_dividend(db_name, account, start_date=None, end_date=None):
+    inspector = Inspector(db_name, account)
     return inspector.total_dividend(start_date, end_date)
 
-def total_trading(db_name, start_date=None, end_date=None):
-    inspector = Inspector(db_name)
+def total_trading(db_name, account, start_date=None, end_date=None):
+    inspector = Inspector(db_name, account)
     return inspector.total_trading(start_date, end_date)
 
-def total_cash(db_name, start_date=None, end_date=None):
-    inspector = Inspector(db_name)
+def total_cash(db_name, account, start_date=None, end_date=None):
+    inspector = Inspector(db_name, account)
     return inspector.total_cash(start_date, end_date)
 
-def total_profit(db_name, start_date=None, end_date=None):
-    inspector = Inspector(db_name)
+def total_profit(db_name, account, start_date=None, end_date=None):
+    inspector = Inspector(db_name, account)
     return inspector.total_profit(start_date, end_date)
 
-def distinct_tickers(db_name, start_date=None, end_date=None):
-    inspector = Inspector(db_name)
+def distinct_tickers(db_name, account, start_date=None, end_date=None):
+    inspector = Inspector(db_name, account)
     return inspector.distinct_tickers(start_date, end_date)
 
-def ticker_costs(db_name, ticker, start_date=None, end_date=None):
-    inspector = Inspector(db_name)
+def ticker_costs(db_name, account, ticker, start_date=None, end_date=None):
+    inspector = Inspector(db_name, account)
     return inspector.ticker_costs(ticker, start_date, end_date)
 
-def ticker_transaction_groups(db_name, ticker):
-    inspector = Inspector(db_name)
+def ticker_transaction_groups(db_name, account, ticker):
+    inspector = Inspector(db_name, account)
     return inspector.ticker_transaction_groups(ticker)
 
-def group_transactions(db_name, ticker, save_db=False):
-    return Assembler(db_name).group_transactions(ticker, save_db)
+def group_transactions(db_name, account, ticker, save_db=False):
+    return Assembler(db_name, account).group_transactions(ticker, save_db)
 
 def get_broker(config):
     cfg_path = expanduser(config['conf_path'])
@@ -113,7 +113,7 @@ filter_options = (
 
 @subcommand(*data_options, *filter_options,
             argument('-v', '--verbose', action='store_true', help='show transaction groups'),
-            argument('-a', '--account', help='account name'),
+            argument('-a', '--account', help='account id or alias or index'),
             argument('-t', '--ticker', nargs='+', help="ticker name(s)"))
 def load(config, args):
     """Load transactions."""
@@ -122,14 +122,15 @@ def load(config, args):
     data_dir = args.data_dir or config['DATA_DIR'][env]
     data_files = sorted([join(data_dir, f) for f in listdir(data_dir) if f.endswith('.csv') or f.endswith('.json')])
     broker = get_broker(config)
+    account_id = broker.get_account_id(args.account)
     provider = MarketDataProvider(broker, db_name)
     TransactionGroup.set_provider(provider)
-    loader = Loader(db_name, broker)
+    loader = Loader(db_name, account_id, broker)
     start_date = parse(args.start_date) if args.start_date else None
     end_date = parse(args.end_date) if args.end_date else None
     if args.live:
         transactions, invalid_transactions = loader.live_load(
-            args.account, start_date=start_date, end_date=end_date)
+            start_date=start_date, end_date=end_date)
         i = 0
         for tx in transactions:
             i += 1
@@ -138,8 +139,8 @@ def load(config, args):
         loader.load(data_files[0], args.reload)
         for f in data_files[1:]:
             loader.load(f, False)
-    assembler = Assembler(db_name)
-    inspector = Inspector(db_name)
+    assembler = Assembler(db_name, account_id)
+    inspector = Inspector(db_name, account_id)
     for ticker in (args.ticker if args.ticker else inspector.distinct_tickers(args.start_date, args.end_date)):
         ticker = ticker.upper()
         tx_groups = assembler.group_transactions(ticker, args.save_database)
@@ -150,13 +151,15 @@ def load(config, args):
 
 @subcommand(*data_options, *filter_options,
             argument('-v', '--verbose', action='store_true', help='show transaction groups'),
-            argument('-a', '--account', help='account name'),
+            argument('-a', '--account', help='account id or alias or index'),
             argument('-t', '--ticker', nargs='+', help="ticker name(s)"))
 def report(config, args):
     """Report transactions."""
     env = _get_env(args)
     db_name = args.database_name or config['DATABASE'][env]
-    inspector = Inspector(db_name)
+    broker = get_broker(config)
+    account_id = broker.get_account_id(args.account)
+    inspector = Inspector(db_name, account_id)
     provider = get_provider(config, db_name)
     TransactionGroup.set_provider(provider)
     for ticker in (args.ticker if args.ticker else inspector.distinct_tickers(args.start_date, args.end_date)):
@@ -182,7 +185,7 @@ def _display_transaction_groups(ticker, tx_groups):
 @subcommand(
     *data_options,
     argument('-t', '--date', help='date'),
-    argument('-a', '--account', help='account name'),
+    argument('-a', '--account', help='account id or alias or index'),
     argument('symbols', nargs="+", help="symbol"))
 def quote(config, args):
     """Quote a symbol(s)."""
@@ -193,7 +196,7 @@ def quote(config, args):
 
 
 @subcommand(*filter_options,
-    argument('-a', '--account', help='account name'))
+    argument('-a', '--account', help='account id or alias or index'))
 def transaction(config, args):
     """Get transactions."""
     client = get_broker(config)

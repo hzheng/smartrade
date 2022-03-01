@@ -12,9 +12,13 @@ from smartrade.Loader import Loader
 from smartrade.TransactionGroup import TransactionGroup
 
 @app.route("/")
-def index():
+def home():
+    return render_template("home.html")
+
+@app.route("/home/<account>")
+def account_home(account):
     db_name = app.config['DATABASE']
-    inspector = Inspector(db_name)
+    inspector = Inspector(db_name, account)
     total_profit, total_market_value = inspector.total_profit()
     total_cash = inspector.total_cash()
     total_market_value += total_cash
@@ -43,33 +47,33 @@ def index():
         values[index + 2] += value
 
     tickers = inspector.distinct_tickers()
-    return render_template("home.html", summary=summary, positions=positions,
-                           values=values, tickers=tickers,
+    return render_template("home.html", account=account, summary=summary,
+                           positions=positions, values=values, tickers=tickers,
                            period=inspector.transaction_period())
 
-@app.route("/load")
-def load():
+@app.route("/load/<account>")
+def load(account):
     db_name = app.config['DATABASE']
     data_dir = app.config['DATA_DIR']
     data_files = sorted([join(data_dir, f) for f in listdir(data_dir) if f.endswith('.csv') or f.endswith('.json')])
-    loader = Loader(db_name, app.config['broker'])
+    loader = Loader(db_name, account, app.config['broker'])
     for i, f in enumerate(data_files):
         loader.load(f, i == 0)
     loader.live_load()
-    assembler = Assembler(db_name)
-    inspector = Inspector(db_name)
+    assembler = Assembler(db_name, account)
+    inspector = Inspector(db_name, account)
     tickers = inspector.distinct_tickers()
     for ticker in tickers:
         assembler.group_transactions(ticker, True)
-    return render_template("tickers.html", tickers=tickers, loaded=True)
+    return render_template("tickers.html", account=account, tickers=tickers, loaded=True)
 
-@app.route("/report/<ticker>")
-def report(ticker):
+@app.route("/report/<account>/<ticker>")
+def report(account, ticker):
     db_name = app.config['DATABASE']
-    inspector = Inspector(db_name)
+    inspector = Inspector(db_name, account)
     ticker = ticker.upper()
     tx_groups = inspector.ticker_transaction_groups(ticker)
     total, profit, positions = TransactionGroup.compute_total(tx_groups)
     return render_template("transactions.html",
-                           ticker=ticker, profit=profit,
+                           account=account, ticker=ticker, profit=profit,
                            positions=positions, groups=tx_groups)

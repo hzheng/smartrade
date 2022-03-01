@@ -11,6 +11,7 @@ class TransactionGroup:
     _provider = None
 
     def __init__(self, leading_transactions=None):
+        self._account = None
         self._chains = {tx: [] for tx in leading_transactions} if leading_transactions else {}
         self._positions = None
         self._cost = None
@@ -78,6 +79,7 @@ class TransactionGroup:
                     break
             assert(grouped)
         for group in groups:
+            group._account = merged_leading_tx[0].account
             group._inventory()
         return groups
     
@@ -179,17 +181,20 @@ class TransactionGroup:
 
     def to_json(self):
         chains = []
+        account = None
         ui = None
-        for otx, ctx in self._chains.items():
+        for otx, ctx in self.chains.items():
             tx = [otx.to_json(False)]
             tx.extend([tx.to_json(True) for tx in ctx])
             chains.append(tx)
+            account = otx.account
             ui = otx.symbol.ui
-        return {'ui': ui, 'chains': chains}
+        return {'ui': ui, 'account': account, 'chains': chains}
 
     @classmethod
     def from_doc(cls, doc):
         self = cls()
+        self._account = doc['account']
         chains = self._chains = {}
         ui = doc['ui']
         for chain_array in doc['chains']:
@@ -229,6 +234,10 @@ class TransactionGroup:
         return total, profit, positions_list
 
     @property
+    def account(self):
+        return self._account
+
+    @property
     def chains(self):
         return self._chains
 
@@ -265,8 +274,7 @@ class TransactionGroup:
         return not self.positions
 
     def __repr__(self):
-        profit = "" if self.profit is None else f"profit={self.profit:.2f}"
-        return f"TransationGroup: {profit}, {self._chains}"
+        return f"TransationGroup: account={self.account}, ui={self.ui}, chains={self.chains}"
 
     def __str__(self):
         return self.__repr__()

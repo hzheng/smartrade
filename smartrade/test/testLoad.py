@@ -16,15 +16,15 @@ class TestLoad(TestBase):
         super().tearDownClass()
 
     def test_load(self):
-        valid_transactions, invalid_transactions = load_db(self.DB_NAME, "smartrade/test/sample1.csv")
+        valid_transactions, invalid_transactions = load_db(self.DB_NAME, self.ACCOUNT1, "smartrade/test/sample1.csv")
         self.assertEqual(347, len(valid_transactions))
-        self.assertEqual(3, len(invalid_transactions))
+        self.assertEqual(2, len(invalid_transactions))
  
-        valid_transactions, invalid_transactions = load_db(self.DB_NAME, "smartrade/test/sample2.csv", False)
+        valid_transactions, invalid_transactions = load_db(self.DB_NAME, self.ACCOUNT1, "smartrade/test/sample2.csv", False)
         self.assertEqual(29, len(valid_transactions))
-        self.assertEqual(3, len(invalid_transactions))
+        self.assertEqual(2, len(invalid_transactions))
  
-        valid_transactions, invalid_transactions = load_db(self.DB_NAME, "smartrade/test/sample3.json", False)
+        valid_transactions, invalid_transactions = load_db(self.DB_NAME, self.ACCOUNT1, "smartrade/test/sample3.json", False)
         self.assertEqual(6, len(valid_transactions))
         self.assertEqual(0, len(invalid_transactions))
 

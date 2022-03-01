@@ -22,7 +22,7 @@
             "secFee": 0.01
         },
         "transactionItem": {
-            "accountId": 253697379,
+            "accountId": 7379,
             "amount": 1.0,
             "price": 22.5,
             "cost": 2250.0,
@@ -62,7 +62,7 @@
             "secFee": 0.02
         },
         "transactionItem": {
-            "accountId": 253697379,
+            "accountId": 7379,
             "amount": 100.0,
             "price": 41.2,
             "cost": 4120.0,
@@ -95,6 +95,7 @@
             "secFee": 0.0
         },
         "transactionItem": {
+            "accountId": 7379,
             "amount": 100.0,
             "price": 41.0,
             "cost": -4100.0,
@@ -127,7 +128,7 @@
             "secFee": 0.0
         },
         "transactionItem": {
-            "accountId": 253697379,
+            "accountId": 7379,
             "amount": 1.0,
             "cost": 0.0,
             "instrument": {
@@ -161,6 +162,7 @@
             "secFee": 0
         },
         "transactionItem": {
+            "accountId": 7379,
             "amount": 1,
             "price": 0,
             "instrument": {
@@ -193,6 +195,7 @@
             "secFee": 0
         },
         "transactionItem": {
+            "accountId": 7379,
             "amount": 100,
             "price": 41,
             "instruction": "BUY",
@@ -223,7 +226,7 @@
             "secFee": 0
         },
         "transactionItem": {
-            "accountId": 253697379,
+            "accountId": 7379,
             "amount": 10282.81,
             "cost": 0,
             "instrument": {
@@ -255,7 +258,7 @@
             "secFee": 0
         },
         "transactionItem": {
-            "accountId": 253697379,
+            "accountId": 7379,
             "cost": 0
         }
     },
@@ -282,7 +285,7 @@
             "secFee": 0
         },
         "transactionItem": {
-            "accountId": 253697379,
+            "accountId": 7379,
             "amount": 1,
             "price": 1.41,
             "cost": 141,
@@ -322,7 +325,7 @@
             "secFee": 0
         },
         "transactionItem": {
-            "accountId": 253697379,
+            "accountId": 7379,
             "amount": 1,
             "price": 63.5,
             "cost": -6350,

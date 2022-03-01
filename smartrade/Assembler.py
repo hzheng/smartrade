@@ -6,11 +6,12 @@ from smartrade.TransactionGroup import TransactionGroup
 
 
 class Assembler:
-    def __init__(self, db_name):
+    def __init__(self, db_name, account):
         client = pymongo.MongoClient()
         self._db = client[db_name]
         self._tx_collection = self._db.transactions
         self._group_collection = self._db.transaction_groups
+        self._account_cond = {'account' : account[-4:]}
 
     def group_transactions(self, ticker, save_db=False):
         tx_collection = self._tx_collection
@@ -20,10 +21,11 @@ class Assembler:
         following_dates = {res['date']
                            for res in tx_collection.find(close_action_cond, {'date': 1})}
 
-        leading_cond = {'action': {'$in': ['STO', 'BTO']},
+        leading_cond = {**self._account_cond, 'action': {'$in': ['STO', 'BTO']},
                         'date': {'$nin': list(following_dates)},
                         **ungrouped_cond}
-        following_cond = {'action': {'$in': ['STC', 'BTC', 'EXPIRED', 'ASSIGNED', 'EXERCISE', 'STO', 'BTO']},
+        following_cond = {**self._account_cond,
+                          'action': {'$in': ['STC', 'BTC', 'EXPIRED', 'ASSIGNED', 'EXERCISE', 'STO', 'BTO']},
                           'date': {'$in': list(following_dates)},
                           **ungrouped_cond}
         order = [('date', pymongo.ASCENDING),

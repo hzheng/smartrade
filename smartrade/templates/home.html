@@ -15,7 +15,7 @@ Smartrade
 <p>Welcome to the Smartrade</p>
 
 <p>Transactions ({{period[0].strftime('%m/%d/%Y')}} - {{period[1].strftime('%m/%d/%Y')}})
-    <a href="load">Reload data</a>
+    <a href="/load/{{account}}">Reload data</a>
 </p>
 
 <section>
@@ -94,7 +94,7 @@ Smartrade
     Transactions by tickers
     <ul>
         {% for ticker in tickers %}
-        <li><a href="report/{{ticker}}">{{ticker}}</a></li>
+        <li><a href="/report/{{account}}/{{ticker}}">{{ticker}}</a></li>
         {% endfor %}
     </ul>
 </section>

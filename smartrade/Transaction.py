@@ -149,7 +149,7 @@ class Transaction:
     def from_doc(cls, doc):
         self = cls()
         self._valid = True
-        for attr in ['date', 'quantity', 'price', 'fee', 'amount', 'ui', 'strike', 'expired', 'description', 'grouped']:
+        for attr in ['account', 'date', 'quantity', 'price', 'fee', 'amount', 'ui', 'strike', 'expired', 'description', 'grouped']:
             setattr(self, "_" + attr, doc.get(attr, None))
         assert(self.quantity >= 0)
         self._action = Action.from_str(doc['action'])
@@ -169,6 +169,7 @@ class Transaction:
     def from_dict(cls, **map):
         self = cls()
         self._valid = False
+        self._account = map['account']
         qty = self._get_int(map['quantity'])
         self._action = Action.from_str(map['action'].strip())
         self._quantity = abs(qty)
@@ -200,7 +201,7 @@ class Transaction:
         return True
 
     def merge(self, other):
-        if self.symbol != other.symbol or self.action != other.action or self.date != other.date:
+        if self.account != other.account or self.symbol != other.symbol or self.action != other.action or self.date != other.date:
             return
 
         res = copy.copy(self)
@@ -225,7 +226,7 @@ class Transaction:
         return other
  
     def same_group(self, other):
-        return self.date == other.date and self.symbol.ui == other.symbol.ui
+        return self.account == other.account and self.date == other.date and self.symbol.ui == other.symbol.ui
 
     def is_option(self):
         return self._symbol.is_option()
@@ -267,6 +268,7 @@ class Transaction:
         if not hide:
             json['type'] = str(symbol.type).split('.')[1]
         if hide is None:
+            json['account'] = self.account
             json['description'] = self.description
             json['grouped'] = self.grouped
         if symbol.ui:
@@ -278,12 +280,16 @@ class Transaction:
         return json
 
     def __repr__(self):
-        return (f"date={self.date}, action={str(self.action)}, symbol={self.symbol},"
+        return (f"account={self.account}, date={self.date}, action={str(self.action)}, symbol={self.symbol},"
                 f" price={self.price:.4f}, quantity={self.quantity},"
                 f" fee={self.fee:.2f}, amount={self.amount}{'' if self.is_valid() else ' INVALID'}")
 
     def __str__(self):
         return self.__repr__()
+
+    @property
+    def account(self):
+        return self._account
 
     @property
     def date(self):

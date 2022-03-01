@@ -32,6 +32,7 @@ class TestTransaction(TestBase):
     def test_transaction(self):
         transactions = [
             Transaction.from_dict(
+                account=self.ACCOUNT1,
                 date="01/24/2022",
                 price="$0.86",
                 action="Sell to Open",
@@ -40,6 +41,7 @@ class TestTransaction(TestBase):
                 amount="$853.40",
                 symbol="AAPL 01/28/2022 140.00 P"),
             Transaction.from_dict(
+                account=self.ACCOUNT1,
                 date="01/24/2022",
                 price="$0.86",
                 action="Sell to Open",
@@ -48,6 +50,7 @@ class TestTransaction(TestBase):
                 amount="$1706.80",
                 symbol="AAPL 01/28/2022 140.00 P"),
             Transaction.from_dict(
+                account=self.ACCOUNT1,
                 date="01/24/2022",
                 price="$0.54",
                 action="Buy to Open",
@@ -56,6 +59,7 @@ class TestTransaction(TestBase):
                 amount="-$546.60",
                 symbol="AAPL 01/28/2022 135.00 P"),
             Transaction.from_dict(
+                account=self.ACCOUNT1,
                 date="01/24/2022",
                 price="$0.26",
                 action="Sell to Open",
@@ -64,6 +68,7 @@ class TestTransaction(TestBase):
                 amount="$253.40",
                 symbol="SPY 02/04/2022 436.00 P"),
             Transaction.from_dict(
+                account=self.ACCOUNT1,
                 date="01/24/2022",
                 price="$0.26",
                 action="Sell to Open",
