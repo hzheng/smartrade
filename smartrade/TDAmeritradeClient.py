@@ -33,6 +33,7 @@ class TDAmeritradeClient(BrokerClient):
 
     def get_transactions(self, account_alias=None, start_date=None, end_date=None):
         account_id = self.get_account_id(account_alias)
+        # if start_date is not None, unsettled transactions will be ignored
         r = self._client.get_transactions(account_id,
                                           start_date=start_date, end_date=end_date)
         assert r.status_code == 200, r.raise_for_status()

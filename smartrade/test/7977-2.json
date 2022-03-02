@@ -1,0 +1,373 @@
+[
+    {
+        "type": "RECEIVE_AND_DELIVER",
+        "subAccount": "1",
+        "settlementDate": "2022-01-28",
+        "netAmount": 0.0,
+        "transactionDate": "2022-01-28T06:00:01+0000",
+        "transactionSubType": "PM",
+        "transactionId": 40374588070,
+        "cashBalanceEffectFlag": true,
+        "description": "CASH ALTERNATIVES PURCHASE",
+        "fees": {
+            "rFee": 0.0,
+            "additionalFee": 0.0,
+            "cdscFee": 0.0,
+            "regFee": 0.0,
+            "otherCharges": 0.0,
+            "commission": 0.0,
+            "optRegFee": 0.0,
+            "secFee": 0.0
+        },
+        "transactionItem": {
+            "accountId": 7977,
+            "amount": 0.01,
+            "cost": 0.0,
+            "instrument": {
+                "symbol": "MMDA1",
+                "cusip": "9ZZZFD104",
+                "assetType": "CASH_EQUIVALENT",
+                "type": "MONEY_MARKET"
+            }
+        }
+    },
+    {
+        "type": "JOURNAL",
+        "subAccount": "2",
+        "settlementDate": "2022-01-28",
+        "netAmount": -0.01,
+        "transactionDate": "2022-01-28T06:00:01+0000",
+        "transactionSubType": "PM",
+        "transactionId": 40374588050,
+        "cashBalanceEffectFlag": true,
+        "description": "CASH ALTERNATIVES PURCHASE",
+        "fees": {
+            "rFee": 0.0,
+            "additionalFee": 0.0,
+            "cdscFee": 0.0,
+            "regFee": 0.0,
+            "otherCharges": 0.0,
+            "commission": 0.0,
+            "optRegFee": 0.0,
+            "secFee": 0.0
+        },
+        "transactionItem": {
+            "accountId": 7977,
+            "cost": 0.0
+        }
+    },
+    {
+        "type": "RECEIVE_AND_DELIVER",
+        "subAccount": "1",
+        "settlementDate": "2022-01-26",
+        "netAmount": 0.0,
+        "transactionDate": "2022-01-26T06:00:01+0000",
+        "transactionSubType": "RM",
+        "transactionId": 40313138745,
+        "cashBalanceEffectFlag": true,
+        "description": "CASH ALTERNATIVES REDEMPTION",
+        "fees": {
+            "rFee": 0.0,
+            "additionalFee": 0.0,
+            "cdscFee": 0.0,
+            "regFee": 0.0,
+            "otherCharges": 0.0,
+            "commission": 0.0,
+            "optRegFee": 0.0,
+            "secFee": 0.0
+        },
+        "transactionItem": {
+            "accountId": 7977,
+            "amount": 460.91,
+            "cost": 0.0,
+            "instrument": {
+                "symbol": "MMDA1",
+                "cusip": "9ZZZFD104",
+                "assetType": "CASH_EQUIVALENT",
+                "type": "MONEY_MARKET"
+            }
+        }
+    },
+    {
+        "type": "JOURNAL",
+        "subAccount": "2",
+        "settlementDate": "2022-01-26",
+        "netAmount": 460.91,
+        "transactionDate": "2022-01-26T06:00:01+0000",
+        "transactionSubType": "RM",
+        "transactionId": 40313138735,
+        "cashBalanceEffectFlag": true,
+        "description": "CASH ALTERNATIVES REDEMPTION",
+        "fees": {
+            "rFee": 0.0,
+            "additionalFee": 0.0,
+            "cdscFee": 0.0,
+            "regFee": 0.0,
+            "otherCharges": 0.0,
+            "commission": 0.0,
+            "optRegFee": 0.0,
+            "secFee": 0.0
+        },
+        "transactionItem": {
+            "accountId": 7977,
+            "cost": 0.0
+        }
+    },
+    {
+        "type": "TRADE",
+        "subAccount": "2",
+        "settlementDate": "2022-01-26",
+        "orderId": "6010532060.1",
+        "netAmount": 68.03,
+        "transactionDate": "2022-01-25T18:09:31+0000",
+        "orderDate": "2022-01-25T15:23:39+0000",
+        "transactionSubType": "SL",
+        "transactionId": 40295652509,
+        "cashBalanceEffectFlag": true,
+        "description": "SELL TRADE",
+        "fees": {
+            "rFee": 0.0,
+            "additionalFee": 0.0,
+            "cdscFee": 0.0,
+            "regFee": 0.07,
+            "otherCharges": 0.0,
+            "commission": 3.9,
+            "optRegFee": 0.06,
+            "secFee": 0.0
+        },
+        "transactionItem": {
+            "accountId": 7977,
+            "amount": 6.0,
+            "price": 0.12,
+            "cost": 72.0,
+            "instruction": "SELL",
+            "positionEffect": "OPENING",
+            "instrument": {
+                "symbol": "HOOD_012822P9",
+                "underlyingSymbol": "HOOD",
+                "optionExpirationDate": "2022-01-28T06:00:00+0000",
+                "putCall": "PUT",
+                "cusip": "0HOOD.MS20009000",
+                "description": "HOOD Jan 28 2022 9.0 Put",
+                "assetType": "OPTION"
+            }
+        }
+    },
+    {
+        "type": "TRADE",
+        "subAccount": "2",
+        "settlementDate": "2022-01-26",
+        "orderId": "6010532060.2",
+        "netAmount": -39.96,
+        "transactionDate": "2022-01-25T18:09:31+0000",
+        "orderDate": "2022-01-25T15:23:39+0000",
+        "transactionSubType": "BY",
+        "transactionId": 40295652541,
+        "cashBalanceEffectFlag": true,
+        "description": "BUY TRADE",
+        "fees": {
+            "rFee": 0.0,
+            "additionalFee": 0.0,
+            "cdscFee": 0.0,
+            "regFee": 0.06,
+            "otherCharges": 0.0,
+            "commission": 3.9,
+            "optRegFee": 0.06,
+            "secFee": 0.0
+        },
+        "transactionItem": {
+            "accountId": 7977,
+            "amount": 6.0,
+            "price": 0.06,
+            "cost": -36.0,
+            "instruction": "BUY",
+            "positionEffect": "OPENING",
+            "instrument": {
+                "symbol": "HOOD_012822P8",
+                "underlyingSymbol": "HOOD",
+                "optionExpirationDate": "2022-01-28T06:00:00+0000",
+                "putCall": "PUT",
+                "cusip": "0HOOD.MS20008000",
+                "description": "HOOD Jan 28 2022 8.0 Put",
+                "assetType": "OPTION"
+            }
+        }
+    },
+    {
+        "type": "TRADE",
+        "subAccount": "2",
+        "settlementDate": "2022-01-26",
+        "orderId": "6010531002",
+        "netAmount": 40.34,
+        "transactionDate": "2022-01-25T15:08:26+0000",
+        "orderDate": "2022-01-25T15:08:26+0000",
+        "transactionSubType": "SL",
+        "transactionId": 40291755355,
+        "cashBalanceEffectFlag": true,
+        "description": "SELL TRADE",
+        "fees": {
+            "rFee": 0.0,
+            "additionalFee": 0.0,
+            "cdscFee": 0.0,
+            "regFee": 0.01,
+            "otherCharges": 0.0,
+            "commission": 0.65,
+            "optRegFee": 0.01,
+            "secFee": 0.0
+        },
+        "transactionItem": {
+            "accountId": 7977,
+            "amount": 1.0,
+            "price": 0.41,
+            "cost": 41.0,
+            "instruction": "SELL",
+            "positionEffect": "OPENING",
+            "instrument": {
+                "symbol": "MU_012822C87",
+                "underlyingSymbol": "MU",
+                "optionExpirationDate": "2022-01-28T06:00:00+0000",
+                "putCall": "CALL",
+                "cusip": "0MU...AS20087000",
+                "description": "MU Jan 28 2022 87.0 Call",
+                "assetType": "OPTION"
+            }
+        }
+    },
+    {
+        "type": "TRADE",
+        "subAccount": "2",
+        "settlementDate": "2022-01-26",
+        "orderId": "6009832414",
+        "netAmount": 39.34,
+        "transactionDate": "2022-01-25T15:00:32+0000",
+        "orderDate": "2022-01-25T15:00:32+0000",
+        "transactionSubType": "SL",
+        "transactionId": 40291484182,
+        "cashBalanceEffectFlag": true,
+        "description": "SELL TRADE",
+        "fees": {
+            "rFee": 0.0,
+            "additionalFee": 0.0,
+            "cdscFee": 0.0,
+            "regFee": 0.01,
+            "otherCharges": 0.0,
+            "commission": 0.65,
+            "optRegFee": 0.01,
+            "secFee": 0.0
+        },
+        "transactionItem": {
+            "accountId": 7977,
+            "amount": 1.0,
+            "price": 0.4,
+            "cost": 40.0,
+            "instruction": "SELL",
+            "positionEffect": "OPENING",
+            "instrument": {
+                "symbol": "HOOD_012822C15",
+                "underlyingSymbol": "HOOD",
+                "optionExpirationDate": "2022-01-28T06:00:00+0000",
+                "putCall": "CALL",
+                "cusip": "0HOOD.AS20015000",
+                "description": "HOOD Jan 28 2022 15.0 Call",
+                "assetType": "OPTION"
+            }
+        }
+    },
+    {
+        "type": "TRADE",
+        "subAccount": "2",
+        "settlementDate": "2022-01-26",
+        "orderId": "6009155313",
+        "netAmount": 31.34,
+        "transactionDate": "2022-01-25T14:36:06+0000",
+        "orderDate": "2022-01-25T14:30:36+0000",
+        "transactionSubType": "SL",
+        "transactionId": 40290663391,
+        "cashBalanceEffectFlag": true,
+        "description": "SELL TRADE",
+        "fees": {
+            "rFee": 0.0,
+            "additionalFee": 0.0,
+            "cdscFee": 0.0,
+            "regFee": 0.01,
+            "otherCharges": 0.0,
+            "commission": 0.65,
+            "optRegFee": 0.01,
+            "secFee": 0.0
+        },
+        "transactionItem": {
+            "accountId": 7977,
+            "amount": 1.0,
+            "price": 0.32,
+            "cost": 32.0,
+            "instruction": "SELL",
+            "positionEffect": "OPENING",
+            "instrument": {
+                "symbol": "HOOD_012822C15.5",
+                "underlyingSymbol": "HOOD",
+                "optionExpirationDate": "2022-01-28T06:00:00+0000",
+                "putCall": "CALL",
+                "cusip": "0HOOD.AS20015500",
+                "description": "HOOD Jan 28 2022 15.5 Call",
+                "assetType": "OPTION"
+            }
+        }
+    },
+    {
+        "type": "RECEIVE_AND_DELIVER",
+        "subAccount": "1",
+        "settlementDate": "2022-01-25",
+        "netAmount": 0.0,
+        "transactionDate": "2022-01-25T06:03:38+0000",
+        "transactionSubType": "PM",
+        "transactionId": 40283641420,
+        "cashBalanceEffectFlag": true,
+        "description": "CASH ALTERNATIVES PURCHASE",
+        "fees": {
+            "rFee": 0.0,
+            "additionalFee": 0.0,
+            "cdscFee": 0.0,
+            "regFee": 0.0,
+            "otherCharges": 0.0,
+            "commission": 0.0,
+            "optRegFee": 0.0,
+            "secFee": 0.0
+        },
+        "transactionItem": {
+            "accountId": 7977,
+            "amount": 619.05,
+            "cost": 0.0,
+            "instrument": {
+                "symbol": "MMDA1",
+                "cusip": "9ZZZFD104",
+                "assetType": "CASH_EQUIVALENT",
+                "type": "MONEY_MARKET"
+            }
+        }
+    },
+    {
+        "type": "JOURNAL",
+        "subAccount": "2",
+        "settlementDate": "2022-01-25",
+        "netAmount": -619.05,
+        "transactionDate": "2022-01-25T06:02:03+0000",
+        "transactionSubType": "PM",
+        "transactionId": 40283641395,
+        "cashBalanceEffectFlag": true,
+        "description": "CASH ALTERNATIVES PURCHASE",
+        "fees": {
+            "rFee": 0.0,
+            "additionalFee": 0.0,
+            "cdscFee": 0.0,
+            "regFee": 0.0,
+            "otherCharges": 0.0,
+            "commission": 0.0,
+            "optRegFee": 0.0,
+            "secFee": 0.0
+        },
+        "transactionItem": {
+            "accountId": 7977,
+            "cost": 0.0
+        }
+    }
+]

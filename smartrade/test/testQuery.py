@@ -66,10 +66,10 @@ class TestQuery(TestBase):
         super().tearDownClass()
 
     def test_total_amount(self):
-        self.assertAlmostEqual(35893.74, total_cash(self.DB_NAME, self.ACCOUNT1, end_date='2022-01-30'))
-        self.assertAlmostEqual(27995.65, total_cash(self.DB_NAME, self.ACCOUNT1, end_date='2022-02-04'))
-        self.assertAlmostEqual(31094.92, total_cash(self.DB_NAME, self.ACCOUNT1, end_date='2022-02-07'))
-        self.assertAlmostEqual(20593.13, total_cash(self.DB_NAME, self.ACCOUNT1, end_date='2022-02-14'))
+        self.assertAlmostEqual(35893.74, total_cash(self.DB_NAME, self.ACCOUNT0, end_date='2022-01-30'))
+        self.assertAlmostEqual(27995.65, total_cash(self.DB_NAME, self.ACCOUNT0, end_date='2022-02-04'))
+        self.assertAlmostEqual(31094.92, total_cash(self.DB_NAME, self.ACCOUNT0, end_date='2022-02-07'))
+        self.assertAlmostEqual(20593.13, total_cash(self.DB_NAME, self.ACCOUNT0, end_date='2022-02-14'))
         
         expected_values = {
             '2021-12-31': [0, 0, 0, 0, 0],
@@ -78,60 +78,60 @@ class TestQuery(TestBase):
         }
         for (end_date, expected) in expected_values.items():
             self.assertAlmostEqual(expected[4], expected[0] + expected[1] + expected[2] - expected[3])
-            self.assertAlmostEqual(expected[0], total_investment(self.DB_NAME, self.ACCOUNT1, end_date=end_date))
-            self.assertAlmostEqual(expected[1], total_interest(self.DB_NAME, self.ACCOUNT1, end_date=end_date))
-            self.assertAlmostEqual(expected[2], total_dividend(self.DB_NAME, self.ACCOUNT1, end_date=end_date))
-            self.assertAlmostEqual(expected[3], total_cash(self.DB_NAME, self.ACCOUNT1, end_date=end_date))
-            self.assertAlmostEqual(expected[4], total_trading(self.DB_NAME, self.ACCOUNT1, end_date=end_date))
-            # self.assertAlmostEqual(expected[5], total_profit(self.DB_NAME, self.ACCOUNT1, end_date=end_date))
+            self.assertAlmostEqual(expected[0], total_investment(self.DB_NAME, self.ACCOUNT0, end_date=end_date))
+            self.assertAlmostEqual(expected[1], total_interest(self.DB_NAME, self.ACCOUNT0, end_date=end_date))
+            self.assertAlmostEqual(expected[2], total_dividend(self.DB_NAME, self.ACCOUNT0, end_date=end_date))
+            self.assertAlmostEqual(expected[3], total_cash(self.DB_NAME, self.ACCOUNT0, end_date=end_date))
+            self.assertAlmostEqual(expected[4], total_trading(self.DB_NAME, self.ACCOUNT0, end_date=end_date))
+            # self.assertAlmostEqual(expected[5], total_profit(self.DB_NAME, self.ACCOUNT0, end_date=end_date))
 
     def test_query_tickers(self):
         for date, expected_amt in self.expected_amounts.items():
             self.assertEqual(set(expected_amt.keys()),
-                             set(distinct_tickers(self.DB_NAME, self.ACCOUNT1, end_date=date)))
+                             set(distinct_tickers(self.DB_NAME, self.ACCOUNT0, end_date=date)))
 
     def test_query_ticker(self):
         for date, expected_amt in self.expected_amounts.items():
             for ticker, amount in expected_amt.items():
-                self.assertAlmostEqual(amount, ticker_costs(self.DB_NAME, self.ACCOUNT1, ticker, end_date=date))
+                self.assertAlmostEqual(amount, ticker_costs(self.DB_NAME, self.ACCOUNT0, ticker, end_date=date))
 
-        self.assertAlmostEqual(0.00, ticker_costs(self.DB_NAME, self.ACCOUNT1, 'NONE'))
+        self.assertAlmostEqual(0.00, ticker_costs(self.DB_NAME, self.ACCOUNT0, 'NONE'))
 
     def test_group_transactions(self):
-        twtr_tx = group_transactions(self.DB_NAME, self.ACCOUNT1, 'TWTR')
+        twtr_tx = group_transactions(self.DB_NAME, self.ACCOUNT0, 'TWTR')
         self.assertEqual(23, len(twtr_tx))
         self.assertEqual(4, len([tx for tx in twtr_tx if not tx.completed]))
         
-        vmw_tx = group_transactions(self.DB_NAME, self.ACCOUNT1, 'VMW')
+        vmw_tx = group_transactions(self.DB_NAME, self.ACCOUNT0, 'VMW')
         self.assertEqual(6, len(vmw_tx))
         self.assertEqual(0, len([tx for tx in vmw_tx if not tx.completed]))
         expected_profits = [38.40, 48.40, 75.70, 90.80, 91.70, 158.70]
         for i, profit in enumerate(sorted([tx.profit for tx in vmw_tx])):
             self.assertAlmostEqual(expected_profits[i], profit)
         
-        for ticker in distinct_tickers(self.DB_NAME, self.ACCOUNT1):
-            tx = group_transactions(self.DB_NAME, self.ACCOUNT1, ticker, True)
+        for ticker in distinct_tickers(self.DB_NAME, self.ACCOUNT0):
+            tx = group_transactions(self.DB_NAME, self.ACCOUNT0, ticker, True)
             self.assertTrue(tx)
 
-        for ticker in distinct_tickers(self.DB_NAME, self.ACCOUNT1):
-            tx = group_transactions(self.DB_NAME, self.ACCOUNT1, ticker)
+        for ticker in distinct_tickers(self.DB_NAME, self.ACCOUNT0):
+            tx = group_transactions(self.DB_NAME, self.ACCOUNT0, ticker)
             self.assertFalse(tx)
 
     def test_ticker_transaction_groups(self):
-        fb_groups = ticker_transaction_groups(self.DB_NAME, self.ACCOUNT1, 'FB')
+        fb_groups = ticker_transaction_groups(self.DB_NAME, self.ACCOUNT0, 'FB')
         self.assertEqual(2, len(fb_groups))
         self.assertAlmostEqual(-1187.21, fb_groups[0].profit)
         total, profit, position_list = TransactionGroup.compute_total(fb_groups)
         self.assertAlmostEqual(-5307.86, total)
         self.assertEqual(1, len(position_list['FB']))
 
-        twtr_groups = ticker_transaction_groups(self.DB_NAME, self.ACCOUNT1, 'TWTR')
+        twtr_groups = ticker_transaction_groups(self.DB_NAME, self.ACCOUNT0, 'TWTR')
         self.assertEqual(23, len(twtr_groups))
         total, profit, position_list = TransactionGroup.compute_total(twtr_groups)
         self.assertAlmostEqual(-19909.64, total)
         self.assertEqual(2, len(position_list['TWTR']))
         
-        nvda_groups = ticker_transaction_groups(self.DB_NAME, self.ACCOUNT1, 'NVDA')
+        nvda_groups = ticker_transaction_groups(self.DB_NAME, self.ACCOUNT0, 'NVDA')
         total, profit, position_list = TransactionGroup.compute_total(nvda_groups)
         self.assertEqual(2, len(position_list['NVDA']))
         self.assertAlmostEqual(-12651.31, total)

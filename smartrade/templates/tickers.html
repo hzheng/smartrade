@@ -20,7 +20,7 @@ Ticker List
 
 <ul>
     {% for ticker in tickers %}
-    <li><a href="report/{{ticker}}">{{ticker}}</a></li>
+    <li><a href="/report/{{account}}/{{ticker}}">{{ticker}}</a></li>
     {% endfor %}
 </ul>
 {% endblock %}

@@ -119,8 +119,6 @@ def load(config, args):
     """Load transactions."""
     env = _get_env(args)
     db_name = args.database_name or config['DATABASE'][env]
-    data_dir = args.data_dir or config['DATA_DIR'][env]
-    data_files = sorted([join(data_dir, f) for f in listdir(data_dir) if f.endswith('.csv') or f.endswith('.json')])
     broker = get_broker(config)
     account_id = broker.get_account_id(args.account)
     provider = MarketDataProvider(broker, db_name)
@@ -128,6 +126,10 @@ def load(config, args):
     loader = Loader(db_name, account_id, broker)
     start_date = parse(args.start_date) if args.start_date else None
     end_date = parse(args.end_date) if args.end_date else None
+    data_dir = args.data_dir or config['DATA_DIR'][env]
+    account = account_id[-4:]
+    data_files = sorted([join(data_dir, f) for f in listdir(data_dir)
+                         if f.startswith(account) and (f.endswith('.csv') or f.endswith('.json'))])
     if args.live:
         transactions, invalid_transactions = loader.live_load(
             start_date=start_date, end_date=end_date)

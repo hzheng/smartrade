@@ -55,7 +55,8 @@ def account_home(account):
 def load(account):
     db_name = app.config['DATABASE']
     data_dir = app.config['DATA_DIR']
-    data_files = sorted([join(data_dir, f) for f in listdir(data_dir) if f.endswith('.csv') or f.endswith('.json')])
+    data_files = sorted([join(data_dir, f) for f in listdir(data_dir)
+                         if f.startswith(account) and (f.endswith('.csv') or f.endswith('.json'))])
     loader = Loader(db_name, account, app.config['broker'])
     for i, f in enumerate(data_files):
         loader.load(f, i == 0)

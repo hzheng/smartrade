@@ -64,8 +64,25 @@ class InstrumentType(Enum):
     STOCK = 0
     CALL = 1
     PUT = -1
+    AUTO = 2
     OTHER = 2
 
+    def match(self, other):
+        return self == other or self == self.AUTO  or other == self.AUTO
+
+    @classmethod
+    def from_str(cls, text):
+        if text == 'S': return cls.STOCK
+        if text == 'C': return cls.CALL
+        if text == 'P': return cls.PUT
+        if text == 'A': return cls.AUTO
+        raise ValueError(f"Unknown {cls.__name__}: {text}")
+
+    def to_str(self):
+        if self == self.STOCK: return 'S'
+        if self == self.CALL: return 'C'
+        if self == self.PUT: return 'P'
+        if self == self.AUTO: return 'A'
 
 class Symbol:
     def __init__(self, text):
@@ -83,7 +100,7 @@ class Symbol:
     def _parse1(self, text):
         """Format: HOOD_031122C14.5"""
         self._ui, tokens = text.split('_')
-        self._type = InstrumentType.CALL if tokens[6] == 'C' else InstrumentType.PUT
+        self._type = InstrumentType.from_str(tokens[6])
         self._strike = float(tokens[7:])
         self._expired = parse(tokens[:6])
 
@@ -95,7 +112,7 @@ class Symbol:
         if count == 1:
             self._type = InstrumentType.STOCK
         elif count == 4:
-            self._type = InstrumentType.CALL if tokens[3] == 'C' else InstrumentType.PUT
+            self._type = InstrumentType.from_str(tokens[3])
             self._strike = float(tokens[2])
             self._expired = parse(tokens[1])
 
@@ -105,7 +122,7 @@ class Symbol:
     def __eq__(self, other):
         if not isinstance(other, Symbol): return False
 
-        return (self.ui == other.ui and self.type == other.type
+        return (self.ui == other.ui and self.type.match(other.type)
                 and self.strike == other.strike and self.expired == other.expired)
 
     def __repr__(self):
@@ -117,14 +134,14 @@ class Symbol:
         return s
 
     def __str__(self):
-        if not self.expired: return self.ui
-
-        return f"{self.ui} {self.expired.strftime('%m/%d/%Y')} {self.strike:.2f} {'C' if self.type == InstrumentType.CALL else 'P'}"
+        if not self.expired: return self.ui or ""
+        
+        return f"{self.ui} {self.expired.strftime('%m/%d/%Y')} {self.strike:.2f} {self.type.to_str()}"
 
     def to_str(self):
         if not self.expired: return self.ui
 
-        return f"{self.ui}_{self.expired.strftime('%m%d%y')}{'C' if self.type == InstrumentType.CALL else 'P'}{self.strike:g}"
+        return f"{self.ui}_{self.expired.strftime('%m%d%y')}{self.type.to_str()}{self.strike:g}"
 
     @property
     def type(self):
@@ -161,7 +178,7 @@ class Transaction:
             if expired:
                 symbol += " " + expired.strftime('%m/%d/%Y')
                 symbol += " " + str(doc['strike'])
-                symbol += " " + ('C' if doc['type'] == 'CALL' else 'P')
+                symbol += " " + doc['type'][0]
         self._symbol = Symbol(symbol)
         return self
 
@@ -172,7 +189,7 @@ class Transaction:
         self._account = map['account']
         qty = self._get_int(map['quantity'])
         self._action = Action.from_str(map['action'].strip())
-        self._quantity = abs(qty)
+        self._quantity = None if qty is None else abs(qty) 
         self._description = map.get('description', '')
         self._grouped = False
         if self._action is Action.INVALID:

@@ -1,0 +1,13 @@
+"Transactions  for account XXXXX7977 as of 02/07/2022 10:36:27 ET From 01/01/2022 to 01/25/2022"
+"Date","Action","Symbol","Description","Quantity","Price","Fees & Comm","Amount",
+"01/24/2022","Bank Interest","","BANK INT 011622-012322 SCHWAB BANK","","","","$0.01",
+"01/18/2022 as of 01/15/2022","Bank Interest","","BANK INT 121621-011522 SCHWAB BANK","","","","$0.05",
+"01/13/2022","Buy","MU","MICRON TECHNOLOGY","100","$96.30","","-$9630.00",
+"01/13/2022","Buy","HOOD","ROBINHOOD MKTS INC CLASS A","101","$15.39","","-$1554.39",
+"01/13/2022","Buy","HOOD","ROBINHOOD MKTS INC CLASS A","99","$15.39","","-$1523.61",
+"01/11/2022","Sell","ETHE","GRAYSCALE ETHEREUM COM U","100","$28.04","$6.96","$2797.04",
+"01/11/2022","Sell","ETHE","GRAYSCALE ETHEREUM COM U","100","$27.76","$6.96","$2769.04",
+"01/10/2022","Buy","ETHE","GRAYSCALE ETHEREUM COM U","100","$24.936","$6.95","-$2500.55",
+"01/07/2022","Buy","ETHE","GRAYSCALE ETHEREUM COM U","100","$27.50","$6.95","-$2756.95",
+"01/01/2022","MoneyLink Transfer","","Tfr TD BANK, NATIONAL, HUI ZHENG","","","","$13018.42",virtual transfer
+Transactions Total,"","","","","","",$-13018.42,

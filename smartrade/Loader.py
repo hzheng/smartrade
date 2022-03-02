@@ -81,7 +81,9 @@ class Loader:
                 continue
 
             tx_item = obj['transactionItem']
-            if str(tx_item.get('accountId', None))[-4:] != self._account: continue
+            account = tx_item.get('accountId', None)
+            if account and str(account)[-4:] != self._account:
+                continue # don't skip empty account ?
  
             date = obj['transactionDate']
             amount = obj.get('netAmount', None)
@@ -98,41 +100,65 @@ class Loader:
             instruction = tx_item.get('instruction', None)
             position_effect = tx_item.get('positionEffect', None)
 
-            if description.startswith("REMOVAL OF OPTION"):
-                if "ASSIGNMENT" in description:
+            tx_type = obj.get('type', None)
+            subtype = obj.get('transactionSubType', None)
+            if tx_type == "DIVIDEND_OR_INTEREST":
+                if subtype == 'CA':
+                    action = "INTEREST"
+                else:
+                    invalid_transactions.append(obj)
+                    continue
+            elif tx_type == "RECEIVE_AND_DELIVER":
+                if subtype == 'OA':
                     action = "ASSIGNED"
-                elif "EXPIRATION" in description:
+                elif subtype == 'OX':
                     action = "EXPIRED"
+                elif subtype == 'MI':
+                    action = "INTEREST"
+                elif subtype in ('PM', 'RM'): # ignore Money Market Purchase
+                    continue
+                elif subtype in ('TI', 'TO'): # ignore transfer in/out
+                    continue
                 else:
-                    raise ValueError(f"unexpected description: {description}")
-            elif instruction == 'BUY':
-                if position_effect == 'OPENING' or position_effect is None:
+                    invalid_transactions.append(obj)
+                    continue
+            elif tx_type == "TRADE":
+                if subtype == 'OA' or subtype == 'OE': # assignment or exercise
                     action = "BTO"
-                elif position_effect == 'CLOSING':
-                    action = "BTC"
-                elif position_effect == 'AUTOMATIC':
-                    action = "BTC" # ?
+                elif subtype == 'BY' or instruction == 'BUY':
+                    if position_effect == 'OPENING' or position_effect is None:
+                        action = "BTO"
+                    elif position_effect == 'CLOSING':
+                        action = "BTC"
+                    elif position_effect == 'AUTOMATIC':
+                        action = "BTC" # ?
+                    else:
+                        raise ValueError(f"unexpected position_effect: {position_effect}")
+                elif subtype == 'SL' or instruction == 'SELL':
+                    if position_effect == 'OPENING':
+                        action = "STO"
+                    elif position_effect == 'CLOSING':
+                        action = "STC"
+                    elif position_effect == 'AUTOMATIC' or position_effect is None:
+                        action = "STC" # ?
+                    else:
+                        raise ValueError(f"unexpected position_effect: {position_effect}")
                 else:
-                    raise ValueError(f"unexpected position_effect: {position_effect}")
-            elif instruction == 'SELL':
-                if position_effect == 'OPENING':
-                    action = "STO"
-                elif position_effect == 'CLOSING':
-                    action = "STC"
-                elif position_effect == 'AUTOMATIC' or position_effect is None:
-                    action = "STC" # ?
-                else:
-                    raise ValueError(f"unexpected position_effect: {position_effect}")
-            elif instruction is None:
-                # invalid_transactions.append(obj)
-                continue
+                    invalid_transactions.append(obj)
+                    continue
+            elif tx_type == "JOURNAL":
+                continue # ignore journal
             else:
-                raise ValueError(f"unexpected instruction: {instruction}")
-
-            symbol = self._get_symbol(instrument)
-            if not symbol:
                 invalid_transactions.append(obj)
                 continue
+
+            if action == "INTEREST":
+                symbol = "" # ignore symbol MMDA1
+            else:
+                symbol = self._get_symbol(instrument)
+                if not symbol:
+                    invalid_transactions.append(obj)
+                    continue
 
             tx = Transaction.from_dict(account=self._account, date=date, action=action,
                                        symbol=symbol, quantity=quantity, price=price,
@@ -141,12 +167,14 @@ class Loader:
                 valid_transactions.append(tx)
             else:
                 invalid_transactions.append(tx)
+        if invalid_transactions:
+            print("invalid transactions:\n", invalid_transactions)
         return valid_transactions, invalid_transactions
 
     def _save(self, transactions, reload):
         if reload:
-            self._transactions.drop()
-            self._transaction_groups.drop()
+            self._transactions.delete_many(self._account_cond)
+            self._transaction_groups.delete_many(self._account_cond)
         for tx in transactions:
             self._transactions.insert_one(tx.to_json())
 
@@ -156,7 +184,7 @@ class Loader:
         if symbol: return symbol
 
         exp_date = instrument.get('optionExpirationDate', None)
-        if not exp_date: return
+        if not exp_date: return ""
 
         exp_date = datetime.datetime.strptime(exp_date[:10], "%Y-%m-%d")
         cusip = instrument['cusip']
@@ -164,5 +192,5 @@ class Loader:
         parts = cusip.split(".")
         ui = parts[0][1:]
         strike = int(parts[-1][4:]) / 1000
-        symbol = f"{ui} {exp_date.strftime('%m/%d/%Y')} {strike:.2f} P"
+        symbol = f"{ui} {exp_date.strftime('%m/%d/%Y')} {strike:.2f} A"
         return symbol
