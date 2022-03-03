@@ -14,6 +14,8 @@ Smartrade
 {% block main %}
 <p>Welcome to the Smartrade</p>
     
+{% set account = request.path.split('/')[-1] %}
+
 <section class="account">
     {% for accounts in config.broker_client[0].accounts %}
         {% for alias, full_account in accounts.items() %}
@@ -31,7 +33,8 @@ Smartrade
 
 <p>Transactions ({{period[0].strftime('%m/%d/%Y')}} - {{period[1].strftime('%m/%d/%Y')}})
     <a href="/transactions/{{account}}">Transaction history</a>
-    <a href="/load/{{account}}">Reload data</a>
+    <a href="/load/{{account}}">Live load data</a>
+    <a href="/load/{{account}}?all=true">Reload all data</a>
 </p>
 
 <section>

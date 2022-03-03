@@ -3,7 +3,7 @@
 from os import listdir
 from os.path import join
 
-from flask import render_template
+from flask import render_template, request
 
 from smartrade import app
 from smartrade.Assembler import Assembler
@@ -47,7 +47,7 @@ def account_home(account):
         values[index + 2] += value
 
     tickers = inspector.distinct_tickers()
-    return render_template("home.html", account=account, summary=summary,
+    return render_template("home.html", summary=summary,
                            positions=positions, values=values, tickers=tickers,
                            period=inspector.transaction_period())
 
@@ -58,15 +58,16 @@ def load(account):
     data_files = sorted([join(data_dir, f) for f in listdir(data_dir)
                          if f.startswith(account) and (f.endswith('.csv') or f.endswith('.json'))])
     loader = Loader(db_name, account, app.config['broker'])
-    for i, f in enumerate(data_files):
-        loader.load(f, i == 0)
+    if request.args.get('all'):
+        for i, f in enumerate(data_files):
+            loader.load(f, i == 0)
     loader.live_load()
     assembler = Assembler(db_name, account)
     inspector = Inspector(db_name, account)
     tickers = inspector.distinct_tickers()
     for ticker in tickers:
         assembler.group_transactions(ticker, True)
-    return render_template("tickers.html", account=account, tickers=tickers, loaded=True)
+    return render_template("tickers.html", tickers=tickers, loaded=True)
 
 @app.route("/report/<account>/<ticker>")
 def report(account, ticker):
@@ -76,7 +77,7 @@ def report(account, ticker):
     tx_groups = inspector.ticker_transaction_groups(ticker)
     total, profit, positions = TransactionGroup.compute_total(tx_groups)
     return render_template("transactions.html",
-                           account=account, ticker=ticker, profit=profit,
+                           ticker=ticker, profit=profit,
                            positions=positions, groups=tx_groups)
 
 @app.route("/transactions/<account>")
@@ -84,5 +85,4 @@ def transaction_history(account):
     db_name = app.config['DATABASE']
     inspector = Inspector(db_name, account)
     transactions = inspector.transaction_list()
-    return render_template("transaction_history.html",
-                           account=account, transactions=transactions)
+    return render_template("transaction_history.html", transactions=transactions)
