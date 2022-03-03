@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}
+Transaction History
+{% endblock %}
+
+{% block head %}
+{% endblock %}
+
+{% block header %}
+Transaction History
+{% endblock %}
+
+{% block nav %}
+<a href="/home/{{account}}">Home (Account: {{account}})</a>
+{% endblock %}
+{% block main %}
+<article>
+    <h3>Transaction History</h3>
+    <section>
+        <table class="history">
+            <tbody>
+                <tr>
+                    <th>Date</th>
+                    <th>Symbol</th>
+                    <th>Action</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Fee</th>
+                    <th>Amount</th>
+                    <th>Description</th>
+                </tr>
+                {% for tx in transactions %}
+                <tr>
+                    <td>{{tx.date.strftime("%Y-%m-%d")}}</td>
+                    <td class="symbol">{{tx.symbol}}</td>
+                    <td>{{tx.action.to_str()}}</td>
+                    <td class="money">{{"%.3f"|format(tx.price)}}</td>
+                    <td class="quantity">{{'' if tx.quantity is none else tx.quantity}}</td>
+                    <td class="money">{{"%.3f"|format(tx.fee)}}</td>
+                    <td class="money amount {{'' if tx.amount is not none and tx.amount >= 0 else 'negative'}}">
+                        {{"%.3f"|format(tx.amount)}}</span> </td>
+                    <td class="description">{{tx.description}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+</article>
+{% endblock %}

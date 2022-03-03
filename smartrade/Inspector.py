@@ -17,7 +17,7 @@ class Inspector:
         self._group_collection = self._db.transaction_groups
         self._account_cond = {'account' : account[-4:]}
     
-    def transaction_period(self, account_alias=None):
+    def transaction_period(self):
         start_date = end_date = datetime.now()
         for obj in self._db.transactions.find(self._account_cond).sort([("date", pymongo.ASCENDING)]).limit(1):
             start_date = obj['date']
@@ -99,6 +99,11 @@ class Inspector:
         if date_limit:
             condition['date'] = date_limit
         return condition
+
+    def transaction_list(self, start_date=None, end_date=None):
+        return [Transaction.from_doc(doc) for doc in self._tx_collection.find(
+            self._date_limit({**self._account_cond}, start_date, end_date))
+            .sort([("date", pymongo.DESCENDING)])]
 
     def ticker_transactions(self, ticker):
         return [Transaction.from_doc(doc) for doc in self._tx_collection.find({**self._account_cond, 'ui': ticker})]

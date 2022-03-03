@@ -159,7 +159,8 @@ table.transaction.completed {
   background: #E7E9EB;
 }
 
-table.transaction th, table.transaction td {
+table.transaction th, table.transaction td,
+table.history th, table.history td {
   border: 1px solid gray;
   padding: 4px;
   text-align: center;
@@ -172,6 +173,10 @@ table.transaction td.money {
 .symbol {
   font-size: small;
   text-decoration: dotted underline;
+}
+
+.description {
+  font-size: small;
 }
 
 .quantity {
@@ -219,7 +224,7 @@ tr.open {
   background-color: rgb(190, 216, 180);
 }
 
-td.symbol {
+table.transaction td.symbol {
   background-color: rgb(197, 206, 235);
 }
 

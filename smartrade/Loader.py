@@ -76,8 +76,8 @@ class Loader:
         valid_transactions = []
         invalid_transactions = []
         for obj in json_obj:
-            description = obj['description'].upper()
-            if description == "CASH ALTERNATIVES PURCHASE" or description.startswith("IGNORE"):
+            description = obj['description']
+            if description.upper() == "CASH ALTERNATIVES PURCHASE" or description.startswith("IGNORE"):
                 continue
 
             tx_item = obj['transactionItem']

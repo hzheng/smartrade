@@ -78,3 +78,11 @@ def report(account, ticker):
     return render_template("transactions.html",
                            account=account, ticker=ticker, profit=profit,
                            positions=positions, groups=tx_groups)
+
+@app.route("/transactions/<account>")
+def transaction_history(account):
+    db_name = app.config['DATABASE']
+    inspector = Inspector(db_name, account)
+    transactions = inspector.transaction_list()
+    return render_template("transaction_history.html",
+                           account=account, transactions=transactions)

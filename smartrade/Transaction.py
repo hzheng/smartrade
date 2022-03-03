@@ -168,7 +168,7 @@ class Transaction:
         self._valid = True
         for attr in ['account', 'date', 'quantity', 'price', 'fee', 'amount', 'ui', 'strike', 'expired', 'description', 'grouped']:
             setattr(self, "_" + attr, doc.get(attr, None))
-        assert(self.quantity >= 0)
+        assert(self.quantity is None or self.quantity >= 0)
         self._action = Action.from_str(doc['action'])
         symbol = ""
         ui = doc.get('ui', None)
