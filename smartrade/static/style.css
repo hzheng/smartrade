@@ -208,3 +208,18 @@ table.transaction td.money {
   font-size: 14px;
   border-radius: 6px;
 }
+
+.account span {
+  border-style: outset none;
+  margin: 3px;
+  border-radius: 3px;
+}
+
+section.account {
+  border-style: none;
+  margin: 6px;
+}
+
+.account span a {
+  text-decoration: none;
+}

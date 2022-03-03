@@ -61,6 +61,7 @@ class TransactionGroup:
     def assemble(cls, leading_tx, following_tx):
         merged_leading_tx = cls._merge_docs(leading_tx)
         groups = [cls(tx_list) for tx_list in cls.combine(merged_leading_tx)]
+        groups.reverse() # LIFO match
         merged_following_tx = cls._merge_docs(following_tx)
         following_tx_queue = deque(cls.combine(merged_following_tx))
         while following_tx_queue:
@@ -77,7 +78,7 @@ class TransactionGroup:
                     following_tx_queue.appendleft(close_tx_list)
                     grouped = True
                     break
-            assert(grouped)
+            assert(grouped) # at least one group is matched
         for group in groups:
             group._account = merged_leading_tx[0].account
             group._inventory()
@@ -85,7 +86,7 @@ class TransactionGroup:
     
     def _followed_by(self, following_tx_list):
         res = False
-        for open_tx, close_tx_list in self._chains.items():
+        for open_tx, close_tx_list in self.chains.items():
             opened = open_tx.quantity
             for close_tx in close_tx_list:
                 opened -= close_tx.quantity
@@ -95,7 +96,8 @@ class TransactionGroup:
             for tx in following_tx_list:
                 if open_tx.closed_by(tx):
                     sliced_tx = tx.remove(min(opened, tx.quantity))
-                    close_tx_list.append(sliced_tx)
+                    if sliced_tx.quantity > 1e-6: # ignore tiny sliced transactions
+                        close_tx_list.append(sliced_tx)
                     res = True
         return res
 

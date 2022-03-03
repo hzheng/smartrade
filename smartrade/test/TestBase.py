@@ -7,6 +7,7 @@ class TestBase(unittest.TestCase):
     DB_NAME = "trading_test"
     ACCOUNT0 = "7379"
     ACCOUNT1 = "7977"
+    ACCOUNT2 = "2666"
 
     @classmethod
     def setUpClass(cls):

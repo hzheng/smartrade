@@ -33,7 +33,7 @@ class Action(IntEnum):
         if name.startswith("Action."):
             name = name[7:]
         name = name.upper()
-        if name in ('BTO', 'BUY', 'BUY TO OPEN'):
+        if name in ('BTO', 'BUY', 'BUY TO OPEN', 'REINVEST SHARES'):
             return cls.BTO
         if name in ('STC', 'SELL', 'SELL TO CLOSE'):
             return cls.STC
@@ -50,7 +50,7 @@ class Action(IntEnum):
             return cls.EXERCISE
         if name in ('TRANSFER', 'MONEYLINK TRANSFER'):
             return cls.TRANSFER
-        if name in ('DIVIDEND', 'CASH DIVIDEND', 'PR YR CASH DIV'):
+        if name in ('DIVIDEND', 'CASH DIVIDEND', 'PR YR CASH DIV', 'PR YR DIV REINVEST', 'REINVEST DIVIDEND'):
             return cls.DIVIDEND
         if name in ('INTEREST', 'BANK INTEREST'):
             return cls.INTEREST
@@ -187,11 +187,16 @@ class Transaction:
         self = cls()
         self._valid = False
         self._account = map['account']
-        qty = self._get_int(map['quantity'])
+        qty = self._get_quantity(map['quantity'])
         self._action = Action.from_str(map['action'].strip())
         self._quantity = None if qty is None else abs(qty) 
         self._description = map.get('description', '')
         self._grouped = False
+        self._date = None
+        self._symbol = ""
+        self._price = 0
+        self._fee = 0
+        self._amount = 0
         if self._action is Action.INVALID:
             return self
 
@@ -212,7 +217,7 @@ class Transaction:
         if action >= Action.EXERCISE: return True
 
         amt = self.share * self.price * (-1 if abs(self.action) == Action.BTC else 1) - self.fee 
-        if abs(amt - self.amount) > 1e-6:
+        if abs(amt - self.amount) > 1e-2:
             # print("?", amt, "!=", self.amount, self)
             return False
         return True
@@ -230,7 +235,7 @@ class Transaction:
 
     def remove(self, qty):
         if qty <= 0 or qty > self.quantity:
-            raise ValueError(f"qty {qty} should be between 1 and {self.quantity}")
+            raise ValueError(f"qty {qty} should be between 0 and {self.quantity}")
 
         other = copy.copy(self)
         ratio = qty / self.quantity
@@ -254,11 +259,11 @@ class Transaction:
 
         return self.symbol == other.symbol
 
-    def _get_int(self, text):
+    def _get_quantity(self, text):
         if not isinstance(text, str): return text
 
         try:
-            return int(text.strip())
+            return float(text.strip())
         except Exception:
             return 0
 

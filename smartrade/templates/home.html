@@ -13,6 +13,21 @@ Smartrade
 
 {% block main %}
 <p>Welcome to the Smartrade</p>
+    
+<section class="account">
+    {% for accounts in config.broker_client[0].accounts %}
+        {% for alias, full_account in accounts.items() %}
+            {% set acct = full_account[-4:] %}
+            <span>
+                {% if acct == account %}
+                    {{alias}}
+                {% else %}
+                    <a href="/home/{{acct}}">{{alias}}</a>
+                {% endif %}
+            </span>
+        {% endfor %}
+    {% endfor %}
+</section>
 
 <p>Transactions ({{period[0].strftime('%m/%d/%Y')}} - {{period[1].strftime('%m/%d/%Y')}})
     <a href="/load/{{account}}">Reload data</a>
