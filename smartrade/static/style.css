@@ -215,6 +215,18 @@ table.transaction td.money {
   border-radius: 3px;
 }
 
+tr.open {
+  background-color: rgb(190, 216, 180);
+}
+
+td.symbol {
+  background-color: rgb(197, 206, 235);
+}
+
+tr.close {
+  background-color: gainsboro;
+}
+
 section.account {
   border-style: none;
   margin: 6px;

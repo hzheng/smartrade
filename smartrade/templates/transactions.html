@@ -65,7 +65,7 @@ Transaction Report
                     <th>Amount</th>
                 </tr>
                 {% endif %}
-                <tr>
+                <tr class="open">
                     <td class="symbol" rowspan="100">{{open_tx.symbol}}</td>
                     <td>{{open_tx.date.strftime("%Y-%m-%d")}}</td>
                     <td>{{open_tx.action.to_str()}}</td>
@@ -76,7 +76,7 @@ Transaction Report
                         {{"%.3f"|format(open_tx.amount)}}</span> </td>
                 </tr>
                 {% for tx in close_tx_list %}
-                <tr>
+                <tr class="close">
                     <td>{{tx.date.strftime("%Y-%m-%d")}}</td>
                     <td>{{tx.action.to_str()}}</td>
                     <td class="money">{{"%.3f"|format(tx.price)}}</td>
