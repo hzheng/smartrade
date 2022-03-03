@@ -48,12 +48,12 @@ class Action(IntEnum):
             return cls.ASSIGNED
         if name in ('EXCHANGE OR EXERCISE'):
             return cls.EXERCISE
-        if name in ('TRANSFER', 'MONEYLINK TRANSFER'):
-            return cls.TRANSFER
         if name in ('DIVIDEND', 'CASH DIVIDEND', 'PR YR CASH DIV', 'PR YR DIV REINVEST', 'REINVEST DIVIDEND'):
             return cls.DIVIDEND
         if name in ('INTEREST', 'BANK INTEREST'):
             return cls.INTEREST
+        if name in ('TRANSFER', 'MONEYLINK TRANSFER'):
+            return cls.TRANSFER
         if name in ('JOURNAL', 'JOURNALED SHARES'):
             return cls.JOURNAL
 

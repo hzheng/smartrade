@@ -147,7 +147,7 @@ class Loader:
                     invalid_transactions.append(obj)
                     continue
             elif tx_type == "JOURNAL":
-                continue # ignore journal
+                continue # ignore journal ?
             else:
                 invalid_transactions.append(obj)
                 continue

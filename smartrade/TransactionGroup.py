@@ -73,7 +73,7 @@ class TransactionGroup:
             grouped = False
             for group in groups: # search for matching transactions
                 if group._followed_by(close_tx_list):
-                    for tx in open_tx_list:
+                    for tx in open_tx_list: # add new open transactions
                         group._chains[tx] = []
                     following_tx_queue.appendleft(close_tx_list)
                     grouped = True
@@ -94,7 +94,7 @@ class TransactionGroup:
             if opened == 0: continue
 
             for tx in following_tx_list:
-                if open_tx.closed_by(tx):
+                if tx.quantity > 0 and open_tx.closed_by(tx):
                     sliced_tx = tx.remove(min(opened, tx.quantity))
                     if sliced_tx.quantity > 1e-6: # ignore tiny sliced transactions
                         close_tx_list.append(sliced_tx)

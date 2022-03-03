@@ -26,7 +26,7 @@ class Inspector:
         return (start_date, end_date)
 
     def total_investment(self, start_date=None, end_date=None):
-        return self._total_amount({'action': {'$in': ['TRANSFER']}}, start_date, end_date)
+        return self._total_amount({'action': {'$in': ['TRANSFER', 'JOURNAL']}}, start_date, end_date)
 
     def total_interest(self, start_date=None, end_date=None):
         return self._total_amount({'action': {'$in': ['INTEREST']}}, start_date, end_date)
