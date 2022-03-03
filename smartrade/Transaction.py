@@ -217,8 +217,8 @@ class Transaction:
         if action >= Action.EXERCISE: return True
 
         amt = self.share * self.price * (-1 if abs(self.action) == Action.BTC else 1) - self.fee 
-        if abs(amt - self.amount) > 1e-2:
-            # print("?", amt, "!=", self.amount, self)
+        if abs(amt - self.amount) > self.price * 0.001: # assume minimal amount is 0.001
+            print("?", amt, "!=", self.amount, self)
             return False
         return True
 
