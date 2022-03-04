@@ -32,6 +32,8 @@ def account_home(account):
         'total_market_value': total_market_value,
         'total_cash': total_cash
     }
+    # avoid negative total_investment when calculating total profit rate
+    summary['total_profit_rate'] = summary['total_profit'] / max(summary['total_investment'], 1)
     provider = app.config['provider']
     positions = inspector.total_positions().values()
     position_map = {symbol: qty for pos_map in positions for symbol, qty in pos_map.items()}

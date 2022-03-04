@@ -50,13 +50,14 @@ class Action(IntEnum):
             return cls.EXERCISE
         if name in ('DIVIDEND', 'CASH DIVIDEND', 'PR YR CASH DIV', 'PR YR DIV REINVEST', 'REINVEST DIVIDEND'):
             return cls.DIVIDEND
-        if name in ('INTEREST', 'BANK INTEREST'):
+        if name in ('INTEREST', 'BANK INTEREST', 'PROMOTIONAL AWARD'):
             return cls.INTEREST
-        if name in ('TRANSFER', 'MONEYLINK TRANSFER'):
+        if name in ('TRANSFER', 'MONEYLINK TRANSFER', 'FUNDS RECEIVED', 'FUNDS PAID'):
             return cls.TRANSFER
         if name in ('JOURNAL', 'JOURNALED SHARES'):
             return cls.JOURNAL
 
+        # to log: "invalid name:", name)
         return cls.INVALID
 
 

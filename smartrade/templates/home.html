@@ -55,7 +55,7 @@ Smartrade
                 <td class="money amount {{'' if summary.total_profit >= 0 else 'negative'}}">
                     {{"%.2f"|format(summary.total_profit)}}</td>
                 <td class="amount {{'' if summary.total_profit >= 0 else 'negative'}}">
-                    {{"%.2f"|format(summary.total_profit / summary.total_investment * 100)}}%</td>
+                    {{"%.2f"|format(summary.total_profit_rate * 100)}}%</td>
                 <td class="money">{{"%.2f"|format(summary.total_cash)}}</td>
                 <td class="money">{{"%.2f"|format(summary.total_investment)}}</td>
                 <td class="money">{{"%.2f"|format(summary.total_interest)}}</td>

@@ -36,7 +36,7 @@ Transaction History
                 </div>
                 <div class="condition">
                     <label for="symbol">Symbol:</label>
-                    <input type="text" name="symbol" value="{{request.args.get('symbol')}}" />
+                    <input type="text" name="symbol" value="{{request.args.get('symbol') or ''}}" />
                 </div>
                 <div class="condition">
                     <button id="btnSearch" type="submit">Search</button>
