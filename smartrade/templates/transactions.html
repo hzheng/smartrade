@@ -11,9 +11,10 @@ Transactions
 Transaction Report
 {% endblock %}
 
+{% set account = request.path.split('/')[-2] %}
+
 {% block nav %}
 
-{% set account = request.path.split('/')[-2] %}
 <a href="/home/{{account}}">Home (Account: {{account}})</a>
 {% endblock %}
 {% block main %}

@@ -2,6 +2,7 @@
 
 from os import listdir
 from os.path import join
+import datetime
 
 from flask import render_template, request
 
@@ -84,5 +85,14 @@ def report(account, ticker):
 def transaction_history(account):
     db_name = app.config['DATABASE']
     inspector = Inspector(db_name, account)
-    transactions = inspector.transaction_list()
+    start_date = end_date = None
+    date_range = request.args.get('dateRange')
+    symbol = request.args.get('symbol')
+    if date_range:
+        start, end = date_range.split(",")
+        if start:
+            start_date = datetime.datetime.strptime(start, '%Y-%m-%d')
+        if end:
+            end_date = datetime.datetime.strptime(end, '%Y-%m-%d')
+    transactions = inspector.transaction_list(start_date, end_date, symbol)
     return render_template("transaction_history.html", transactions=transactions)

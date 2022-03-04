@@ -11,9 +11,10 @@ Tickers
 Ticker List
 {% endblock %}
 
+{% set account = request.path.split('/')[-1] %}
+
 {% block nav %}
 
-{% set account = request.path.split('/')[-1] %}
 <a href="/home/{{account}}">Home (Account: {{account}})</a>
 {% endblock %}
 

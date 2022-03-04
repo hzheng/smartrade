@@ -123,6 +123,8 @@ class Loader:
                     invalid_transactions.append(obj)
                     continue
             elif tx_type == "TRADE":
+                if subtype in ('RM', 'TI', '', None): # ignore unsettled transactions
+                    continue
                 if subtype == 'OA' or subtype == 'OE': # assignment or exercise
                     action = "BTO"
                 elif subtype == 'BY' or instruction == 'BUY':

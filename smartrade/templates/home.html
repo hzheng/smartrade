@@ -10,11 +10,11 @@ Home
 {% block header %}
 Smartrade
 {% endblock %}
+ 
+{% set account = request.path.split('/')[-1] %}
 
 {% block main %}
 <p>Welcome to the Smartrade</p>
-    
-{% set account = request.path.split('/')[-1] %}
 
 <section class="account">
     {% for accounts in config.broker_client[0].accounts %}

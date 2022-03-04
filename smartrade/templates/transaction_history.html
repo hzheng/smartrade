@@ -11,14 +11,41 @@ Transaction History
 Transaction History
 {% endblock %}
 
+{% set account = request.path.split('/')[-1] %}
+
 {% block nav %}
 
-{% set account = request.path.split('/')[-1] %}
 <a href="/home/{{account}}">Home (Account: {{account}})</a>
 {% endblock %}
 {% block main %}
 <article>
     <h3>Transaction History</h3>
+    <div class="search">
+            <form class="container" method="get">
+                <div class="condition">
+                    <label for="dateRange">Date Range:</label>
+                    <select id="dateRange" name="dateRange">
+                        <option value="">all</option>
+                        <option value="{{today|first_week_day}},">current week</option>
+                        <option value="{{last_week_first_day}},{{last_week_last_day}}">last week</option>
+                        <option value="{{today|first_month_day}},">current month</option>
+                        <option value="{{last_month_first_day}},{{last_month_last_day}}">previous month</option>
+                        <option value="{{today|first_year_day}},">current year</option>
+                        <option value="{{last_year|first_year_day}},{{last_year|last_year_day}}">previous year</option>
+                    </select>
+                </div>
+                <div class="condition">
+                    <label for="symbol">Symbol:</label>
+                    <input type="text" name="symbol" value="{{request.args.get('symbol')}}" />
+                </div>
+                <div class="condition">
+                    <button id="btnSearch" type="submit">Search</button>
+                </div>
+            </form>
+    </div>
+        <script>
+            $('#dateRange option[value="{{request.args.get('dateRange')}}"]').prop('selected', true)
+        </script>
     <section>
         <table class="history">
             <tbody>

@@ -50,4 +50,4 @@ def create_app(config=None):
 
 app = create_app()
 
-import smartrade.views
+import smartrade.views, smartrade.templates
