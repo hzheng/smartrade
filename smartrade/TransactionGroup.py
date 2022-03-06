@@ -4,7 +4,10 @@ from collections import deque
 from datetime import datetime
 import math
 
+from smartrade import app_logger
 from smartrade.Transaction import InstrumentType, Transaction, Action
+
+logger = app_logger.get_logger(__name__)
 
 class TransactionGroup:
 
@@ -78,7 +81,9 @@ class TransactionGroup:
                     following_tx_queue.appendleft(close_tx_list)
                     grouped = True
                     break
-            assert(grouped) # at least one group is matched
+            if not grouped:
+                logger.error("at least one group should be matched")
+                assert(False)
         for group in groups:
             group._account = merged_leading_tx[0].account
             group._inventory()

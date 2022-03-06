@@ -1,7 +1,10 @@
 from tda import auth
 
+from smartrade import app_logger
 from smartrade.BrokerClient import BrokerClient
 from smartrade.exceptions import ParameterError
+
+logger = app_logger.get_logger(__name__)
 
 class TDAmeritradeClient(BrokerClient):
     def __init__(self, config):
@@ -34,12 +37,14 @@ class TDAmeritradeClient(BrokerClient):
     def get_transactions(self, account_alias=None, start_date=None, end_date=None):
         account_id = self.get_account_id(account_alias)
         if len(account_id) <= 4:
-            print("skipping account:", account_id)
+            logger.info("skipping get_transaction for account: %s", account_id)
             return {}
 
+        logger.debug("BEGIN: get_transaction for account %s", account_id)
         # if start_date is not None, unsettled transactions will be ignored
         r = self._client.get_transactions(account_id,
                                           start_date=start_date, end_date=end_date)
+        logger.debug("END: get_transaction for account %s", account_id)
         assert r.status_code == 200, r.raise_for_status()
         return r.json()
 

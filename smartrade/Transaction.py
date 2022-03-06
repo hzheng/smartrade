@@ -3,7 +3,11 @@
 import copy
 from enum import Enum, IntEnum
 
-from dateutil.parser import parse
+from dateutil.parser import parse, ParserError
+
+from smartrade import app_logger
+
+logger = app_logger.get_logger(__name__)
 
 class Action(IntEnum):
     BTO = -2
@@ -57,7 +61,7 @@ class Action(IntEnum):
         if name in ('JOURNAL', 'JOURNALED SHARES'):
             return cls.JOURNAL
 
-        # to log: "invalid name:", name)
+        logger.warning("invalid Action name: %s", name)
         return cls.INVALID
 
 
@@ -202,8 +206,13 @@ class Transaction:
             return self
 
         try:
-            self._date = parse(map['date'].strip().split()[0])
+            date = map['date'].strip().split()[0]
+            self._date = parse(date)
+        except ParserError:
+            logger.warning("wrong date format: %s", date)
+            return self
         except Exception:
+            logger.error("Error occurred", exc_info=True)
             return self
 
         self._symbol = Symbol(map['symbol'].strip())
@@ -219,7 +228,7 @@ class Transaction:
 
         amt = self.share * self.price * (-1 if abs(self.action) == Action.BTC else 1) - self.fee 
         if abs(amt - self.amount) > self.price * 0.001: # assume minimal amount is 0.001
-            print("?", amt, "!=", self.amount, self)
+            logger.warning(f"amount {amt} and {self.amount} don't match in %s", self)
             return False
         return True
 

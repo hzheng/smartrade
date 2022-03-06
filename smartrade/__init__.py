@@ -18,9 +18,10 @@ import yaml
 from flask import Flask
 
 from smartrade.BrokerClient import BrokerClient
+from smartrade.Logger import Logger
 from smartrade.MarketDataProvider import MarketDataProvider
-from smartrade.TDAmeritradeClient import TDAmeritradeClient
-from smartrade.TransactionGroup import TransactionGroup
+
+CONF_FILE = os.environ.get('FLASK_CONF_PATH', None)
 
 def create_app(config=None):
     app = Flask(__name__)
@@ -28,16 +29,9 @@ def create_app(config=None):
     # default configuration
     app.config.from_object(f"{app_name}.settings")
     # user configuration
-    conf_path = 'FLASK_CONF_PATH'
-    if conf_path in os.environ:
+    if CONF_FILE:
         # app.config.from_envvar(conf_path)
-        conf_file = os.environ[conf_path]
-        broker = BrokerClient.get_brokers(conf_file)[0]
-        app.config['broker'] = broker
-        provider = MarketDataProvider(broker, app.config['DATABASE'])
-        app.config['provider'] = provider
-        TransactionGroup.set_provider(provider)
-        with open(conf_file, 'r') as cfg_file:
+        with open(CONF_FILE, 'r') as cfg_file:
             yaml_conf = yaml.load(cfg_file, yaml.SafeLoader)
             app.config.update(yaml_conf)
     # app specified configuration
@@ -46,8 +40,20 @@ def create_app(config=None):
             app.config.update(config)
         elif config.endswith('.py'):
             app.config.from_pyfile(config)
-    return app
+    return app, Logger(app.config['LOG_FILE'])
 
-app = create_app()
+app, app_logger = create_app()
+
+def configure_app(config=None):
+    if CONF_FILE:
+        from smartrade.TDAmeritradeClient import TDAmeritradeClient
+        broker = BrokerClient.get_brokers(CONF_FILE)[0]
+        app.config['broker'] = broker
+        provider = MarketDataProvider(broker, app.config['DATABASE'])
+        app.config['provider'] = provider
+        from smartrade.TransactionGroup import TransactionGroup
+        TransactionGroup.set_provider(provider)
+
+configure_app()
 
 import smartrade.views, smartrade.templates

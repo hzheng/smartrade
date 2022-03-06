@@ -7,8 +7,10 @@ import re
 
 import pymongo
 
+from smartrade import app_logger
 from smartrade.Transaction import Transaction
 
+logger = app_logger.get_logger(__name__)
 
 class Loader:
     def __init__(self, db_name, account, broker=None):
@@ -26,9 +28,11 @@ class Loader:
         if not start_date:
             for obj in self._transactions.find(self._account_cond).sort([("date", pymongo.DESCENDING)]).limit(1):
                 start_date = obj['date'] + datetime.timedelta(1)
+        logger.debug("BEGIN: live load from date: %s", start_date)
         json_obj = self._broker.get_transactions(self._account, start_date, end_date)
         valid_transactions, invalid_transactions = self._get_transactions(json_obj)
         self._save(valid_transactions, False)
+        logger.debug("END: live load from date: %s", start_date)
         return valid_transactions, invalid_transactions
 
     def load(self, path, reload=True):
@@ -64,7 +68,7 @@ class Loader:
                     else:
                         invalid_transactions.append(tx)
                 except Exception as e:
-                    print(e)
+                    logger.error("Error occurred", exc_info=True)
                     continue
         return valid_transactions, invalid_transactions
 
@@ -170,15 +174,19 @@ class Loader:
             else:
                 invalid_transactions.append(tx)
         if invalid_transactions:
-            print("invalid transactions:\n", invalid_transactions)
+            logger.warning("invalid transactions:\n%s", invalid_transactions)
         return valid_transactions, invalid_transactions
 
     def _save(self, transactions, reload):
         if reload:
+            logger.info("BEGIN: reload")
             self._transactions.delete_many(self._account_cond)
             self._transaction_groups.delete_many(self._account_cond)
+            logger.info("END: reload")
+        logger.info("BEGIN: insert %s transations", len(transactions))
         for tx in transactions:
             self._transactions.insert_one(tx.to_json())
+        logger.info("END: insert %s transations", len(transactions))
 
     @classmethod
     def _get_symbol(cls, instrument):

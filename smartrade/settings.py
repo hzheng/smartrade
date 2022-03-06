@@ -2,10 +2,15 @@ import os
 
 # default settings for Flask app
 
-is_dev = (os.getenv('FLASK_ENV') == 'development')
+env = os.getenv('FLASK_ENV')
 
-postfix = "_dev" if is_dev else "_prod"
+if not env:
+    postfix = "_test"
+else:
+    postfix = "_prod" if env == 'production' else "_dev"
 
 DATABASE = "trading" + postfix
 
 DATA_DIR = os.getenv('TRADE_DATA')
+
+LOG_FILE = f"/var/log/smartrade/smartrade{postfix}.log"
