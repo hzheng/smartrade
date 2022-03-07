@@ -52,7 +52,7 @@ class Action(IntEnum):
             return cls.ASSIGNED
         if name in ('EXCHANGE OR EXERCISE'):
             return cls.EXERCISE
-        if name in ('DIVIDEND', 'CASH DIVIDEND', 'PR YR CASH DIV', 'PR YR DIV REINVEST', 'REINVEST DIVIDEND'):
+        if name in ('DIVIDEND', 'CASH DIVIDEND', 'PR YR CASH DIV', 'PR YR DIV REINVEST', 'REINVEST DIVIDEND', 'QUALIFIED DIVIDEND'):
             return cls.DIVIDEND
         if name in ('INTEREST', 'BANK INTEREST', 'PROMOTIONAL AWARD'):
             return cls.INTEREST

@@ -20,6 +20,10 @@ Transaction History
 {% block main %}
 <article>
     <h3>Transaction History</h3>
+    {% with base_url="/transactions" %}
+        {% include 'account.html' %}
+    {% endwith %}
+    
     <div class="search">
             <form class="container" method="get">
                 <div class="condition">

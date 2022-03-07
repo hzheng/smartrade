@@ -1,0 +1,14 @@
+<section class="account">
+    {% for accounts in config.broker_client[0].accounts %}
+        {% for alias, full_account in accounts.items() %}
+            {% set acct = full_account[-4:] %}
+            <span>
+                {% if acct == account %}
+                    {{alias}}
+                {% else %}
+                    <a href="{{base_url}}/{{acct}}?{{request.query_string.decode('utf-8')}}">{{alias}}</a>
+                {% endif %}
+            </span>
+        {% endfor %}
+    {% endfor %}
+</section>
