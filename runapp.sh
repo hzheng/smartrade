@@ -1,3 +1,5 @@
+#!/bin/bash
+
 env=${1-d}
 if [[ $env == p* ]]; then
     env=production

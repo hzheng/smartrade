@@ -28,11 +28,11 @@ class Loader:
         if not start_date:
             for obj in self._transactions.find(self._account_cond).sort([("date", pymongo.DESCENDING)]).limit(1):
                 start_date = obj['date'] + datetime.timedelta(1)
-        logger.debug("BEGIN: live load from date: %s", start_date)
+        logger.debug("BEGIN: live load account %s from date: %s", self._account, start_date)
         json_obj = self._broker.get_transactions(self._account, start_date, end_date)
         valid_transactions, invalid_transactions = self._get_transactions(json_obj)
         self._save(valid_transactions, False)
-        logger.debug("END: live load from date: %s", start_date)
+        logger.debug("END: live load account %s from date: %s", self._account, start_date)
         return valid_transactions, invalid_transactions
 
     def load(self, path, reload=True):
