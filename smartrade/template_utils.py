@@ -46,3 +46,7 @@ def first_year_day(date):
 @app.template_filter('last_year_day')
 def last_year_day(date):
     return date.replace(month=12, day=31)
+
+@app.template_filter('ui')
+def ui(symbol):
+    return symbol.split("_")[0]

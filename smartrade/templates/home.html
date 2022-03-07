@@ -80,7 +80,7 @@ Smartrade
             </tr>
             {% for symbol, (quantity, price, value) in values[0].items() %}
             <tr>
-                <td class="symbol">{{symbol}}</td>
+                <td class="symbol"><a href="/report/{{account}}/{{symbol}}">{{symbol}}</a></td>
                 <td class="quantity">{{quantity}}</td>
                 <td class="quantity">{{"%.3f"|format(price)}}</td>
                 <td class="quantity">{{"%.2f"|format(value)}}</td>
@@ -95,7 +95,7 @@ Smartrade
             </tr>
             {% for symbol, (quantity, price, value) in values[1].items() %}
             <tr>
-                <td class="symbol">{{symbol}}</td>
+                <td class="symbol"><a href="/report/{{account}}/{{symbol|ui}}">{{symbol}}</a></td>
                 <td class="quantity">{{quantity}}</td>
                 <td class="quantity">{{"%.3f"|format(price)}}</td>
                 <td class="quantity">{{"%.2f"|format(value)}}</td>

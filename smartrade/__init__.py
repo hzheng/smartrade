@@ -56,4 +56,4 @@ def configure_app(config=None):
 
 configure_app()
 
-import smartrade.views, smartrade.templates
+import smartrade.views, smartrade.template_utils
