@@ -250,3 +250,18 @@ div.condition {
   margin: 5px;
   float: left;
 }
+
+.customDate {
+  visibility: hidden;
+}
+
+#date_order.ui-icon-triangle-1-n,
+#date_order.ui-icon-triangle-1-s {
+  cursor: pointer;
+}
+
+.history_summary {
+  clear: both;
+  padding-left: 1em;
+  padding-bottom: 1em;
+}

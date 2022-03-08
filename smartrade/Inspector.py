@@ -100,13 +100,13 @@ class Inspector:
             condition['date'] = date_limit
         return condition
 
-    def transaction_list(self, start_date=None, end_date=None, ticker=None):
+    def transaction_list(self, start_date=None, end_date=None, ticker=None, asc=False):
         cond = {**self._account_cond}
         if ticker:
             cond['ui'] = ticker.upper()
         return [Transaction.from_doc(doc) for doc in self._tx_collection.find(
             self._date_limit(cond, start_date, end_date))
-            .sort([("date", pymongo.DESCENDING)])]
+            .sort([("date", pymongo.ASCENDING if asc else pymongo.DESCENDING)])]
 
     def ticker_transactions(self, ticker):
         return [Transaction.from_doc(doc) for doc in self._tx_collection.find({**self._account_cond, 'ui': ticker})]

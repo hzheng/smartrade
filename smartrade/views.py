@@ -4,13 +4,16 @@ from os import listdir
 from os.path import join
 import datetime
 
+from dateutil.parser import parse
 from flask import render_template, request
 
-from smartrade import app
+from smartrade import app, app_logger
 from smartrade.Assembler import Assembler
 from smartrade.Inspector import Inspector
 from smartrade.Loader import Loader
 from smartrade.TransactionGroup import TransactionGroup
+
+logger = app_logger.get_logger(__name__)
 
 @app.route("/")
 def home():
@@ -90,11 +93,27 @@ def transaction_history(account):
     start_date = end_date = None
     date_range = request.args.get('dateRange')
     symbol = request.args.get('symbol')
+    start_date = None
+    end_date = None
     if date_range:
         start, end = date_range.split(",")
         if start:
-            start_date = datetime.datetime.strptime(start, '%Y-%m-%d')
+            start_date = parse(start)
         if end:
-            end_date = datetime.datetime.strptime(end, '%Y-%m-%d')
-    transactions = inspector.transaction_list(start_date, end_date, symbol)
-    return render_template("transaction_history.html", transactions=transactions)
+            end_date = parse(end)
+    logger.debug("transaction_history: start_date=%s, end_date=%s", start_date, end_date)
+
+    order = request.args.get('dateOrder') or "0"
+    transactions = inspector.transaction_list(start_date, end_date, symbol, order == "1")
+    total_cash = inspector.total_cash(start_date, end_date)
+    end_cash = inspector.total_cash(None, end_date)
+    start_cash = 0
+    if start_date:
+        start_cash = inspector.total_cash(None,  start_date - datetime.timedelta(0, 1))
+
+    delta = end_cash - start_cash - total_cash
+    logger.debug("start_cash=%s, end_cash=%s, total_cash=%s, (end_cash - start_cash - total_cash)=%s",
+                 start_cash, end_cash, total_cash, delta)
+    assert(abs(delta) < 1e-5)
+    return render_template("transaction_history.html", transactions=transactions,
+                           start_cash=start_cash, end_cash=end_cash, total_cash=total_cash)
