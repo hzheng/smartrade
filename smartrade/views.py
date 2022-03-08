@@ -88,6 +88,9 @@ def report(account, ticker):
 
 @app.route("/transactions/<account>")
 def transaction_history(account):
+    if not request.args.get('ajax'):
+        return render_template("transaction_history.html")
+
     db_name = app.config['DATABASE']
     inspector = Inspector(db_name, account)
     start_date = end_date = None
@@ -115,5 +118,19 @@ def transaction_history(account):
     logger.debug("start_cash=%s, end_cash=%s, total_cash=%s, (end_cash - start_cash - total_cash)=%s",
                  start_cash, end_cash, total_cash, delta)
     assert(abs(delta) < 1e-5)
-    return render_template("transaction_history.html", transactions=transactions,
-                           start_cash=start_cash, end_cash=end_cash, total_cash=total_cash)
+    return {
+        'transactions': [to_json(tx) for tx in transactions],
+        'cash': {
+            'start': f"{start_cash:.2f}",
+            'end': f"{end_cash:.2f}",
+            'total': f"{total_cash:.2f}"
+        }
+    }
+
+def to_json(transaction):
+    res = transaction.to_json()
+    res['symbol'] = str(transaction.symbol)
+    res['date'] = transaction.date.strftime("%Y-%m-%d %H:%M:%S")
+    res['amount'] = f"{transaction.amount:.2f}"
+    res['fee'] = f"{transaction.fee:.2f}"
+    return res
