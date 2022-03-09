@@ -113,3 +113,6 @@ class Inspector:
     
     def ticker_transaction_groups(self, ticker):
         return [TransactionGroup.from_doc(doc) for doc in self._group_collection.find({**self._account_cond, 'ui': ticker})]
+        # add start_date and end_date condition?
+        #condition = self._date_limit({**self._account_cond, 'ui': ticker}, start_date, end_date)
+        #return [TransactionGroup.from_doc(doc) for doc in self._group_collection.find(condition)]

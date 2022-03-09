@@ -52,9 +52,8 @@ def account_home(account):
         values[index][symbol] = (quantity, price, value)
         values[index + 2] += value
 
-    tickers = inspector.distinct_tickers()
     return render_template("home.html", summary=summary,
-                           positions=positions, values=values, tickers=tickers,
+                           positions=positions, values=values,
                            period=inspector.transaction_period())
 
 @app.route("/load/<account>")
@@ -75,16 +74,35 @@ def load(account):
         assembler.group_transactions(ticker, True)
     return render_template("tickers.html", tickers=tickers, loaded=True)
 
-@app.route("/report/<account>/<ticker>")
-def report(account, ticker):
+@app.route("/transactionGroups/<account>")
+def transaction_groups(account):
     db_name = app.config['DATABASE']
     inspector = Inspector(db_name, account)
-    ticker = ticker.upper()
+    if not request.args.get('ajax'):
+        tickers = inspector.distinct_tickers()
+        return render_template("transaction_groups.html", tickers=tickers)
+
+    ticker = request.args.get('ticker').upper()
     tx_groups = inspector.ticker_transaction_groups(ticker)
     total, profit, positions = TransactionGroup.compute_total(tx_groups)
-    return render_template("transactions.html",
-                           ticker=ticker, profit=profit,
-                           positions=positions, groups=tx_groups)
+    return {
+        'transactionGroups': [tx_group.to_json(True) for tx_group in tx_groups],
+        'positions': positions,
+        'profit': f"{profit:.2f}",
+        'total': f"{total:.2f}"
+    }
+
+def _get_date_range(context):
+    start_date = end_date = None
+    date_range = request.args.get('dateRange')
+    if date_range:
+        start, end = date_range.split(",")
+        if start:
+            start_date = parse(start)
+        if end:
+            end_date = parse(end)
+    logger.debug("%s: start_date=%s, end_date=%s", context, start_date, end_date)
+    return start_date, end_date
 
 @app.route("/transactions/<account>")
 def transaction_history(account):
@@ -93,20 +111,9 @@ def transaction_history(account):
 
     db_name = app.config['DATABASE']
     inspector = Inspector(db_name, account)
-    start_date = end_date = None
-    date_range = request.args.get('dateRange')
-    symbol = request.args.get('symbol')
-    start_date = None
-    end_date = None
-    if date_range:
-        start, end = date_range.split(",")
-        if start:
-            start_date = parse(start)
-        if end:
-            end_date = parse(end)
-    logger.debug("transaction_history: start_date=%s, end_date=%s", start_date, end_date)
-
+    start_date, end_date = _get_date_range("transaction_history")
     order = request.args.get('dateOrder') or "0"
+    symbol = request.args.get('symbol')
     transactions = inspector.transaction_list(start_date, end_date, symbol, order == "1")
     total_cash = inspector.total_cash(start_date, end_date)
     end_cash = inspector.total_cash(None, end_date)
@@ -119,7 +126,7 @@ def transaction_history(account):
                  start_cash, end_cash, total_cash, delta)
     assert(abs(delta) < 1e-5)
     return {
-        'transactions': [to_json(tx) for tx in transactions],
+        'transactions': [jsonify_transaction(tx) for tx in transactions],
         'cash': {
             'start': f"{start_cash:.2f}",
             'end': f"{end_cash:.2f}",
@@ -127,7 +134,7 @@ def transaction_history(account):
         }
     }
 
-def to_json(transaction):
+def jsonify_transaction(transaction):
     res = transaction.to_json()
     res['symbol'] = str(transaction.symbol)
     res['date'] = transaction.date.strftime("%Y-%m-%d %H:%M:%S")

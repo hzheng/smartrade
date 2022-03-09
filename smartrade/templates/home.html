@@ -21,6 +21,7 @@ Smartrade
 {% endwith %}
 
 <p>Transactions ({{period[0].strftime('%m/%d/%Y')}} - {{period[1].strftime('%m/%d/%Y')}})
+    <a href="/transactionGroups/{{account}}">Transaction groups</a>
     <a href="/transactions/{{account}}">Transaction history</a>
     <a href="/load/{{account}}">Live load data</a>
     <a href="/load/{{account}}?all=true">Reload all data</a>
@@ -97,15 +98,5 @@ Smartrade
         </tbody>
     </table>
 </section>
-
-<section>
-    Transactions by tickers
-    <ul>
-        {% for ticker in tickers %}
-        <li><a href="/report/{{account}}/{{ticker}}">{{ticker}}</a></li>
-        {% endfor %}
-    </ul>
-</section>
-
 
 {% endblock %}

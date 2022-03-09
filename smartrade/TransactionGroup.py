@@ -186,17 +186,27 @@ class TransactionGroup:
         # has calls and puts, assume short iron condor
         return (list(options[3])[0] - list(options[2])[0]) * 100 * first_tx.quantity
 
-    def to_json(self):
+    def to_json(self, verbose=False):
         chains = []
         account = None
         ui = None
         for otx, ctx in self.chains.items():
-            tx = [otx.to_json(False)]
+            json = otx.to_json(False)
+            if verbose:
+                json['symbol'] = str(otx.symbol)
+            tx = [json]
             tx.extend([tx.to_json(True) for tx in ctx])
             chains.append(tx)
             account = otx.account
             ui = otx.symbol.ui
-        return {'ui': ui, 'account': account, 'chains': chains}
+        res = {'ui': ui, 'account': account, 'chains': chains}
+        if verbose:
+            res['profit'] = self.profit
+            res['roi'] = self.roi
+            res['cost'] = self.cost
+            res['duration'] = self.duration
+            res['completed'] = self.completed
+        return res
 
     @classmethod
     def from_doc(cls, doc):

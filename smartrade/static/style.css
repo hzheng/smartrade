@@ -116,15 +116,24 @@ section {
   border-radius: 8px;
 }
 
-.summary {
+.summary, .transaction_group_summary {
+  clear: both;
   font-family: 'Courier New', Courier, monospace;
   font-weight: 800;
+  margin-top: 1em;
   padding-left: 2em;
 }
 
-.summary .ticker {
+.transaction_group_summary {
+  margin-top: 4em;
+  padding-top: 1em;
+  border-top: 2px dotted gray;
+}
+
+.summary .ticker,
+.transaction_group_summary .ticker {
   font-weight: 900;
-  color: blue;
+  color: rgb(62, 62, 199);
 }
 
 table.total {
@@ -264,4 +273,8 @@ div.condition {
   clear: both;
   padding-left: 1em;
   padding-bottom: 1em;
+}
+
+section.tx_group, .none{
+  display: none;
 }

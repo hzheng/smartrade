@@ -25,7 +25,7 @@ Transaction History
     {% endwith %}
     
     <div class="search">
-            <form id="searchForm" class="container" method="get" action="{{url_for(request.endpoint, **request.view_args)}}">
+            <form id="searchTransactionForm" class="container" method="get" action="{{url_for(request.endpoint, **request.view_args)}}">
                 <div class="condition">
                     <label for="dateRange">Date Range</label>
                     <select id="dateRange" name="dateRange">
@@ -48,7 +48,7 @@ Transaction History
                     <input type="text" name="symbol" value="{{request.args.get('symbol') or ''}}" />
                 </div>
                 <div class="condition">
-                    <button id="searchBtn" type="submit">Search</button>
+                    <button id="searchTransactionBtn" type="submit">Search</button>
                 </div>
                 <input type="hidden" name="dateOrder" value="0" />
                 <input type="hidden" name="ajax" />
