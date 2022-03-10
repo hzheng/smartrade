@@ -73,7 +73,7 @@ var app = {
                         $prevPosition = $curPosition;
                     }
                 }
-                $('.none', $positionTemplate.parents('div').eq[0]).css(
+                $('.none', $positionTemplate.closest('div')).css(
                     "display", hasPositions ? 'none' : 'block');
 
                 var $sectionTemplate = $(transactionGroupSelector).eq(0);
@@ -178,7 +178,7 @@ $(function() {
     });
     $searchTransactionGroupBtn.click(function(e) {
         e.preventDefault();
-        app.searchTransactionGroups($(this).parents('form:first'),
+        app.searchTransactionGroups($(this).closest('form'),
             function (ticker) {
                 $('.transaction_group_summary span.ticker').text(ticker);
             })
@@ -186,7 +186,7 @@ $(function() {
 
     $("#searchTransactionBtn").click(function(e) {
         e.preventDefault();
-        app.searchTransactionHistory($(this).parents('form:first'))
+        app.searchTransactionHistory($(this).closest('form'))
     });
 
     $('#date_order').on('click', function (e) {
