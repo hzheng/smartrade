@@ -287,7 +287,7 @@ class Transaction:
     def is_valid(self):
         return self._valid
  
-    def to_json(self, hide=None):
+    def to_json(self, hide=None, include_symbol=False):
         symbol = self.symbol
         json = {
             'date': self.date,
@@ -309,6 +309,8 @@ class Transaction:
             if symbol.strike and not hide:
                 json['strike'] = symbol.strike
                 json['expired'] = symbol.expired
+        if include_symbol:
+            json['symbol'] = str(symbol)
         return json
 
     def __repr__(self):

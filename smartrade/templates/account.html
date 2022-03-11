@@ -17,6 +17,7 @@
             <label>Transaction Period:</label>
             <span name="start_time" class="date" format="mm/dd/yy"></span> -
             <span name="end_time" class="date" format="mm/dd/yy"></span>
+            <span name="message" class="message"></span>
         </p>
         <ul class="account_nav">
             <li>
@@ -40,11 +41,8 @@
                 <a href="/transactions">Transaction History</a>
                 {% endif %}
             </li>
-            <li>|</li>
-            <li>
+            <li class="load">
                 <a href="/load/{{account}}">Live load data</a>
-            </li>
-            <li>
                 <a href="/load/{{account}}?all=true">Reload all data</a>
             </li>
         </ul>

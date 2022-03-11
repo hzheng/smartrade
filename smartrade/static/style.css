@@ -293,3 +293,22 @@ ul.account_nav {
 ul.account_nav li {
   display: inline;
 }
+
+ul.account_nav li.load {
+  display: block;
+  float: right;
+}
+
+ul.account_nav li.load a {
+  text-decoration: dotted underline;
+}
+
+.message {
+  color: green;
+  font-size: small;
+  float: right;
+}
+
+.message.error {
+  color: red;
+}

@@ -81,28 +81,34 @@ const app = {
     },
 
     convertDate: function(date, format) {
-        const dataObj = new Date(Date.parse(date));
+        const dateObj = new Date(Date.parse(date));
         if (!format) {
             format = 'yy-mm-dd';
         }
-        return $.datepicker.formatDate(format, dataObj);
+        const times = format.split(" ")
+        let res = $.datepicker.formatDate(times[0], dateObj);
+        if (times.length > 1) {
+            const zeroPad = (num) => String(num).padStart(2, '0');
+            let h = zeroPad(dateObj.getHours());
+            let m = zeroPad(dateObj.getMinutes());
+            let s = zeroPad(dateObj.getSeconds());
+            res += " " + h + ":" + m + ":" + s;
+        }
+        return res;
     },
 
-    setValue: function($field, value, isAmount) {
-        if ($field.hasClass('date')) {
+    setValue: function($field, value, dataType) {
+        if ($field.hasClass('date') || dataType == 'date') {
             $field.text(app.convertDate(value, $field.attr('format')));
-            return;
+            return $field;
         }
-        if (!isAmount && !$field.hasClass('amount')) {
+        if (dataType != 'amount' && !$field.hasClass('amount')) {
             $field.text(value);
-            return;
+            return $field;
         }
         if (value == null) {
             $field.text("N/A");
-            return;
-        }
-        if (isAmount && typeof(value) == 'string') {
-            value = parseInt(value);
+            return $field;
         }
         console.assert(typeof(value) == 'number');
         let postfix = "";
@@ -117,6 +123,7 @@ const app = {
         } else {
             $field.removeClass('negative');
         }
+        return $field;
     },
 
     searchTransactionGroups: function($form, afterSuccess) {
@@ -229,19 +236,17 @@ const app = {
                     }
                 })
                 transactions.forEach(function (tx, index) {
-                    const $amount = $('<td>').text(tx.amount);
                     const $row = $('<tr>').append(
                         $('<td>').text(index + 1),
-                        $('<td>').text(tx.date),
+                        app.setValue($('<td>').attr('format', 'yy-mm-dd HH:mm:ss'), tx.date, 'date'),
                         $('<td>').text(tx.symbol),
                         $('<td>').text(tx.action),
-                        $('<td>').text(tx.price),
+                        app.setValue($('<td>'), tx.price, 'amount'),
                         $('<td>').text(tx.quantity),
-                        $('<td>').text(tx.fee),
-                        $amount,
+                        app.setValue($('<td>'), tx.fee, 'amount'),
+                        app.setValue($('<td>'), tx.amount, 'amount'),
                         $('<td>').text(tx.description)
                     ).appendTo($tbody);
-                    app.setValue($amount, tx.amount, true);
                 });
                 if (afterSuccess) {
                     afterSuccess();
@@ -315,18 +320,53 @@ const app = {
                     optionSelected.attr('name') == 'custom' ? 'visible' : 'hidden');
             });
         });
+    },
+
+    initLoad: function($tabContents) {
+        $tabContents.each(function () {
+            const $tabContent = $(this);
+            $(".load a", $tabContent).each(function () {
+                const $link = $(this);
+                const url = $link.attr('href');
+                $link.click(function (e) {
+                    e.preventDefault();
+                    $.ajax({
+                        url: url, type: 'GET',
+                        success: function (data, textStatus) {
+                            app.showResponse($tabContent, "Loaded " + data + " transaction group(s)");
+                        },
+                        error: function (xhr, textStatus, errorThrown) {
+                            app.showResponse($tabContent, errorThrown, true);
+                        }
+                    });
+                });
+            });
+        });
+    },
+
+    showResponse: function ($context, message, error) {
+        const $messageBoard = $(".message", $context);
+        $messageBoard.text(message);
+        if (error) {
+            $messageBoard.addClass("error");
+        } else {
+            $messageBoard.removeClass("error");
+            setTimeout(() => $messageBoard.text(''), 10000);
+        }
     }
 }
 
 $(function() {
     // set up tabs
     const $accounts = $("#accounts").tabs();
-    $("ul li a", $accounts).click(function() {
+    $("ul li:not(.load) a", $accounts).click(function() {
         app.loadPage($accounts.attr('url'), $(this));
     })[0].click(); // load the first tab content
 
+    // set up pages
     const $tabContents = $("div", $accounts);
     app.initAccountSummary($tabContents);
     app.initTransactionGroups($tabContents);
     app.initTransactionHistory($tabContents);
+    app.initLoad($tabContents);
 });

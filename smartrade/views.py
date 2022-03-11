@@ -73,9 +73,10 @@ def load(account):
     assembler = Assembler(db_name, account)
     inspector = Inspector(db_name, account)
     tickers = inspector.distinct_tickers()
+    total = 0
     for ticker in tickers:
-        assembler.group_transactions(ticker, True)
-    return render_template("tickers.html", tickers=tickers, loaded=True)
+        total += len(assembler.group_transactions(ticker, True))
+    return str(total)
 
 @app.route("/transactionGroups")
 def transaction_groups():
@@ -144,14 +145,6 @@ def transaction_history():
                  start_cash, end_cash, total_cash, delta)
     assert(abs(delta) < 1e-5)
     return {
-        'transactions': [_jsonify_transaction(tx) for tx in transactions],
+        'transactions': [tx.to_json(include_symbol=True) for tx in transactions],
         'cash': { 'start': start_cash, 'end': end_cash, 'total': total_cash }
     }
-
-def _jsonify_transaction(transaction):
-    res = transaction.to_json()
-    res['symbol'] = str(transaction.symbol)
-    res['date'] = transaction.date.strftime("%Y-%m-%d %H:%M:%S")
-    res['amount'] = f"{transaction.amount:.2f}"
-    res['fee'] = f"{transaction.fee:.2f}"
-    return res
