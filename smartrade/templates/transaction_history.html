@@ -8,27 +8,25 @@ Transaction History
 {% endblock %}
 
 {% block header %}
-Transaction History
 {% endblock %}
 
 {% set account = request.path.split('/')[-1] %}
 
 {% block nav %}
-
-<a href="/home/{{account}}">Home (Account: {{account}})</a>
 {% endblock %}
+
 {% block main %}
+
 <article>
-    <h3>Transaction History</h3>
-    {% with base_url="/transactions" %}
-        {% include 'account.html' %}
-    {% endwith %}
-    
-    <div class="search">
-            <form id="searchTransactionForm" class="container" method="get" action="{{url_for(request.endpoint, **request.view_args)}}">
+    {% include 'account.html' %}
+
+    <div id="transaction_template" style="display: none;">
+        <div class="search">
+            <form name="searchTransactionForm" class="container" method="get"
+                action="{{url_for(request.endpoint, **request.view_args)}}">
                 <div class="condition">
                     <label for="dateRange">Date Range</label>
-                    <select id="dateRange" name="dateRange">
+                    <select name="dateRange">
                         <option value="">all</option>
                         <option value="{{today|first_week_day}},">current week</option>
                         <option value="{{last_week_first_day}},{{last_week_last_day}}">last week</option>
@@ -36,47 +34,51 @@ Transaction History
                         <option value="{{last_month_first_day}},{{last_month_last_day}}">previous month</option>
                         <option value="{{today|first_year_day}},">current year</option>
                         <option value="{{last_year|first_year_day}},{{last_year|last_year_day}}">previous year</option>
-                        <option id="custom" value="custom">custom</option>
+                        <option name="custom" value="custom">custom</option>
                     </select>
                     <div class="customDate">
-                        From: <input type="text" id="start_date">
-                        To: <input type="text" id="end_date">
+                        From: <input type="text" name="start_date">
+                        To: <input type="text" name="end_date">
                     </div>
                 </div>
                 <div class="condition">
-                    <label for="symbol">Symbol:</label>
-                    <input type="text" name="symbol" value="{{request.args.get('symbol') or ''}}" />
+                    <label for="ticker">Ticker:</label>
+                    <select name="ticker">
+                        <option value="">all</option>
+                    </select>
                 </div>
                 <div class="condition">
-                    <button id="searchTransactionBtn" type="submit">Search</button>
+                    <button name="searchTransactionBtn" type="submit">Search</button>
                 </div>
                 <input type="hidden" name="dateOrder" value="0" />
+                <input type="hidden" name="account" />
                 <input type="hidden" name="ajax" />
             </form>
-    </div>
-    <section>
-        <div class="history_summary">
-            <span>{{transactions|length}}</span> Transaction(s) 
-            Cash (start: <span class="money">0</span>
-            end: <span class="money">0</span>
-            change: <span class="money">0</span>)
         </div>
-        <table class="history">
-            <thead>
-                <tr>
-                    <th>No.</th>
-                    <th>Date <span id="date_order" class="ui-icon ui-icon-triangle-1-s"></span></th>
-                    <th>Symbol</th>
-                    <th>Action</th>
-                    <th>Price</th>
-                    <th>Quantity</th>
-                    <th>Fee</th>
-                    <th>Amount</th>
-                    <th>Description</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </section>
+        <section>
+            <div class="history_summary">
+                <span name="total_transaction">{{transactions|length}}</span> Transaction(s)
+                Cash (start: <span name="cash_start" class="money amount">0</span>
+                end: <span name="cash_end" class="money amount">0</span>
+                change: <span name="cash_total" class="money amount">0</span>)
+            </div>
+            <table class="history">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Date <span name="dateOrderArrow" class="ui-icon ui-icon-triangle-1-s"></span></th>
+                        <th>Symbol</th>
+                        <th>Action</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Fee</th>
+                        <th>Amount</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+    </div>
 </article>
 {% endblock %}

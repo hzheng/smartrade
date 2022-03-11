@@ -8,107 +8,104 @@ Transactions
 {% endblock %}
 
 {% block header %}
-Transaction Groups
 {% endblock %}
 
 {% set account = request.path.split('/')[-1] %}
 
 {% block nav %}
-
-<a href="/home/{{account}}">Home (Account: {{account}})</a>
 {% endblock %}
-{% block main %}
-<article>
-    <h3>Transaction Groups</h3>
-    {% with base_url="/transactionGroups" %}
-        {% include 'account.html' %}
-    {% endwith %}
 
-    <div class="search">
-            <form id="searchTransactionGroupForm" class="container" method="get" action="{{url_for(request.endpoint, **request.view_args)}}">
+{% block main %}
+
+<article>
+    {% include 'account.html' %}
+
+    <div id="transaction_group_template" style="display: none;">
+        <div class="search">
+            <form name="searchTransactionGroupForm" class="container" method="get"
+                action="{{url_for(request.endpoint, **request.view_args)}}">
                 <div class="condition">
                     <label for="ticker">Ticker:</label>
-                    <select id="ticker" name="ticker">
-                        <option value="">Select ticker...</option>
-                        {% for ticker in tickers %}
-                            <option value="{{ticker}}">{{ticker}}</option>
-                        {% endfor %}
+                    <select name="ticker">
+                        <option value="">Select...</option>
                     </select>
                 </div>
                 <div class="condition">
-                    <button id="searchTransactionGroupBtn" type="submit" disabled="true">Search</button>
+                    <button name="searchTransactionGroupBtn" type="submit" disabled="true">Search</button>
                 </div>
                 <input type="hidden" name="dateOrder" value="0" />
+                <input type="hidden" name="account" />
                 <input type="hidden" name="ajax" />
             </form>
-    </div>
-    <div class="transaction_group_summary">
-        <span class="ticker">{{ticker}}</span>
-        total profit:
-        <span name="totalProfit" class="amount money">0</span>
-    </div>
-    <h3>Open Positions</h3>
-    <div>
-        <table class="positions">
-            <tr>
-                <td class="symbol"></td>
-                <td class="quantity"></td>
-            </tr>
-        </table>
-        <span class="none">None</span>
-    </div>
-    
-    <h3>Transactions</h3>
-    <span class="toggle" onclick="$('.completed').parent().toggle()">toggle completed</span>
-    
-    <section class="tx_group">
-        <table class="transaction">
-            <colgroup>
-                <col span="1" style="width: 25%;">
-                <col span="1" style="width: 15%;">
-                <col span="1" style="width: 10%;">
-                <col span="1" style="width: 10%;">
-                <col span="1" style="width: 10%;">
-                <col span="1" style="width: 10%;">
-                <col span="1" style="width: 20%;">
-            </colgroup>
-            <tr name="header">
-                <th>Symbol</th>
-                <th>Date</th>
-                <th>Action</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Fee</th>
-                <th>Amount</th>
-            </tr>
-            <tr class="open">
-                <td class="symbol" rowspan="100"></td>
-                <td></td>
-                <td></td>
-                <td class="money"></td>
-                <td class="quantity"></td>
-                <td class="money"></td>
-                <td class="money"></td>
-            </tr>
-            <tr class="close" style="display: none;">
-                <td></td>
-                <td></td>
-                <td class="money"></td>
-                <td class="quantity"></td>
-                <td class="money"></td>
-                <td class="money amount"></td>
-            </tr>
-        </table>
-        <div class="summary">
-            Profit:
-            <span name="profit" class="money amount"></span>
-            ROI:
-            <span name="roi" class="amount"></span>
-            Cost:
-            <span name="cost" class="money amount"></span>
-            Duration:
-            <span name="duration" class="amount"></span>
         </div>
-    </section>
+        <div class="transaction_group_summary">
+            <span class="ticker">{{ticker}}</span>
+            total profit:
+            <span name="totalProfit" class="amount money">0</span>
+        </div>
+        <h3>Open Positions</h3>
+        <div>
+            <table class="positions">
+                <tr>
+                    <td class="symbol"></td>
+                    <td class="quantity"></td>
+                </tr>
+            </table>
+            <span class="none">None</span>
+        </div>
+    
+        <h3>Transactions</h3>
+        <span class="toggle" onclick="$('.completed').parent().toggle()">toggle completed</span>
+    
+        <section class="tx_group">
+            <table class="transaction">
+                <colgroup>
+                    <col span="1" style="width: 25%;">
+                    <col span="1" style="width: 15%;">
+                    <col span="1" style="width: 10%;">
+                    <col span="1" style="width: 10%;">
+                    <col span="1" style="width: 10%;">
+                    <col span="1" style="width: 10%;">
+                    <col span="1" style="width: 20%;">
+                </colgroup>
+                <tr name="header">
+                    <th>Symbol</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Fee</th>
+                    <th>Amount</th>
+                </tr>
+                <tr class="open">
+                    <td name="symbol" class="symbol" rowspan="100"></td>
+                    <td name="date" class="date"></td>
+                    <td name="action"></td>
+                    <td name="price" class="money amount"></td>
+                    <td name="quantity" class="quantity"></td>
+                    <td name="fee" class="money amount"></td>
+                    <td name="amount" class="money amount"></td>
+                </tr>
+                <tr class="close" style="display: none;">
+                    <td name="date" class="date"></td>
+                    <td name="action"></td>
+                    <td name="price" class="money amount"></td>
+                    <td name="quantity" class="quantity"></td>
+                    <td name="fee" class="money amount"></td>
+                    <td name="amount" class="money amount"></td>
+                </tr>
+            </table>
+            <div class="summary">
+                Profit:
+                <span name="profit" class="money amount"></span>
+                ROI:
+                <span name="roi" class="amount percent"></span>
+                Cost:
+                <span name="cost" class="money amount"></span>
+                Duration:
+                <span name="duration" class="amount"></span>
+            </div>
+        </section>
+    </div>
     </article>
     {% endblock %}

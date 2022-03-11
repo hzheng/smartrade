@@ -8,95 +8,82 @@ Home
 {% endblock %}
 
 {% block header %}
-Smartrade
 {% endblock %}
  
 {% set account = request.path.split('/')[-1] %}
 
 {% block main %}
-<p>Welcome to the Smartrade</p>
 
-{% with base_url="/home" %}
-    {% include 'account.html' %}
-{% endwith %}
+<article>
+{% include 'account.html' %}
 
-<p>Transactions ({{period[0].strftime('%m/%d/%Y')}} - {{period[1].strftime('%m/%d/%Y')}})
-    <a href="/transactionGroups/{{account}}">Transaction groups</a>
-    <a href="/transactions/{{account}}">Transaction history</a>
-    <a href="/load/{{account}}">Live load data</a>
-    <a href="/load/{{account}}?all=true">Reload all data</a>
-</p>
+<div id="account_template" style="display: none;">
+    <section>
+        <table class="total">
+            <tbody>
+                <tr>
+                    <th>Total Market Value</th>
+                    <th>Total Profit</th>
+                    <th>Total Profit(%)</th>
+                    <th>Total Cash</th>
+                    <th>Total Investment</th>
+                    <th>Total Interest</th>
+                    <th>Total Dividend</th>
+                    <th>Total Trading</th>
+                </tr>
+                <tr>
+                    <td class="money amount" name="total_market_value"></td>
+                    <td class="money amount" name="total_profit"></td>
+                    <td class="amount percent" name="total_profit_rate"></td> 
+                    <td class="money amount" name="total_cash"></td>
+                    <td class="money amount" name="total_investment"></td>
+                    <td class="money amount" name="total_interest"></td>
+                    <td class="money amount" name="total_dividend"></td>
+                    <td class="money amount" name="total_trading"></td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
 
-<section>
-    <table class="total">
-        <tbody>
-            <tr>
-                <th>Total Market Value</th>
-                <th>Total Profit</th>
-                <th>Total Profit(%)</th>
-                <th>Total Cash</th>
-                <th>Total Investment</th>
-                <th>Total Interest</th>
-                <th>Total Dividend</th>
-                <th>Total Trading</th>
-            </tr>
-            <tr>
-                <td class="money">{{"%.2f"|format(summary.total_market_value)}}</td>
-                <td class="money amount {{'' if summary.total_profit >= 0 else 'negative'}}">
-                    {{"%.2f"|format(summary.total_profit)}}</td>
-                <td class="amount {{'' if summary.total_profit >= 0 else 'negative'}}">
-                    {{"%.2f"|format(summary.total_profit_rate * 100)}}%</td>
-                <td class="money">{{"%.2f"|format(summary.total_cash)}}</td>
-                <td class="money">{{"%.2f"|format(summary.total_investment)}}</td>
-                <td class="money">{{"%.2f"|format(summary.total_interest)}}</td>
-                <td class="money">{{"%.2f"|format(summary.total_dividend)}}</td>
-                <td class="money">{{"%.2f"|format(summary.total_trading)}}</td>
-            </tr>
-        </tbody>
-    </table>
-</section>
-
-<section>
-    <table class="total">
-        <tbody>
-            <tr>
-                <th>Symbol</th>
-                <th>Quanity</th>
-                <th>Price</th>
-                <th>Market value</th>
-            </tr>
-            <tr>
-                <td class="label" colspan="4">Stocks</td>
-            </tr>
-            {% for symbol, (quantity, price, value) in values[0].items() %}
-            <tr>
-                <td class="symbol"><a href="/report/{{account}}/{{symbol}}">{{symbol}}</a></td>
-                <td class="quantity">{{quantity}}</td>
-                <td class="quantity">{{"%.3f"|format(price)}}</td>
-                <td class="quantity">{{"%.2f"|format(value)}}</td>
-            </tr>
-            {% endfor %}
-            <tr>
-                <td colspan="3">Total value</td>
-                <td>{{"%.2f"|format(values[2])}}</td>
-            </tr>
-            <tr>
-                <td class="label" colspan="4">Options</td>
-            </tr>
-            {% for symbol, (quantity, price, value) in values[1].items() %}
-            <tr>
-                <td class="symbol"><a href="/report/{{account}}/{{symbol|ui}}">{{symbol}}</a></td>
-                <td class="quantity">{{quantity}}</td>
-                <td class="quantity">{{"%.3f"|format(price)}}</td>
-                <td class="quantity">{{"%.2f"|format(value)}}</td>
-            </tr>
-            {% endfor %}
-            <tr>
-                <td colspan="3">Total value</td>
-                <td>{{"%.2f"|format(values[3])}}</td>
-            </tr>
-        </tbody>
-    </table>
-</section>
+    <section>
+        <table class="total">
+            <tbody>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Quanity</th>
+                    <th>Price</th>
+                    <th>Market value</th>
+                </tr>
+                <tr>
+                    <td class="label" colspan="4">Stocks</td>
+                </tr>
+                <tr name="position">
+                    <td class="symbol" name="symbol"><a href="/report/{{account}}/symbol}">{{symbol}}</a></td>
+                    <td class="quantity" name="quantity"></td>
+                    <td class="money amount" name="price"></td>
+                    <td class="money amount" name="value"></td>
+                </tr>
+                <tr>
+                    <td colspan="3">Total value</td>
+                    <td class="money amount" name="total_value"></td>
+                </tr>
+                <tr>
+                    <td class="label" colspan="4">Options</td>
+                </tr>
+                <tr name="position">
+                    <td class="symbol" name="symbol"><a href="/report/{{account}}/symbol}">{{symbol}}</a></td>
+                    <td class="quantity" name="quantity"></td>
+                    <td class="money amount" name="price"></td>
+                    <td class="money amount" name="value"></td>
+                </tr>
+                <tr>
+                    <td colspan="3">Total value</td>
+                    <td class="money amount" name="total_value"></td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+</div>
+</article>
 
 {% endblock %}

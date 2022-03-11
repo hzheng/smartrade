@@ -19,8 +19,12 @@ logger = app_logger.get_logger(__name__)
 def home():
     return render_template("home.html")
 
-@app.route("/home/<account>")
-def account_home(account):
+@app.route("/home")
+def account_home():
+    if not request.args.get('ajax'):
+        return render_template("home.html")
+
+    account = request.args.get('account')
     db_name = app.config['DATABASE']
     inspector = Inspector(db_name, account)
     total_profit, total_market_value = inspector.total_profit()
@@ -38,8 +42,8 @@ def account_home(account):
     # avoid negative total_investment when calculating total profit rate
     summary['total_profit_rate'] = summary['total_profit'] / max(summary['total_investment'], 1)
     provider = app.config['provider']
-    positions = inspector.total_positions().values()
-    position_map = {symbol: qty for pos_map in positions for symbol, qty in pos_map.items()}
+    positions = inspector.total_positions()
+    position_map = {symbol: qty for pos_map in positions.values() for symbol, qty in pos_map.items()}
     values=[{}, {}, 0, 0]
     quotes = provider.get_quotes(position_map.keys())
     for symbol, price in quotes.items():
@@ -51,10 +55,7 @@ def account_home(account):
             value *= 100
         values[index][symbol] = (quantity, price, value)
         values[index + 2] += value
-
-    return render_template("home.html", summary=summary,
-                           positions=positions, values=values,
-                           period=inspector.transaction_period())
+    return {'summary': summary, 'values': values, 'period': inspector.transaction_period()}
 
 @app.route("/load/<account>")
 def load(account):
@@ -74,22 +75,29 @@ def load(account):
         assembler.group_transactions(ticker, True)
     return render_template("tickers.html", tickers=tickers, loaded=True)
 
-@app.route("/transactionGroups/<account>")
-def transaction_groups(account):
+@app.route("/transactionGroups")
+def transaction_groups():
+    ajax = request.args.get('ajax')
+    if not ajax:
+        return render_template("transaction_groups.html")
+
+    account = request.args.get('account')
     db_name = app.config['DATABASE']
     inspector = Inspector(db_name, account)
-    if not request.args.get('ajax'):
-        tickers = inspector.distinct_tickers()
-        return render_template("transaction_groups.html", tickers=tickers)
+    if ajax == "1":
+        return {
+            'period': inspector.transaction_period(),
+            'tickers': inspector.distinct_tickers()
+        }
 
-    ticker = request.args.get('ticker').upper()
+    ticker = request.args.get('ticker')
     tx_groups = inspector.ticker_transaction_groups(ticker)
     total, profit, positions = TransactionGroup.compute_total(tx_groups)
     return {
         'transactionGroups': [tx_group.to_json(True) for tx_group in tx_groups],
         'positions': positions,
-        'profit': f"{profit:.2f}",
-        'total': f"{total:.2f}"
+        'profit': profit,
+        'total': total
     }
 
 def _get_date_range(context):
@@ -104,17 +112,25 @@ def _get_date_range(context):
     logger.debug("%s: start_date=%s, end_date=%s", context, start_date, end_date)
     return start_date, end_date
 
-@app.route("/transactions/<account>")
-def transaction_history(account):
-    if not request.args.get('ajax'):
+@app.route("/transactions")
+def transaction_history():
+    ajax = request.args.get('ajax')
+    if not ajax:
         return render_template("transaction_history.html")
 
+    account = request.args.get('account')
     db_name = app.config['DATABASE']
     inspector = Inspector(db_name, account)
+    if ajax == "1":
+        return {
+            'period': inspector.transaction_period(),
+            'tickers': inspector.distinct_tickers()
+        }
+
     start_date, end_date = _get_date_range("transaction_history")
     order = request.args.get('dateOrder') or "0"
-    symbol = request.args.get('symbol')
-    transactions = inspector.transaction_list(start_date, end_date, symbol, order == "1")
+    ticker = request.args.get('ticker')
+    transactions = inspector.transaction_list(start_date, end_date, ticker, order == "1")
     total_cash = inspector.total_cash(start_date, end_date)
     end_cash = inspector.total_cash(None, end_date)
     start_cash = 0
@@ -127,11 +143,7 @@ def transaction_history(account):
     assert(abs(delta) < 1e-5)
     return {
         'transactions': [jsonify_transaction(tx) for tx in transactions],
-        'cash': {
-            'start': f"{start_cash:.2f}",
-            'end': f"{end_cash:.2f}",
-            'total': f"{total_cash:.2f}"
-        }
+        'cash': { 'start': start_cash, 'end': end_cash, 'total': total_cash }
     }
 
 def jsonify_transaction(transaction):

@@ -175,16 +175,19 @@ table.history th, table.history td {
   text-align: center;
 }
 
+
 table.transaction td.money {
   text-align: right;
 }
 
-.symbol {
+.symbol,
+table.history td:nth-child(3) {
   font-size: small;
   text-decoration: dotted underline;
 }
 
-.description {
+.description,
+table.history td:nth-child(9) {
   font-size: small;
 }
 
@@ -196,18 +199,22 @@ table.transaction td.money {
   content:"$";
 }
 
-.money {
+.money,
+table.history td:nth-child(5),
+table.history td:nth-child(7),
+table.history td:nth-child(8) {
   font-family: Verdana;
   font-size: small;
   text-align: right;
 }
 
-.amount {
+.amount,
+table.history td:nth-child(8) {
   color: green;
 }
 
 .negative {
-  color: red;
+  color: red !important;
 }
 
 .toggle {
@@ -264,8 +271,8 @@ div.condition {
   visibility: hidden;
 }
 
-#date_order.ui-icon-triangle-1-n,
-#date_order.ui-icon-triangle-1-s {
+.ui-icon-triangle-1-n,
+.ui-icon-triangle-1-s {
   cursor: pointer;
 }
 
@@ -277,4 +284,12 @@ div.condition {
 
 section.tx_group, .none{
   display: none;
+}
+
+ul.account_nav {
+  list-style: none;
+}
+
+ul.account_nav li {
+  display: inline;
 }

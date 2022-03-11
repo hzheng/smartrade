@@ -1,14 +1,54 @@
-<section class="account">
-    {% for accounts in config.broker_client[0].accounts %}
+{% set url = url_for(request.endpoint, **request.view_args) %}
+<div id="accounts" url="{{url}}">
+    <ul>
+        {% for accounts in config.broker_client[0].accounts %}
         {% for alias, full_account in accounts.items() %}
-            {% set acct = full_account[-4:] %}
-            <span>
-                {% if acct == account %}
-                    {{alias}}
-                {% else %}
-                    <a href="{{base_url}}/{{acct}}?{{request.query_string.decode('utf-8')}}">{{alias}}</a>
-                {% endif %}
-            </span>
+        <li><a href="#account-{{full_account[-4:]}}">{{alias}}</a></li>
         {% endfor %}
+        {% endfor %}
+    </ul>
+
+    {% for accounts in config.broker_client[0].accounts %}
+    {% for alias, full_account in accounts.items() %}
+    {% set account = full_account[-4:] %}
+    <div id="account-{{account}}">
+        <p>
+            <label>Account:</label> {{full_account[-4:]}}
+            <label>Transaction Period:</label>
+            <span name="start_time" class="date" format="mm/dd/yy"></span> -
+            <span name="end_time" class="date" format="mm/dd/yy"></span>
+        </p>
+        <ul class="account_nav">
+            <li>
+                {% if url == '/home' %}
+                Account Summary
+                {% else %}
+                <a href="/home">Account Summary</a>
+                {% endif %}
+            </li>
+            <li>
+                {% if url == '/transactionGroups' %}
+                Transaction Groups
+                {% else %}
+                <a href="/transactionGroups">Transaction Groups</a>
+                {% endif %}
+            </li>
+            <li>
+                {% if url == '/transactions' %}
+                Transaction History
+                {% else %}
+                <a href="/transactions">Transaction History</a>
+                {% endif %}
+            </li>
+            <li>|</li>
+            <li>
+                <a href="/load/{{account}}">Live load data</a>
+            </li>
+            <li>
+                <a href="/load/{{account}}?all=true">Reload all data</a>
+            </li>
+        </ul>
+    </div>
     {% endfor %}
-</section>
+    {% endfor %}
+</div>
