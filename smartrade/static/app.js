@@ -10,7 +10,6 @@ const app = {
         const $tabContent = $(tabContentId);
         const accountId = tabContentId.split("-")[1];
         const url = baseUrl + "?ajax=1&account=" + accountId;
-        console.log("loading", url);
         let loadFunction;
         switch (baseUrl) {
             case '/home':
@@ -25,7 +24,15 @@ const app = {
             default:
                 console.assert(false, "unknown url:" + baseUrl);
         }
-        $.get(url, data => app[loadFunction](data, $tab, $tabContent));
+        app.showMessage($tabContent, "Loading page " + url + "...");
+        $.ajax({
+            type: "GET",
+            url: url,
+            success: data => app[loadFunction](data, $tab, $tabContent),
+            error: function (xhr, textStatus, errorThrown) {
+                app.showMessage($tabContent, "Failed to load " + url + ": " + errorThrown, true);
+            }
+        });
     },
 
     _loadAccountSummary: function (data, $tab, $tabContent) {
@@ -69,6 +76,7 @@ const app = {
         app.setValue($("span[name='start_time']", $tabContent), data.period[0]);
         app.setValue($("span[name='end_time']", $tabContent), data.period[1]);
         $tab.data("loaded", true);
+        app.showMessage($tabContent, "Loaded page");
     },
 
     convertAmount: function(amount) {
@@ -136,6 +144,7 @@ const app = {
 
         const transactionGroupSelector = ".tx_group";
         const positionSelector = "table.positions tr";
+        app.showMessage($tabContent, "Loading transaction groups...");
         $.ajax({
             type: "GET",
             url: url,
@@ -198,9 +207,13 @@ const app = {
                     })
                     $prevSection = $curSection;
                 });
+                app.showMessage($tabContent, "Loaded transaction groups");
                 if (afterSuccess) {
                     afterSuccess(ticker);
                 }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                app.showMessage($tabContent, "Failed to load transaction groups: " + errorThrown, true);
             }
         });
     },
@@ -218,6 +231,7 @@ const app = {
             const endDate = $("input[name='end_date']", $tabContent).val();
             $("option[name='custom']").val(startDate + ',' + endDate);
         }
+        app.showMessage($tabContent, "Loading transaction history...");
         $.ajax({
             type: "GET",
             url: url,
@@ -248,9 +262,13 @@ const app = {
                         $('<td>').text(tx.description)
                     ).appendTo($tbody);
                 });
+                app.showMessage($tabContent, "Loaded transaction history");
                 if (afterSuccess) {
                     afterSuccess();
                 }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                app.showMessage($tabContent, "Failed to load transaction history: " + errorThrown, true);
             }
         });
     },
@@ -330,13 +348,14 @@ const app = {
                 const url = $link.attr('href');
                 $link.click(function (e) {
                     e.preventDefault();
+                    app.showMessage($tabContent, "Loading transaction data...");
                     $.ajax({
                         url: url, type: 'GET',
                         success: function (data, textStatus) {
-                            app.showResponse($tabContent, "Loaded " + data + " transaction group(s)");
+                            app.showMessage($tabContent, "Loaded " + data + " transaction group(s)");
                         },
                         error: function (xhr, textStatus, errorThrown) {
-                            app.showResponse($tabContent, errorThrown, true);
+                            app.showMessage($tabContent, "Failed to load: " + errorThrown, true);
                         }
                     });
                 });
@@ -344,7 +363,7 @@ const app = {
         });
     },
 
-    showResponse: function ($context, message, error) {
+    showMessage: function ($context, message, error) {
         const $messageBoard = $(".message", $context);
         $messageBoard.text(message);
         if (error) {
