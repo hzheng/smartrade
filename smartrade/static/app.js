@@ -38,10 +38,10 @@ const app = {
             const $row = $rows.eq(i);
             for (const [symbol, [quantity, price, value]] of Object.entries(data.values[i])) {
                 const $newRow = $row.clone().insertBefore($row);
-                app.setValue($('td[name="symbol"]', $newRow), symbol);
-                app.setValue($('td[name="quantity"]', $newRow), quantity);
-                app.setValue($('td[name="price"]', $newRow), price);
-                app.setValue($('td[name="value"]', $newRow), value);
+                app.setValue($("td[name='symbol']", $newRow), symbol);
+                app.setValue($("td[name='quantity']", $newRow), quantity);
+                app.setValue($("td[name='price']", $newRow), price);
+                app.setValue($("td[name='value']", $newRow), value);
             }
             app.setValue($total.eq(i), data.values[i + 2]);
             $row.remove();
@@ -58,7 +58,7 @@ const app = {
     },
     
     _initLoadTransactions: function (data, $tab, $tabContent) {
-        const $select = $('select[name="ticker"]', $tabContent);
+        const $select = $("select[name='ticker']", $tabContent);
         for (const [_, ticker] of Object.entries(data.tickers)) {
             $('<option>').val(ticker).text(ticker).appendTo($select);
         }
@@ -66,8 +66,8 @@ const app = {
     },
 
     _commonLoad: function (data, $tab, $tabContent) {
-        app.setValue($('span[name="start_time"]', $tabContent), data.period[0]);
-        app.setValue($('span[name="end_time"]', $tabContent), data.period[1]);
+        app.setValue($("span[name='start_time']", $tabContent), data.period[0]);
+        app.setValue($("span[name='end_time']", $tabContent), data.period[1]);
         $tab.data("loaded", true);
     },
 
@@ -117,17 +117,6 @@ const app = {
         } else {
             $field.removeClass('negative');
         }
-    },
-
-    _fillTransactionGroupData: function($row, tx) {
-        const $cell = $row.children("td");
-        let index = $cell.length - 1;
-        app.setValue($cell.eq(index--), tx.amount);
-        app.setValue($cell.eq(index--), tx.fee);
-        $cell.eq(index--).text(tx.quantity);
-        app.setValue($cell.eq(index--), tx.price);
-        $cell.eq(index--).text(tx.action);
-        app.setValue($cell.eq(index--), tx.date);
     },
 
     searchTransactionGroups: function($form, afterSuccess) {
@@ -183,23 +172,23 @@ const app = {
                             let $row;
                             if (txIndex == 0) { // open transaction
                                 $row = $("tr.open", $curSection).last();
-                                $row.children("td").eq(0).text(tx.symbol);
                             } else { // close transactions
                                 let $prevRow = $("tr.close", $curSection).last();
                                 $row = $prevRow.clone();
                                 $row.insertAfter($prevRow);
                                 $row.css("display", "");
                             }
-                            app._fillTransactionGroupData($row, tx);
+                            $row.children("td").each(function() {
+                                app.setValue($(this), tx[$(this).attr('name')]);
+                            });
                         });
                     });
                     if (group.completed) {
                         $('table.transaction', $curSection).addClass("completed");
                     }
-                    app.setValue($('span[name="profit"]', $curSection), group.profit);
-                    app.setValue($('span[name="roi"]', $curSection), group.roi);
-                    app.setValue($('span[name="cost"]', $curSection), group.cost);
-                    app.setValue($('span[name="duration"]', $curSection), group.duration);
+                    $("div.summary span", $curSection).each(function() {
+                        app.setValue($(this), group[$(this).attr('name')]);
+                    })
                     $prevSection = $curSection;
                 });
                 if (afterSuccess) {
