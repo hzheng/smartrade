@@ -144,11 +144,11 @@ def transaction_history():
                  start_cash, end_cash, total_cash, delta)
     assert(abs(delta) < 1e-5)
     return {
-        'transactions': [jsonify_transaction(tx) for tx in transactions],
+        'transactions': [_jsonify_transaction(tx) for tx in transactions],
         'cash': { 'start': start_cash, 'end': end_cash, 'total': total_cash }
     }
 
-def jsonify_transaction(transaction):
+def _jsonify_transaction(transaction):
     res = transaction.to_json()
     res['symbol'] = str(transaction.symbol)
     res['date'] = transaction.date.strftime("%Y-%m-%d %H:%M:%S")

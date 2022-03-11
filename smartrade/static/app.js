@@ -248,6 +248,73 @@ const app = {
                 }
             }
         });
+    },
+
+    initAccountSummary: function($tabContents) {
+        const $accountTemplates = $("#account_template section");
+        $tabContents.each(function () {
+            const $tabContent = $(this);
+            $accountTemplates.each(function () {
+                $(this).clone().appendTo($tabContent);
+            });
+        });
+    },
+
+    initTransactionGroups: function($tabContents) {
+        const $transactionGroupTemplates = $("#transaction_group_template").children();
+        $tabContents.each(function () {
+            const $tabContent = $(this);
+            $transactionGroupTemplates.each(function () {
+                $(this).clone().appendTo($tabContent);
+            });
+
+            const $form = $('form[name="searchTransactionGroupForm"]', $tabContent);
+            const $btn = $('button[name="searchTransactionGroupBtn"]', $tabContent);
+            $('select[name="ticker"]', $form).on('change', function (e) {
+                $btn.prop("disabled", $(this).val() == "");
+            });
+            $btn.click(function (e) {
+                e.preventDefault();
+                app.searchTransactionGroups($form,
+                    function (ticker) {
+                        $('.transaction_group_summary span.ticker', $tabContent).text(ticker);
+                    })
+            });
+        });
+    },
+
+    initTransactionHistory: function($tabContents) {
+        const $transactionTemplates = $("#transaction_template").children();
+        $tabContents.each(function () {
+            const $tabContent = $(this);
+            $transactionTemplates.each(function () {
+                $(this).clone().appendTo($tabContent);
+            });
+
+            $("input[name='start_date']", $tabContent).datepicker();
+            $("input[name='end_date']", $tabContent).datepicker();
+
+            $("button[name='searchTransactionBtn']", $tabContent).click(function (e) {
+                e.preventDefault();
+                app.searchTransactionHistory($(this).closest('form'))
+            });
+            $("span[name='dateOrderArrow']", $tabContent).on('click', function (e) {
+                const dateOrderInput = $("input[name='dateOrder']", $tabContent);
+                const cur = dateOrderInput.val();
+                dateOrderInput.val(1 - parseInt(cur));
+                const $arrow = $(this);
+                app.searchTransactionHistory($("form[name='searchTransactionForm']", $tabContent),
+                    function () {
+                        $arrow.toggleClass("ui-icon-triangle-1-s")
+                            .toggleClass("ui-icon-triangle-1-n");
+                    })
+            });
+            $("select[name='dateRange']", $tabContent).on('change', function (e) {
+                const optionSelected = $("option:selected", this);
+                $('.customDate', $tabContent).css('visibility',
+                    optionSelected.attr('name') == 'custom' ? 'visible' : 'hidden');
+            });
+        });
     }
 }
 
@@ -258,67 +325,8 @@ $(function() {
         app.loadPage($accounts.attr('url'), $(this));
     })[0].click(); // load the first tab content
 
-    // set up account summary
-    const $accountTemplates = $("#account_template section");
-    $("div", $accounts).each(function() {
-        const $wrapper = $(this);
-        $accountTemplates.each(function() {
-            $(this).clone().appendTo($wrapper);
-        });
-    });
-
-    // set up transaction groups
-    const $transactionGroupTemplates = $("#transaction_group_template").children();
-    $("div", $accounts).each(function() {
-        const $tabContent = $(this);
-        $transactionGroupTemplates.each(function() {
-            $(this).clone().appendTo($tabContent);
-        });
-
-        const $form = $('form[name="searchTransactionGroupForm"]', $tabContent);
-        const $btn = $('button[name="searchTransactionGroupBtn"]', $tabContent);
-        $('select[name="ticker"]', $form).on('change', function (e) {
-            $btn.prop("disabled", $(this).val() == "");
-        });
-        $btn.click(function (e) {
-            e.preventDefault();
-            app.searchTransactionGroups($form,
-                function (ticker) {
-                    $('.transaction_group_summary span.ticker', $tabContent).text(ticker);
-                })
-        });
-    });
-
-    // set up transaction history
-    const $transactionTemplates = $("#transaction_template").children();
-    $("div", $accounts).each(function() {
-        const $tabContent = $(this);
-        $transactionTemplates.each(function() {
-            $(this).clone().appendTo($tabContent);
-        });
-
-        $("input[name='start_date']", $tabContent).datepicker();
-        $("input[name='end_date']", $tabContent).datepicker();
-
-        $("button[name='searchTransactionBtn']", $tabContent).click(function (e) {
-            e.preventDefault();
-            app.searchTransactionHistory($(this).closest('form'))
-        });
-        $("span[name='dateOrderArrow']", $tabContent).on('click', function (e) {
-            const dateOrderInput = $("input[name='dateOrder']", $tabContent);
-            const cur = dateOrderInput.val();
-            dateOrderInput.val(1 - parseInt(cur));
-            const $arrow = $(this);
-            app.searchTransactionHistory($("form[name='searchTransactionForm']", $tabContent),
-                function () {
-                    $arrow.toggleClass("ui-icon-triangle-1-s")
-                        .toggleClass("ui-icon-triangle-1-n");
-                })
-        });
-        $("select[name='dateRange']", $tabContent).on('change', function (e) {
-            const optionSelected = $("option:selected", this);
-            $('.customDate', $tabContent).css('visibility',
-                optionSelected.attr('name') == 'custom' ? 'visible' : 'hidden');
-        });
-    });
+    const $tabContents = $("div", $accounts);
+    app.initAccountSummary($tabContents);
+    app.initTransactionGroups($tabContents);
+    app.initTransactionHistory($tabContents);
 });
