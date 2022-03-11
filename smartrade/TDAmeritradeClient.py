@@ -49,6 +49,7 @@ class TDAmeritradeClient(BrokerClient):
         return r.json()
 
     def get_quotes(self, symbols):
+        logger.debug("get quotes for %s", symbols)
         r = self._client.get_quotes(symbols)
         assert r.status_code == 200, r.raise_for_status()
         return r.json()

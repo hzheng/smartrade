@@ -45,10 +45,12 @@ def account_home():
     positions = inspector.total_positions()
     position_map = {symbol: qty for pos_map in positions.values() for symbol, qty in pos_map.items()}
     values=[{}, {}, 0, 0]
-    quotes = provider.get_quotes(position_map.keys())
-    for symbol, price in quotes.items():
+    symbols = position_map.keys()
+    quotes = provider.get_quotes(symbols)
+    for symbol in symbols:
         quantity = position_map[symbol]
         index = 0
+        price = quotes.get(symbol, 0)
         value = quantity * price
         if '_' in symbol:
             index = 1

@@ -19,7 +19,6 @@ from flask import Flask
 
 from smartrade.BrokerClient import BrokerClient
 from smartrade.Logger import Logger
-from smartrade.MarketDataProvider import MarketDataProvider
 
 CONF_FILE = os.environ.get('FLASK_CONF_PATH', None)
 
@@ -49,6 +48,7 @@ def configure_app(config=None):
         from smartrade.TDAmeritradeClient import TDAmeritradeClient
         broker = BrokerClient.get_brokers(CONF_FILE)[0]
         app.config['broker'] = broker
+        from smartrade.MarketDataProvider import MarketDataProvider
         provider = MarketDataProvider(broker, app.config['DATABASE'])
         app.config['provider'] = provider
         from smartrade.TransactionGroup import TransactionGroup
