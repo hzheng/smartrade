@@ -1,18 +1,18 @@
 'use strict';
 
 const app = {
+    /** load page at the first stage */
     loadPage: function (baseUrl, $tab) {
         if ($tab.data("loaded")) {
             console.log("loaded");
             return;
         }
         const tabContentId = $tab.attr('href');
-        const $tabContent = $(tabContentId);
-        const accountId = tabContentId.split("-")[1];
+        const accountId = app.getAccountId(tabContentId);
         const url = baseUrl + "?ajax=1&account=" + accountId;
         let loadFunction;
         switch (baseUrl) {
-            case '/home':
+            case '/': case'/home':
                 loadFunction = "_loadAccountSummary";
                 break;
             case '/transactionGroups':
@@ -22,8 +22,9 @@ const app = {
                 loadFunction = "_initLoadTransactions";
                 break;
             default:
-                console.assert(false, "unknown url:" + baseUrl);
+                console.assert(false, "unknown url: " + baseUrl);
         }
+        const $tabContent = $(tabContentId);
         app.showMessage($tabContent, "Loading page " + url + "...");
         $.ajax({
             type: "GET",
@@ -139,7 +140,7 @@ const app = {
         $('input[name="ajax"]', $form).val(2);
         const $tabContent = $form.closest("div.ui-tabs-panel");
         const tabContentId = $tabContent.attr("id");
-        const accountId = tabContentId.split("-")[1];
+        const accountId = app.getAccountId(tabContentId);
         $('input[name="account"]', $form).val(accountId);
 
         const transactionGroupSelector = ".tx_group";
@@ -223,7 +224,7 @@ const app = {
         $('input[name="ajax"]', $form).val(2);
         const $tabContent = $form.closest("div.ui-tabs-panel");
         const tabContentId = $tabContent.attr("id");
-        const accountId = tabContentId.split("-")[1];
+        const accountId = app.getAccountId(tabContentId);
         $('input[name="account"]', $form).val(accountId);
 
         if ($('.customDate', $tabContent).css('visibility') != 'hidden') {
@@ -372,15 +373,39 @@ const app = {
             $messageBoard.removeClass("error");
             setTimeout(() => $messageBoard.text(''), 10000);
         }
+    },
+
+    getAccountId: function (value) {
+        const accountId = value.split("-")[1];
+        console.assert(accountId);
+        return accountId;
     }
 }
 
 $(function() {
-    // set up tabs
+    // set up outer tabs
     const $accounts = $("#accounts").tabs();
-    $("ul li:not(.load) a", $accounts).click(function() {
-        app.loadPage($accounts.attr('url'), $(this));
-    })[0].click(); // load the first tab content
+    const $tabs = $(">ul li a", $accounts);
+    let initAccount = $accounts.attr('init_account');
+    if (!initAccount) {
+        initAccount = app.getAccountId($tabs.eq(0).attr("href"));
+    }
+    $tabs.click(function () {
+        const url = $accounts.attr('url');
+        app.loadPage(url, $(this));
+        const accountId = app.getAccountId($(this).attr('href'));
+        window.history.replaceState("", "", url + "?account=" + accountId);
+    }).each(function () {
+        if ($(this).attr("href").endsWith(initAccount)) {
+            $(this).click();
+        }
+    });
+    
+    // set up inner tabs
+    $("ul.account_nav li:not(.load) a", $accounts).click(function () {
+        const accountId = app.getAccountId($(this).closest("div").attr('id'));
+        $(this).attr('href', $(this).attr('href') + "?account=" + accountId);
+    });
 
     // set up pages
     const $tabContents = $("div", $accounts);

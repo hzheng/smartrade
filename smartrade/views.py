@@ -5,7 +5,7 @@ from os.path import join
 import datetime
 
 from dateutil.parser import parse
-from flask import render_template, request
+from flask import render_template, redirect, request
 
 from smartrade import app, app_logger
 from smartrade.Assembler import Assembler
@@ -17,14 +17,14 @@ logger = app_logger.get_logger(__name__)
 
 @app.route("/")
 def home():
-    return render_template("home.html")
+    return redirect("/home")
 
 @app.route("/home")
 def account_home():
-    if not request.args.get('ajax'):
-        return render_template("home.html")
-
     account = request.args.get('account')
+    if not request.args.get('ajax'):
+        return render_template("home.html", init_account=account)
+
     db_name = app.config['DATABASE']
     inspector = Inspector(db_name, account)
     total_profit, total_market_value = inspector.total_profit()
@@ -80,11 +80,11 @@ def load(account):
 
 @app.route("/transactionGroups")
 def transaction_groups():
+    account = request.args.get('account')
     ajax = request.args.get('ajax')
     if not ajax:
-        return render_template("transaction_groups.html")
+        return render_template("transaction_groups.html", init_account=account)
 
-    account = request.args.get('account')
     db_name = app.config['DATABASE']
     inspector = Inspector(db_name, account)
     if ajax == "1":
@@ -117,11 +117,11 @@ def _get_date_range(context):
 
 @app.route("/transactions")
 def transaction_history():
+    account = request.args.get('account')
     ajax = request.args.get('ajax')
     if not ajax:
-        return render_template("transaction_history.html")
+        return render_template("transaction_history.html", init_account=account)
 
-    account = request.args.get('account')
     db_name = app.config['DATABASE']
     inspector = Inspector(db_name, account)
     if ajax == "1":
