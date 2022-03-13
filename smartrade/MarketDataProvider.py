@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from calendar import weekday
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 from dateutil.parser import parse
 import pymongo
@@ -23,7 +23,7 @@ class MarketDataProvider:
         weekday = day.weekday()
         if 1 <= weekday <= 5: return day
 
-        return day - datetime.timedelta((weekday + 2) % 7)
+        return day - timedelta((weekday + 2) % 7)
 
     def get_quotes(self, symbols, day=None):
         today = self._trading_day(datetime.combine(date.today(), datetime.min.time()))
