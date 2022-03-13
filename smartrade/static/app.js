@@ -402,7 +402,11 @@ $(function() {
     });
     
     // set up inner tabs
-    $("ul.account_nav li:not(.load) a", $accounts).click(function () {
+    $("ul.account_nav li:not(.load) a", $accounts).click(function (e) {
+        if ($(this).parent().hasClass('ui-tabs-active')) {
+            e.preventDefault();
+            return;
+        }
         const accountId = app.getAccountId($(this).closest("div").attr('id'));
         $(this).attr('href', $(this).attr('href') + "?account=" + accountId);
     });

@@ -11,7 +11,7 @@
     {% for accounts in config.broker_client[0].accounts %}
     {% for alias, full_account in accounts.items() %}
     {% set account = full_account[-4:] %}
-    <div id="account-{{account}}">
+    <div id="account-{{account}}" class="accounts tabs ui-tabs ui-widget ui-widget-content ui-corner-all">
         <p>
             <label>Account:</label> {{full_account[-4:]}}
             <label>Transaction Period:</label>
@@ -19,31 +19,23 @@
             <span name="end_time" class="date" format="mm/dd/yy"></span>
             <span name="message" class="message"></span>
         </p>
-        <ul class="account_nav">
-            <li>
-                {% if url == '/home' %}
-                Account Summary
-                {% else %}
-                <a href="/home">Account Summary</a>
-                {% endif %}
+        <ul class="account_nav ui-tabs-nav ui-corner-all ui-helper-reset ui-helper-clearfix ui-widget-header">
+            {% set pages = {'/home': "Account Summary", '/transactionGroups': "Transaction Groups", '/transactions': "Transaction History"} %}
+            {% set active_map, selected_map, expanded_map = {url:"ui-tabs-active ui-state-active"}, {url:'true'}, {url:'true'} %}
+
+            {% for url, desc in pages.items() %}
+            <li {{ {'class': "ui-tabs-tab ui-corner-top ui-state-default ui-tab %s" |format(active_map[url] or ''),
+             'aria-selected' :"%s"|format(selected_map[url] or 'false' ),
+             'aria-expanded' :"%s"|format(expanded_map[url] or 'false' ) }|xmlattr }}>
+                <a href="{{url}}" class="ui-tabs-anchor">{{desc}}</a>
             </li>
-            <li>
-                {% if url == '/transactionGroups' %}
-                Transaction Groups
-                {% else %}
-                <a href="/transactionGroups">Transaction Groups</a>
-                {% endif %}
+            {% endfor %}
+
+            <li class="load ui-tabs-tab ui-corner-top ui-state-default ui-tab">
+                <a href="/load/{{account}}" class="ui-tabs-anchor">Live load data</a>
             </li>
-            <li>
-                {% if url == '/transactions' %}
-                Transaction History
-                {% else %}
-                <a href="/transactions">Transaction History</a>
-                {% endif %}
-            </li>
-            <li class="load">
-                <a href="/load/{{account}}">Live load data</a>
-                <a href="/load/{{account}}?all=true">Reload all data</a>
+            <li class="load ui-tabs-tab ui-corner-top ui-state-default ui-tab">
+                <a href="/load/{{account}}?all=true" class="ui-tabs-anchor">Reload all data</a>
             </li>
         </ul>
     </div>

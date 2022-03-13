@@ -286,21 +286,62 @@ section.tx_group, .none{
   display: none;
 }
 
-ul.account_nav {
-  list-style: none;
+ul.account_nav .ui-tabs-active {
+  margin-bottom: 0;
+  padding-bottom: 1px;
 }
 
-ul.account_nav li {
-  display: inline;
+ul.account_nav .ui-tabs-active a {
+  cursor: text;
 }
 
 ul.account_nav li.load {
-  display: block;
   float: right;
+  font-size: medium;
 }
 
 ul.account_nav li.load a {
   text-decoration: dotted underline;
+  color: white !important;
+  background-color:#007fff !important;
+  margin-top: -3px;
+  border-radius: 5px;
+  padding: 6px !important;
+  font-size: 0.8em !important;
+  font-weight: 550 !important;
+}
+
+.accounts {
+  background: transparent;
+  border: none;
+}
+
+.accounts .ui-widget-header {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #c0c0c0;
+  -moz-border-radius: 0px;
+  -webkit-border-radius: 0px;
+  border-radius: 0px;
+}
+
+.accounts .ui-tabs-nav .ui-state-default {
+  background: transparent;
+  border: none;
+}
+
+.accounts .ui-tabs-nav .ui-state-active {
+  background: transparent url(img/uiTabsArrow.png) no-repeat bottom center;
+  border: none;
+}
+
+.accounts .ui-tabs-nav .ui-state-default a {
+  color: #c0c0c0;
+  font-weight: 800;
+}
+
+.accounts .ui-tabs-nav .ui-state-active a {
+  color: #007fff;
 }
 
 .message {
