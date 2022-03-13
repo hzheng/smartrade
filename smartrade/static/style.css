@@ -208,7 +208,7 @@ table.history td:nth-child(8) {
   text-align: right;
 }
 
-.amount,
+.amount, .duration,
 table.history td:nth-child(8) {
   color: green;
 }
