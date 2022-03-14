@@ -201,7 +201,8 @@ const app = {
                         });
                     });
                     if (group.completed) {
-                        $('table.transaction', $curSection).addClass("completed");
+                        $('table.transaction', $curSection).addClass("completed").parent()
+                            .toggle($("input[name='showCompleted']", $form).is(':checked'));
                     }
                     $("div.summary span", $curSection).each(function() {
                         app.setValue($(this), group[$(this).attr('name')]);
@@ -294,9 +295,15 @@ const app = {
 
             const $form = $('form[name="searchTransactionGroupForm"]', $tabContent);
             const $btn = $('button[name="searchTransactionGroupBtn"]', $tabContent);
-            $('select[name="ticker"]', $form).on('change', function (e) {
+            $("select[name='ticker']", $form).on('change', function (e) {
                 $btn.prop("disabled", $(this).val() == "");
             });
+
+            $("input[name='showCompleted']", $form).on('click', function (e) {
+                console.log($(".completed", $form.closest(".account_content")).parent().length);
+                $(".completed", $form.closest(".account_content")).parent().toggle();
+            });
+
             $btn.click(function (e) {
                 e.preventDefault();
                 app.searchTransactionGroups($form,
@@ -400,7 +407,7 @@ $(function() {
             $(this).click();
         }
     });
-    
+ 
     // set up inner tabs
     $("ul.account_nav li:not(.load) a", $accounts).click(function (e) {
         if ($(this).parent().hasClass('ui-tabs-active')) {

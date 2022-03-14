@@ -31,6 +31,10 @@ Transactions
                     </select>
                 </div>
                 <div class="condition">
+                    <label for="ticker">Show completed:</label>
+                    <input type="checkbox" name="showCompleted"/>
+                </div>
+                <div class="condition">
                     <button name="searchTransactionGroupBtn" type="submit" disabled="true">Search</button>
                 </div>
                 <input type="hidden" name="dateOrder" value="0" />
@@ -55,7 +59,6 @@ Transactions
         </div>
     
         <h3>Transactions</h3>
-        <span class="toggle" onclick="$('.completed').parent().toggle()">toggle completed</span>
     
         <section class="tx_group">
             <table class="transaction">

@@ -311,12 +311,12 @@ ul.account_nav li.load a {
   font-weight: 550 !important;
 }
 
-.accounts {
+.account_content {
   background: transparent;
   border: none;
 }
 
-.accounts .ui-widget-header {
+.account_content .ui-widget-header {
   background: transparent;
   border: none;
   border-bottom: 1px solid #c0c0c0;
@@ -325,22 +325,22 @@ ul.account_nav li.load a {
   border-radius: 0px;
 }
 
-.accounts .ui-tabs-nav .ui-state-default {
+.account_content .ui-tabs-nav .ui-state-default {
   background: transparent;
   border: none;
 }
 
-.accounts .ui-tabs-nav .ui-state-active {
+.account_content .ui-tabs-nav .ui-state-active {
   background: transparent url(img/uiTabsArrow.png) no-repeat bottom center;
   border: none;
 }
 
-.accounts .ui-tabs-nav .ui-state-default a {
+.account_content .ui-tabs-nav .ui-state-default a {
   color: #c0c0c0;
   font-weight: 800;
 }
 
-.accounts .ui-tabs-nav .ui-state-active a {
+.account_content .ui-tabs-nav .ui-state-active a {
   color: #007fff;
 }
 
