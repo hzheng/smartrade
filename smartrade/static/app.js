@@ -90,6 +90,9 @@ const app = {
     },
 
     convertDate: function(date, format) {
+        if (!date) {
+            return "";
+        }
         const dateObj = new Date(Date.parse(date));
         if (!format) {
             format = 'yy-mm-dd';
@@ -251,6 +254,7 @@ const app = {
                         app.setValue($(this), transactions.length);
                     }
                 })
+                const valid = $("select[name='valid']", $form).val();
                 transactions.forEach(function (tx, index) {
                     const $row = $('<tr>').append(
                         $('<td>').text(index + 1),
@@ -263,6 +267,9 @@ const app = {
                         app.setValue($('<td>'), tx.amount, 'amount'),
                         $('<td>').text(tx.description)
                     ).appendTo($tbody);
+                    if (tx.valid <= 0) {
+                        $row.addClass(tx.valid == 0 ? 'ignored' : 'invalid');
+                    }
                 });
                 app.showMessage($tabContent, "Loaded transaction history");
                 if (afterSuccess) {

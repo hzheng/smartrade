@@ -20,25 +20,26 @@ class Loader:
         self._transaction_groups = db.transaction_groups
         self._account = account[-4:]
         self._account_cond = {'account' : account[-4:]}
+        self._valid_tx_cond = {**self._account_cond, 'valid': 1}
         self._broker = broker
     
     def live_load(self, start_date=None, end_date=None):
         if not self._broker: raise ValueError("Broker is null")
 
         if not start_date:
-            for obj in self._transactions.find(self._account_cond).sort([("date", pymongo.DESCENDING)]).limit(1):
+            for obj in self._transactions.find(self._valid_tx_cond).sort([("date", pymongo.DESCENDING)]).limit(1):
                 start_date = obj['date'] + datetime.timedelta(1)
         logger.debug("BEGIN: live load account %s from date: %s", self._account, start_date)
         json_obj = self._broker.get_transactions(self._account, start_date, end_date)
-        valid_transactions, invalid_transactions = self._get_transactions(json_obj)
-        self._save(valid_transactions, False)
+        transactions = self._get_transactions(json_obj)
+        self._save(transactions, False)
         logger.debug("END: live load account %s from date: %s", self._account, start_date)
-        return valid_transactions, invalid_transactions
+        return transactions
 
     def load(self, path, reload=True):
-        valid_transactions, invalid_transactions = self._parse_file(path)
-        self._save(valid_transactions, reload)
-        return valid_transactions, invalid_transactions
+        transactions = self._parse_file(path)
+        self._save(transactions, reload)
+        return transactions
 
     def _parse_file(self, path):
         path = path.upper()
@@ -49,8 +50,7 @@ class Loader:
         raise ValueError(f"unsupported file extension: {path}")
 
     def _parse_csv(self, path):
-        valid_transactions = []
-        invalid_transactions = []
+        transactions = []
         with open(path) as csv_file:
             reader = csv.reader(csv_file)
             row = next(reader)[0]
@@ -63,32 +63,29 @@ class Loader:
                     tx = Transaction.from_dict(
                         account=account, date=date, action=action, symbol=symbol,
                         quantity=quantity, price=price, fee=fee, amount=amount, description=description)
-                    if tx.is_valid():
-                        valid_transactions.append(tx)
-                    else:
-                        invalid_transactions.append(tx)
+                    transactions.append(tx)
                 except Exception as e:
                     logger.error("Error occurred", exc_info=True)
                     continue
-        return valid_transactions, invalid_transactions
+        return transactions
 
     def _parse_json(self, path):
         with open(path) as json_file:
             return self._get_transactions(json.load(json_file))
 
     def _get_transactions(self, json_obj):
-        valid_transactions = []
-        invalid_transactions = []
+        transactions = []
         for obj in json_obj:
-            description = obj['description']
-            if description.upper() == "CASH ALTERNATIVES PURCHASE" or description.startswith("IGNORE"):
-                continue
-
             tx_item = obj['transactionItem']
             account = tx_item.get('accountId', None)
-            if account and str(account)[-4:] != self._account:
-                continue # don't skip empty account ?
+            if not account:
+                logger.error("empty account: %s", obj)
+                continue
+            if str(account)[-4:] != self._account:
+                continue
  
+            description = obj['description']
+            ignored = (description.upper() == "CASH ALTERNATIVES PURCHASE")
             date = obj['transactionDate']
             amount = obj.get('netAmount', None)
             quantity = tx_item.get('amount', None)
@@ -106,12 +103,12 @@ class Loader:
 
             tx_type = obj.get('type', None)
             subtype = obj.get('transactionSubType', None)
+            action = ""
             if tx_type == "DIVIDEND_OR_INTEREST":
                 if subtype == 'CA':
                     action = "INTEREST"
                 else:
-                    invalid_transactions.append(obj)
-                    continue
+                    ignored = True
             elif tx_type == "RECEIVE_AND_DELIVER":
                 if subtype == 'OA':
                     action = "ASSIGNED"
@@ -120,15 +117,14 @@ class Loader:
                 elif subtype == 'MI':
                     action = "INTEREST"
                 elif subtype in ('PM', 'RM'): # ignore Money Market Purchase
-                    continue
+                    ignored = True
                 elif subtype in ('TI', 'TO'): # ignore transfer in/out
-                    continue
+                    ignored = True
                 else:
-                    invalid_transactions.append(obj)
-                    continue
+                    ignored = True
             elif tx_type == "TRADE":
                 if subtype in ('RM', 'TI', '', None): # ignore unsettled transactions
-                    continue
+                    ignored = True
                 if subtype == 'OA' or subtype == 'OE': # assignment or exercise
                     action = "BTO"
                 elif subtype == 'BY' or instruction == 'BUY':
@@ -150,32 +146,25 @@ class Loader:
                     else:
                         raise ValueError(f"unexpected position_effect: {position_effect}")
                 else:
-                    invalid_transactions.append(obj)
-                    continue
+                    ignored = True
             elif tx_type == "JOURNAL":
-                continue # ignore journal ?
+                ignored = True
             else:
-                invalid_transactions.append(obj)
-                continue
+                ignored = True
 
             if action == "INTEREST":
                 symbol = "" # ignore symbol MMDA1
             else:
                 symbol = self._get_symbol(instrument)
                 if not symbol:
-                    invalid_transactions.append(obj)
-                    continue
+                    ignored = True
 
             tx = Transaction.from_dict(account=self._account, date=date, action=action,
                                        symbol=symbol, quantity=quantity, price=price,
-                                       fee=total_fee, amount=amount, description=description)
-            if tx.is_valid():
-                valid_transactions.append(tx)
-            else:
-                invalid_transactions.append(tx)
-        if invalid_transactions:
-            logger.warning("invalid transactions:\n%s", invalid_transactions)
-        return valid_transactions, invalid_transactions
+                                       fee=total_fee, amount=amount, description=description,
+                                       ignored=ignored)
+            transactions.append(tx)
+        return transactions
 
     def _save(self, transactions, reload):
         if reload:

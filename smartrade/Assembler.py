@@ -15,7 +15,7 @@ class Assembler:
 
     def group_transactions(self, ticker, save_db=False):
         tx_collection = self._tx_collection
-        ungrouped_cond = {'ui': ticker, 'grouped': False}
+        ungrouped_cond = {'ui': ticker, 'grouped': False, 'valid': 1}
         close_action_cond = {'action': {'$in': ['STC', 'BTC', 'EXPIRED', 'ASSIGNED', 'EXERCISE']},
                              **self._account_cond, **ungrouped_cond}
         following_dates = {res['date']

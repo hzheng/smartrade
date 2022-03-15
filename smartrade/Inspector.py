@@ -16,12 +16,13 @@ class Inspector:
         self._tx_collection = self._db.transactions
         self._group_collection = self._db.transaction_groups
         self._account_cond = {'account' : account[-4:]}
+        self._valid_tx_cond = {**self._account_cond, 'valid': 1}
     
     def transaction_period(self):
         start_date = end_date = datetime.now()
-        for obj in self._db.transactions.find(self._account_cond).sort([("date", pymongo.ASCENDING)]).limit(1):
+        for obj in self._db.transactions.find(self._valid_tx_cond).sort([("date", pymongo.ASCENDING)]).limit(1):
             start_date = obj['date']
-        for obj in self._db.transactions.find(self._account_cond).sort([("date", pymongo.DESCENDING)]).limit(1):
+        for obj in self._db.transactions.find(self._valid_tx_cond).sort([("date", pymongo.DESCENDING)]).limit(1):
             end_date = obj['date']
         return (start_date, end_date)
 
@@ -44,7 +45,7 @@ class Inspector:
 
     def _total_amount(self, restritions, start_date=None, end_date=None):
         amount = 'total_amount'
-        condition = self._date_limit({**self._account_cond}, start_date, end_date)
+        condition = self._date_limit({**self._valid_tx_cond}, start_date, end_date)
         if restritions:
             condition.update(restritions)
         res = self._tx_collection.aggregate(
@@ -55,11 +56,11 @@ class Inspector:
         return 0.0
 
     def distinct_tickers(self, start_date=None, end_date=None):
-        return self._tx_collection.distinct('ui', self._date_limit({**self._account_cond}, start_date, end_date))
+        return self._tx_collection.distinct('ui', self._date_limit({**self._valid_tx_cond}, start_date, end_date))
 
     def ticker_costs(self, ticker, start_date=None, end_date=None):
         amount = 'total_amount'
-        condition = self._date_limit({**self._account_cond, 'ui': ticker}, start_date, end_date)
+        condition = self._date_limit({**self._valid_tx_cond, 'ui': ticker}, start_date, end_date)
         res = self._tx_collection.aggregate(
             [{'$match': condition},
              {'$group': {'_id': None, amount: {'$sum': "$amount"}}}])
@@ -100,16 +101,18 @@ class Inspector:
             condition['date'] = date_limit
         return condition
 
-    def transaction_list(self, start_date=None, end_date=None, ticker=None, asc=False):
+    def transaction_list(self, start_date=None, end_date=None, ticker=None, asc=False, valid=None):
         cond = {**self._account_cond}
         if ticker:
             cond['ui'] = ticker.upper()
+        if valid is not None:
+            cond['valid'] = valid
         return [Transaction.from_doc(doc) for doc in self._tx_collection.find(
             self._date_limit(cond, start_date, end_date))
             .sort([("date", pymongo.ASCENDING if asc else pymongo.DESCENDING)])]
 
     def ticker_transactions(self, ticker):
-        return [Transaction.from_doc(doc) for doc in self._tx_collection.find({**self._account_cond, 'ui': ticker})]
+        return [Transaction.from_doc(doc) for doc in self._tx_collection.find({**self._valid_tx_cond, 'ui': ticker})]
     
     def ticker_transaction_groups(self, ticker):
         return [TransactionGroup.from_doc(doc) for doc in self._group_collection.find({**self._account_cond, 'ui': ticker})]

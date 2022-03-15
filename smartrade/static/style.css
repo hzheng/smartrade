@@ -168,6 +168,18 @@ table.transaction.completed {
   background: #E7E9EB;
 }
 
+table.history tbody tr {
+  background-color: #EFFDF9;
+}
+
+table.history tr.ignored {
+  background-color: #E6E7E6;
+}
+
+table.history tr.invalid {
+  background-color: #E19887;
+}
+
 table.transaction th, table.transaction td,
 table.history th, table.history td {
   border: 1px solid gray;
@@ -284,6 +296,10 @@ div.condition {
 
 section.tx_group, .none{
   display: none;
+}
+
+.search {
+  font-size: small;
 }
 
 ul.account_nav .ui-tabs-active {

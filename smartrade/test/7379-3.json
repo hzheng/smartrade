@@ -150,7 +150,7 @@
         "transactionSubType": "OA",
         "transactionId": 40862744826,
         "cashBalanceEffectFlag": true,
-        "description": "IGNORE: Removal of Option due to assignment 1.0 SOXL 100 18 Feb 2022 41.0 PUT",
+        "description": "#Removal of Option due to assignment 1.0 SOXL 100 18 Feb 2022 41.0 PUT",
         "fees": {
             "rFee": 0,
             "additionalFee": 0,
@@ -183,7 +183,7 @@
         "transactionSubType": "OA",
         "transactionId": 40862543372,
         "cashBalanceEffectFlag": true,
-        "description": "IGNORE: Option Assignment",
+        "description": "#Option Assignment",
         "fees": {
             "rFee": 0,
             "additionalFee": 0,

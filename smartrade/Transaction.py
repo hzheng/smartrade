@@ -9,6 +9,11 @@ from smartrade import app_logger
 
 logger = app_logger.get_logger(__name__)
 
+class Validity(IntEnum):
+    INVALID = -1
+    IGNORED = 0
+    VALID = 1
+
 class Action(IntEnum):
     BTO = -2
     STO = -1
@@ -37,6 +42,7 @@ class Action(IntEnum):
         if name.startswith("Action."):
             name = name[7:]
         name = name.upper()
+
         if name in ('BTO', 'BUY', 'BUY TO OPEN', 'REINVEST SHARES'):
             return cls.BTO
         if name in ('STC', 'SELL', 'SELL TO CLOSE'):
@@ -45,18 +51,18 @@ class Action(IntEnum):
             return cls.STO
         if name in ('BTC', 'BUY TO CLOSE'):
             return cls.BTC
-        if name in ('EXPIRED'):
+        if name in ('EXPIRED', ):
             # return cls.BTC if qty > 0 else cls.STC
             return cls.EXPIRED
-        if name in ('ASSIGNED'):
+        if name in ('ASSIGNED', ):
             return cls.ASSIGNED
-        if name in ('EXCHANGE OR EXERCISE'):
+        if name in ('EXERCISE', 'EXCHANGE OR EXERCISE'):
             return cls.EXERCISE
         if name in ('DIVIDEND', 'CASH DIVIDEND', 'PR YR CASH DIV', 'PR YR DIV REINVEST', 'REINVEST DIVIDEND', 'QUALIFIED DIVIDEND'):
             return cls.DIVIDEND
         if name in ('INTEREST', 'BANK INTEREST', 'PROMOTIONAL AWARD'):
             return cls.INTEREST
-        if name in ('TRANSFER', 'MONEYLINK TRANSFER', 'FUNDS RECEIVED', 'FUNDS PAID'):
+        if name in ('TRANSFER', 'MONEYLINK TRANSFER', 'FUNDS RECEIVED', 'FUNDS PAID', 'SECURITY TRANSFER'):
             return cls.TRANSFER
         if name in ('JOURNAL', 'JOURNALED SHARES'):
             return cls.JOURNAL
@@ -170,7 +176,7 @@ class Transaction:
     @classmethod
     def from_doc(cls, doc):
         self = cls()
-        self._valid = True
+        self._valid = doc['valid']
         for attr in ['account', 'date', 'quantity', 'price', 'fee', 'amount', 'ui', 'strike', 'expired', 'description', 'grouped']:
             setattr(self, "_" + attr, doc.get(attr, None))
         assert(self.quantity is None or self.quantity >= 0)
@@ -190,7 +196,7 @@ class Transaction:
     @classmethod
     def from_dict(cls, **map):
         self = cls()
-        self._valid = False
+        self._valid = Validity.INVALID
         self._account = map['account']
         qty = self._get_quantity(map['quantity'])
         self._action = Action.from_str(map['action'].strip())
@@ -202,9 +208,13 @@ class Transaction:
         self._price = 0
         self._fee = 0
         self._amount = 0
-        if self._action is Action.INVALID:
-            return self
 
+        if map.get('ignored', False) or self.description.startswith("#"):
+            self._valid = Validity.IGNORED
+
+        self._amount = self._get_money(map['amount'])
+        self._price = self._get_money(map['price'])
+        self._fee = self._get_money(map['fee'])
         try:
             date = map['date'].strip().split()[0]
             self._date = parse(date)
@@ -215,22 +225,22 @@ class Transaction:
             logger.error("Error occurred", exc_info=True)
             return self
 
+        if self.valid == Validity.IGNORED or self.action == Action.INVALID:
+            return self
+
         self._symbol = Symbol(map['symbol'].strip())
-        self._price = self._get_money(map['price'])
-        self._fee = self._get_money(map['fee'])
-        self._amount = self._get_money(map['amount'])
         self._valid = self._verify()
         return self
 
     def _verify(self):
         action = self.action
-        if action >= Action.EXERCISE: return True
+        if action >= Action.EXERCISE: return Validity.VALID
 
         amt = self.share * self.price * (-1 if abs(self.action) == Action.BTC else 1) - self.fee 
         if abs(amt - self.amount) > self.price * 0.001: # assume minimal amount is 0.001
             logger.warning(f"amount {amt} and {self.amount} don't match in %s", self)
-            return False
-        return True
+            return Validity.INVALID
+        return Validity.VALID
 
     def merge(self, other):
         if self.account != other.account or self.symbol != other.symbol or self.action != other.action or self.date != other.date:
@@ -283,27 +293,26 @@ class Transaction:
         text = text.strip()
         if len(text) == 0 or (text[0] != '$' and text[0] != '-'): return 0
         return -float(text[2:]) if text[0] == '-' else float(text[1:])
-
-    def is_valid(self):
-        return self._valid
  
     def to_json(self, hide=None, include_symbol=False):
         symbol = self.symbol
         json = {
+            'valid': self.valid,
             'date': self.date,
             'quantity': self.quantity,
             'price': self.price,
             'fee': self.fee,
             'amount': self.amount,
-            'action': str(self.action).split('.')[1]
+            'action': self.action.to_str()
         }
-        if not hide:
+        if not hide and self.valid == Validity.VALID:
             json['type'] = str(symbol.type).split('.')[1]
         if hide is None:
             json['account'] = self.account
             json['description'] = self.description
             json['grouped'] = self.grouped
-        if symbol.ui:
+            json['valid'] = self.valid
+        if self.valid == Validity.VALID and symbol.ui:
             if hide is None:
                 json['ui'] = symbol.ui
             if symbol.strike and not hide:
@@ -316,7 +325,7 @@ class Transaction:
     def __repr__(self):
         return (f"account={self.account}, date={self.date}, action={str(self.action)}, symbol={self.symbol},"
                 f" price={self.price:.4f}, quantity={self.quantity},"
-                f" fee={self.fee:.2f}, amount={self.amount}{'' if self.is_valid() else ' INVALID'}")
+                f" fee={self.fee:.2f}, amount={self.amount}, valid={self.valid}")
 
     def __str__(self):
         return self.__repr__()
@@ -360,6 +369,10 @@ class Transaction:
     @property
     def description(self):
         return self._description
+
+    @property
+    def valid(self):
+        return self._valid
 
     @property
     def grouped(self):

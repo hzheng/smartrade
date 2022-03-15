@@ -133,7 +133,10 @@ def transaction_history():
     start_date, end_date = _get_date_range("transaction_history")
     order = request.args.get('dateOrder') or "0"
     ticker = request.args.get('ticker')
-    transactions = inspector.transaction_list(start_date, end_date, ticker, order == "1")
+    valid = int(request.args.get('valid'))
+    if valid < -1:
+        valid = None
+    transactions = inspector.transaction_list(start_date, end_date, ticker, order == "1", valid)
     total_cash = inspector.total_cash(start_date, end_date)
     end_cash = inspector.total_cash(None, end_date)
     start_cash = 0

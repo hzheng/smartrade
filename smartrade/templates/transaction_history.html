@@ -48,6 +48,15 @@ Transaction History
                     </select>
                 </div>
                 <div class="condition">
+                    <label for="valid">Valid:</label>
+                    <select name="valid">
+                        <option value="-2">all transactions</option>
+                        <option value="1" selected="selected">valid transactions</option>
+                        <option value="0">ignored transactions</option>
+                        <option value="-1">invalid transactions</option>
+                    </select>
+                </div>
+                <div class="condition">
                     <button name="searchTransactionBtn" type="submit">Search</button>
                 </div>
                 <input type="hidden" name="dateOrder" value="0" />

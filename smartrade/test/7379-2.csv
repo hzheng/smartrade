@@ -1,5 +1,5 @@
 "Transactions  for account XXXXX7379 as of 02/14/2022 09:26:19 ET From 02/08/2022 to 02/14/2022"
-"Date","Action","Symbol","Description","Quantity","Price","Fees & Comm","Amount",
+"Date","Action","Symbol","#Description","Quantity","Price","Fees & Comm","Amount",
 "02/17/2022","Bank Interest","","BANK INT 021622-021622 SCHWAB BANK","","","","$0.01",
 "02/16/2022 as of 02/15/2022","Bank Interest","","BANK INT 011622-021522 SCHWAB BANK","","","","$0.29",
 "02/14/2022 as of 02/11/2022","Expired","TWTR 02/11/2022 40.00 C","CALL TWITTER INC $40 EXP 02/11/22","6","","","",
@@ -29,4 +29,4 @@
 "02/08/2022","Sell to Close","MSFT 02/18/2022 260.00 P","PUT MICROSOFT CORP $260 EXP 02/18/22","20","$0.20","$13.19","$386.81",
 "02/08/2022","Buy to Close","MSFT 02/18/2022 262.50 P","PUT MICROSOFT CORP $262.5 EXP 02/18/22","20","$0.24","$13.19","-$493.19",
 "02/08/2022","Buy to Close","HOOD 02/11/2022 14.50 C","CALL ROBINHOOD MKTS INC $14.5 EXP 02/11/22","2","$0.20","$1.31","-$41.31",
-Transactions Total,"","","","","","",$-10501.79,
+Transactions Total,"","","#","","","",$-10501.79,

@@ -1,5 +1,5 @@
 "Transactions  for account XXXXX7379 as of 02/07/2022 10:36:27 ET From 01/01/2022 to 02/07/2022"
-"Date","Action","Symbol","Description","Quantity","Price","Fees & Comm","Amount",
+"Date","Action","Symbol","#Description","Quantity","Price","Fees & Comm","Amount",
 "02/07/2022 as of 02/04/2022","Sell","FB","META PLATFORMS INC CLASS A","500","$280.00","$0.71","$139999.29",
 "02/07/2022 as of 02/04/2022","Sell","HOOD","ROBINHOOD MKTS INC CLASS A","300","$14.50","$0.02","$4349.98",
 "02/07/2022 as of 02/04/2022","Buy","FB","META PLATFORMS INC CLASS A","500","$282.50","","-$141250.00",
@@ -347,4 +347,4 @@
 "01/01/2022","Buy","ETHE","GRAYSCALE ETHEREUM COM U","100","$32.36","$0.00","-$3236.00",virtual buy
 "01/01/2022","Buy","TWTR","TWITTER INC","200","$43.22","","-$8644.00",virtual buy
 "01/01/2022","MoneyLink Transfer","","Tfr TD BANK, NATIONAL, HUI ZHENG","","","","$66282.48",virtual transfer
-Transactions Total,"","","","","","",$-19882.56,NB: actual $31094.92 == -19882.56+50977.48(Y2022 starting cash)
+Transactions Total,"","","#","","","",$-19882.56,NB: actual $31094.92 == -19882.56+50977.48(Y2022 starting cash)

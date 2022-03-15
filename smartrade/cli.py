@@ -131,7 +131,7 @@ def load(config, args):
     data_files = sorted([join(data_dir, f) for f in listdir(data_dir)
                          if f.startswith(account) and (f.endswith('.csv') or f.endswith('.json'))])
     if args.live:
-        transactions, invalid_transactions = loader.live_load(
+        transactions = loader.live_load(
             start_date=start_date, end_date=end_date)
         i = 0
         for tx in transactions:
