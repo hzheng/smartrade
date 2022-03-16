@@ -176,7 +176,7 @@ class Transaction:
     @classmethod
     def from_doc(cls, doc):
         self = cls()
-        self._valid = doc['valid']
+        self._valid = doc.get('valid', True)
         for attr in ['account', 'date', 'quantity', 'price', 'fee', 'amount', 'ui', 'strike', 'expired', 'description', 'grouped']:
             setattr(self, "_" + attr, doc.get(attr, None))
         assert(self.quantity is None or self.quantity >= 0)
@@ -297,7 +297,6 @@ class Transaction:
     def to_json(self, hide=None, include_symbol=False):
         symbol = self.symbol
         json = {
-            'valid': self.valid,
             'date': self.date,
             'quantity': self.quantity,
             'price': self.price,
