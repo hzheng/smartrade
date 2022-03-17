@@ -95,10 +95,11 @@ def transaction_groups():
 
     ticker = request.args.get('ticker')
     tx_groups = inspector.ticker_transaction_groups(ticker)
-    total, profit, positions = TransactionGroup.compute_total(tx_groups)
+    total, profit, positions, prices = TransactionGroup.summarize(tx_groups, True)
     return {
         'transactionGroups': [tx_group.to_json(True) for tx_group in tx_groups],
         'positions': positions,
+        'prices': prices,
         'profit': profit,
         'total': total
     }

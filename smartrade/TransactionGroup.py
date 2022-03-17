@@ -12,6 +12,7 @@ logger = app_logger.get_logger(__name__)
 class TransactionGroup:
 
     _provider = None
+    _quotes = {}
 
     def __init__(self, leading_transactions=None):
         self._account = None
@@ -27,6 +28,13 @@ class TransactionGroup:
     @classmethod
     def set_provider(cls, broker):
         cls._provider = broker
+    
+    @classmethod
+    def clear_quotes(cls, ticker=None):
+        if ticker:
+            cls._quotes.get(ticker, {}).clear()
+        else:
+            cls._quotes.clear()
 
     @classmethod
     def _merge_docs(cls, transaction_docs):
@@ -145,16 +153,27 @@ class TransactionGroup:
                 roi = math.exp(math.log(1 + roi) * (365 / days)) - 1
         self._roi = roi
 
+    @classmethod
+    def _get_price(cls, ui, symbol):
+        prices = cls._quotes.get(ui, None)
+        if prices is None:
+            prices = cls._quotes[ui] = {}
+        price = prices.get(symbol, None)
+        try:
+            if price is None:
+                price = cls._provider.get_quotes(symbol)[symbol]
+                prices[symbol] = price
+        except KeyError:
+            price = 0
+            logger.warning("cannot find the quote of symbol %s", symbol)
+        return price
+
     def _get_market_value(self):
         if not self._provider: return 0
 
         val = 0
         for symbol, qty in self.positions.items():
-            try:
-                price = self._provider.get_quotes(symbol)[symbol]
-            except KeyError:
-                price = 0
-                logger.warning("cannot find the quote of symbol %s", symbol)
+            price = self._get_price(self.ui, symbol)
             val += price * qty * (100 if '_' in symbol else 1)
         return val
 
@@ -234,11 +253,12 @@ class TransactionGroup:
         self._inventory()
         return self
 
-    @staticmethod
-    def compute_total(tx_groups):
+    @classmethod
+    def summarize(cls, tx_groups, include_quotes=False):
         total = 0
         profit = 0
         positions_list = {}
+        ui = None
         for group in tx_groups:
             total += group.total
             profit += group.profit
@@ -252,7 +272,13 @@ class TransactionGroup:
                     positions[symbol] = new_qty
                 else:
                     del positions[symbol]
-        return total, profit, positions_list
+        prices = {}
+        if ui and include_quotes:
+            for symbol in positions_list[ui]:
+                prices[symbol] = cls._get_price(ui, symbol)
+            prices[ui] = cls._get_price(ui, ui)
+
+        return total, profit, positions_list, prices
 
     @property
     def account(self):

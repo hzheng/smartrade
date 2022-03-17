@@ -73,7 +73,7 @@ class Inspector:
         total_profit = 0
         for ticker in self.distinct_tickers(start_date, end_date):
             tx_groups = self.ticker_transaction_groups(ticker)
-            total, profit, _ = TransactionGroup.compute_total(tx_groups)
+            total, profit, *_ = TransactionGroup.summarize(tx_groups)
             total_profit += profit
             total_market_value += profit - total
         return total_profit, total_market_value
@@ -83,7 +83,7 @@ class Inspector:
         positions = {}
         for ticker in tickers:
             tx_groups = self.ticker_transaction_groups(ticker)
-            *_, position = TransactionGroup.compute_total(tx_groups)
+            position = TransactionGroup.summarize(tx_groups)[2]
             positions.update(position)
         return positions
 
@@ -115,6 +115,7 @@ class Inspector:
         return [Transaction.from_doc(doc) for doc in self._tx_collection.find({**self._valid_tx_cond, 'ui': ticker})]
     
     def ticker_transaction_groups(self, ticker):
+        TransactionGroup.clear_quotes(ticker)
         return [TransactionGroup.from_doc(doc) for doc in self._group_collection.find({**self._account_cond, 'ui': ticker})]
         # add start_date and end_date condition?
         #condition = self._date_limit({**self._account_cond, 'ui': ticker}, start_date, end_date)

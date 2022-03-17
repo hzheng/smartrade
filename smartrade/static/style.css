@@ -256,6 +256,19 @@ table.transaction td.symbol {
   background-color: rgb(197, 206, 235);
 }
 
+table.positions {
+  margin: 4px;
+  width: 60%;
+}
+
+table.positions td{
+  text-align: center;
+}
+
+div.search_result {
+  visibility: hidden;
+}
+
 tr.close {
   background-color: gainsboro;
 }

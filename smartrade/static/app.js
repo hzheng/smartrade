@@ -144,18 +144,21 @@ const app = {
         const $tabContent = $form.closest("div.ui-tabs-panel");
         const tabContentId = $tabContent.attr("id");
         const accountId = app.getAccountId(tabContentId);
+        const $searchResult = $(".search_result", $tabContent);
         $('input[name="account"]', $form).val(accountId);
 
         const transactionGroupSelector = ".tx_group";
-        const positionSelector = "table.positions tr";
+        const positionSelector = "table.positions tbody tr";
         app.showMessage($tabContent, "Loading transaction groups...");
         $.ajax({
             type: "GET",
             url: url,
             data: $form.serialize(),
             success: function (data) {
+                $searchResult.css("visibility", "visible");
                 app.setValue($("span[name='totalProfit']", $tabContent), data.profit);
                 const ticker = $('select[name="ticker"]', $form).val();
+                app.setValue($("span[name='price']", $tabContent), data.prices[ticker]);
                 const positions = data.positions[ticker];
                 const $positionTemplate = $(positionSelector, $tabContent).eq(0);
                 $(positionSelector + ":gt(0)", $tabContent).remove();
@@ -163,13 +166,16 @@ const app = {
                 if (hasPositions) {
                     let $prevPosition = $positionTemplate;
                     for (const [symbol, quantity] of Object.entries(positions)) {
-                        let $curPosition = $positionTemplate.clone();
+                        let $curPosition = $positionTemplate.clone().css("display", "");
                         $curPosition.insertAfter($prevPosition);
                         $(".symbol", $curPosition).text(symbol);
                         $(".quantity", $curPosition).text(quantity);
+                        app.setValue($(".money", $curPosition), data.prices[symbol]);
                         $prevPosition = $curPosition;
                     }
                 }
+                $positionTemplate.closest('table').css(
+                    "display", hasPositions ? 'block' : 'none');
                 $('.none', $positionTemplate.closest('div')).css(
                     "display", hasPositions ? 'none' : 'block');
 
@@ -307,7 +313,6 @@ const app = {
             });
 
             $("input[name='showCompleted']", $form).on('click', function (e) {
-                console.log($(".completed", $form.closest(".account_content")).parent().length);
                 $(".completed", $form.closest(".account_content")).parent().toggle();
             });
 
