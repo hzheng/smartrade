@@ -48,7 +48,7 @@ const app = {
                 const $newRow = $row.clone().insertBefore($row);
                 app.setValue($("td[name='symbol']", $newRow), symbol);
                 app.setValue($("td[name='quantity']", $newRow), quantity);
-                app.setValue($("td[name='price']", $newRow), price);
+                app.setValue($("td[name='price']", $newRow), price[0]);
                 app.setValue($("td[name='value']", $newRow), value);
             }
             app.setValue($total.eq(i), data.values[i + 2]);
@@ -158,7 +158,8 @@ const app = {
                 $searchResult.css("visibility", "visible");
                 app.setValue($("span[name='totalProfit']", $tabContent), data.profit);
                 const ticker = $('select[name="ticker"]', $form).val();
-                app.setValue($("span[name='price']", $tabContent), data.prices[ticker]);
+                app.setValue($("span[name='tickerPrice']", $tabContent), data.prices[ticker][0]);
+                app.setValue($("span[name='tickerPerChange']", $tabContent), data.prices[ticker][2] / 100);
                 const positions = data.positions[ticker];
                 const $positionTemplate = $(positionSelector, $tabContent).eq(0);
                 $(positionSelector + ":gt(0)", $tabContent).remove();
@@ -170,7 +171,9 @@ const app = {
                         $curPosition.insertAfter($prevPosition);
                         $(".symbol", $curPosition).text(symbol);
                         $(".quantity", $curPosition).text(quantity);
-                        app.setValue($(".money", $curPosition), data.prices[symbol]);
+                        app.setValue($("td[name='price']", $curPosition), data.prices[symbol][0]);
+                        app.setValue($("td[name='change']", $curPosition), data.prices[symbol][1]);
+                        app.setValue($("td[name='perChange']", $curPosition), data.prices[symbol][2] / 100);
                         $prevPosition = $curPosition;
                     }
                 }

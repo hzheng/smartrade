@@ -50,8 +50,8 @@ def account_home():
     for symbol in symbols:
         quantity = position_map[symbol]
         index = 0
-        price = quotes.get(symbol, 0)
-        value = quantity * price
+        price = quotes.get(symbol, (0, 0, 0))
+        value = quantity * price[0]
         if '_' in symbol:
             index = 1
             value *= 100

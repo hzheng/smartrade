@@ -45,7 +45,8 @@ Transactions
         <div class="search_result">
             <div class="transaction_group_summary">
                 <span class="ticker">{{ticker}}</span>
-                (<span name="price" class="amount money"></span>)
+                (<span name="tickerPrice" class="amount money"></span>
+                <span name="tickerPerChange" class="amount percent"></span>)
                 total profit:
                 <span name="totalProfit" class="amount money">0</span>
             </div>
@@ -57,13 +58,17 @@ Transactions
                             <th>Symbol</th>
                             <th>Quantity</th>
                             <th>Price</th>
+                            <th>Change</th>
+                            <th>Change(%)</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr style="display: none">
                             <td class="symbol"></td>
                             <td class="quantity"></td>
-                            <td class="money amount"></td>
+                            <td name="price" class="money amount"></td>
+                            <td name="change" class="money amount"></td>
+                            <td name="perChange" class="amount percent"></td>
                         </tr>
                     </tbody>
                 </table>

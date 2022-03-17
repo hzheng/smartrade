@@ -164,7 +164,7 @@ class TransactionGroup:
                 price = cls._provider.get_quotes(symbol)[symbol]
                 prices[symbol] = price
         except KeyError:
-            price = 0
+            price = (0, 0, 0)
             logger.warning("cannot find the quote of symbol %s", symbol)
         return price
 
@@ -173,7 +173,7 @@ class TransactionGroup:
 
         val = 0
         for symbol, qty in self.positions.items():
-            price = self._get_price(self.ui, symbol)
+            price = self._get_price(self.ui, symbol)[0]
             val += price * qty * (100 if '_' in symbol else 1)
         return val
 

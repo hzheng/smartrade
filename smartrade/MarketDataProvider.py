@@ -42,7 +42,9 @@ class MarketDataProvider:
             symbols = list(symbols)
         if has_latest_quote:
             res = self._quote_collection.find({'date': day, 'symbol': {'$in': symbols}})
-            return {doc['symbol']: (doc['bidPrice'] + doc['askPrice']) / 2 for doc in res}
+            return {doc['symbol']: ((doc['bidPrice'] + doc['askPrice']) / 2,
+                                    doc['markChangeInDouble'],
+                                    doc['netPercentChangeInDouble']) for doc in res}
         
         logger.warning("resort to old quote for %s", symbols)
         quotes = {}
@@ -59,10 +61,18 @@ class MarketDataProvider:
                 specifier = {'symbol': symbol, 'date': today}
                 q = {**specifier}
                 for key in ('bidPrice', 'askPrice', 'lastPrice', 'openPrice',
-                            'highPrice', 'lowPrice', 'closePrice', 'netChange'):
+                            'highPrice', 'lowPrice', 'closePrice', 'netChange',
+                            'markPercentChangeInDouble', 'markChangeInDouble',
+                            'netPercentChangeInDouble', 'volatility',
+                            'bidSize', 'askSize', 'lastSize', 'totalVolume', 'mark'):
                     q[key] = quote[key]
                 if '_' in symbol:
-                    for key in ('delta', 'gamma', 'theta', 'vega', 'rho', 'volatility'):
+                    for key in ('delta', 'gamma', 'theta', 'vega', 'rho',
+                                'openInterest',  'moneyIntrinsicValue', 
+                                'timeValue', 'theoreticalOptionValue', 'impliedYield'):
+                        q[key] = quote[key]
+                else:
+                    for key in ('52WkHigh', '52WkLow',  'peRatio'):
                         q[key] = quote[key]
                 self._quote_collection.replace_one(specifier, q, upsert=True)
             return True
