@@ -79,7 +79,7 @@ class Loader:
             tx_item = obj['transactionItem']
             account = tx_item.get('accountId', None)
             if not account:
-                logger.error("empty account: %s", obj)
+                logger.warning("ignore empty account: %s", obj)
                 continue
             if str(account)[-4:] != self._account:
                 continue
