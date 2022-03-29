@@ -169,8 +169,10 @@ class Loader:
     def _save(self, transactions, reload):
         if reload:
             logger.info("BEGIN: reload")
-            self._transactions.delete_many(self._account_cond)
-            self._transaction_groups.delete_many(self._account_cond)
+            res = self._transactions.delete_many(self._account_cond)
+            logger.debug("deleted %s transactions", res.deleted_count)
+            res = self._transaction_groups.delete_many(self._account_cond)
+            logger.debug("deleted %s transaction groups", res.deleted_count)
             logger.info("END: reload")
         logger.info("BEGIN: insert %s transations", len(transactions))
         for tx in transactions:

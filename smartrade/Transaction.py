@@ -3,6 +3,7 @@
 import copy
 from enum import Enum, IntEnum
 
+from bson import ObjectId
 from dateutil.parser import parse, ParserError
 
 from smartrade import app_logger
@@ -173,11 +174,24 @@ class Symbol:
 
 class Transaction:
 
+    def __init__(self) -> None:
+        self._id = None
+        self._date = None
+        self._symbol = ""
+        self._price = 0
+        self._fee = 0
+        self._amount = 0
+        self._valid = Validity.INVALID
+        self._merge_parent = None
+        self._slice_parent = None
+        self._grouped = None
+
     @classmethod
     def from_doc(cls, doc):
         self = cls()
         self._valid = doc.get('valid', True)
-        for attr in ['account', 'date', 'quantity', 'price', 'fee', 'amount', 'ui', 'strike', 'expired', 'description', 'grouped']:
+        self._id = doc.get('_id', None)
+        for attr in ['account', 'date', 'quantity', 'price', 'fee', 'amount', 'ui', 'strike', 'expired', 'description', 'merge_parent', 'slice_parent', 'grouped']:
             setattr(self, "_" + attr, doc.get(attr, None))
         assert(self.quantity is None or self.quantity >= 0)
         self._action = Action.from_str(doc['action'])
@@ -196,19 +210,11 @@ class Transaction:
     @classmethod
     def from_dict(cls, **map):
         self = cls()
-        self._valid = Validity.INVALID
         self._account = map['account']
         qty = self._get_quantity(map['quantity'])
         self._action = Action.from_str(map['action'].strip())
         self._quantity = None if qty is None else abs(qty) 
         self._description = map.get('description', '')
-        self._grouped = False
-        self._date = None
-        self._symbol = ""
-        self._price = 0
-        self._fee = 0
-        self._amount = 0
-
         if map.get('ignored', False) or self.description.startswith("#"):
             self._valid = Validity.IGNORED
 
@@ -244,28 +250,67 @@ class Transaction:
 
     def merge(self, other):
         if self.account != other.account or self.symbol != other.symbol or self.action != other.action or self.date != other.date:
-            return
+            return None, None
 
-        res = copy.copy(self)
+        merged = (self.merge_parent == self.id)
+        if merged: # already created merge parent
+            res = self
+        else:
+            res = copy.copy(self)
+            res._merge_parent = res._id = ObjectId()
         res._fee += other.fee
         res._amount += other.amount
         res._quantity += other.quantity
         res._price = abs((res.amount - res.fee) / res.share)
-        return res
+        self._merge_parent = other._merge_parent = res.id
+        return res, not merged
 
-    def remove(self, qty):
+    def slice(self, qty):
         if qty <= 0 or qty > self.quantity:
             raise ValueError(f"qty {qty} should be between 0 and {self.quantity}")
 
-        other = copy.copy(self)
+        original = copy.copy(self)
+        if self.quantity - qty <= 1e-6:
+            self._quantity = 0
+            return original, None
+
+        sliced = copy.copy(self)
+        # set slice parents
+        is_sliced = self.is_sliced() # has self been sliced already?
+        slice_parent = self.slice_parent if is_sliced else self.id
+        original._slice_parent = self._slice_parent = sliced._slice_parent = slice_parent
+        # create ID's for virtual transactions
+        self._id = ObjectId()
+        sliced._id = ObjectId()
+        # slice numbers
         ratio = qty / self.quantity
-        other._fee *= ratio
-        self._fee -= other._fee
-        other._amount *= ratio
-        self._amount -= other._amount
-        other._quantity = qty
+        sliced._fee *= ratio
+        self._fee -= sliced._fee
+        sliced._amount *= ratio
+        self._amount -= sliced._amount
+        sliced._quantity = qty
         self._quantity -= qty
-        return other
+        return sliced, None if is_sliced else original # don't create intermediate sliced tx
+
+    def is_sliced(self):
+        """Is the transaction sliced?"""
+        return self.slice_parent and self.slice_parent != self.id
+
+    def is_merged(self):
+        """Is the transaction merged?"""
+        return self.merge_parent and self.merge_parent != self.id and self.merge_parent != self.slice_parent
+
+    def is_virtual(self):
+        """Is the transaction virtual?(either a merged parent or a split child)"""
+        return self.merge_parent == self.id or self.is_sliced()
+
+    def is_original(self):
+        """Is the transaction original?"""
+        return not self.is_virtual()
+
+    def is_effective(self):
+        """Is the transaction effective to be used in group?"""
+        return (not self.is_merged()) and (self.slice_parent != self.id)
  
     def same_group(self, other):
         return self.account == other.account and self.date == other.date and self.symbol.ui == other.symbol.ui
@@ -294,7 +339,11 @@ class Transaction:
         if len(text) == 0 or (text[0] != '$' and text[0] != '-'): return 0
         return -float(text[2:]) if text[0] == '-' else float(text[1:])
  
-    def to_json(self, hide=None, include_symbol=False):
+    def to_json(self, hide=None, serialize=False):
+        def stringify(value):
+            if not serialize: return value
+            return str(value) if value else None
+
         symbol = self.symbol
         json = {
             'date': self.date,
@@ -307,9 +356,13 @@ class Transaction:
         if not hide and self.valid == Validity.VALID:
             json['type'] = str(symbol.type).split('.')[1]
         if hide is None:
+            if self.id:
+                json['_id'] = stringify(self.id)
             json['account'] = self.account
             json['description'] = self.description
             json['grouped'] = self.grouped
+            json['merge_parent'] = stringify(self.merge_parent)
+            json['slice_parent'] = stringify(self.slice_parent)
             json['valid'] = self.valid
         if self.valid == Validity.VALID and symbol.ui:
             if hide is None:
@@ -317,17 +370,30 @@ class Transaction:
             if symbol.strike and not hide:
                 json['strike'] = symbol.strike
                 json['expired'] = symbol.expired
-        if include_symbol:
+        if serialize:
             json['symbol'] = str(symbol)
         return json
 
     def __repr__(self):
         return (f"account={self.account}, date={self.date}, action={str(self.action)}, symbol={self.symbol},"
                 f" price={self.price:.4f}, quantity={self.quantity},"
-                f" fee={self.fee:.2f}, amount={self.amount}, valid={self.valid}")
+                # f" fee={self.fee:.2f}, amount={self.amount}, valid={self.valid}"
+                f" id={self.id}, merge_parent={self.merge_parent}, slice_parent={self.slice_parent}")
 
     def __str__(self):
         return self.__repr__()
+
+    @property
+    def id(self):
+        return self._id
+
+    @property
+    def merge_parent(self):
+        return self._merge_parent
+
+    @property
+    def slice_parent(self):
+        return self._slice_parent
 
     @property
     def account(self):
@@ -376,3 +442,7 @@ class Transaction:
     @property
     def grouped(self):
         return self._grouped
+    
+    @grouped.setter
+    def grouped(self, value):
+        self._grouped = value

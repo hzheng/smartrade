@@ -11,6 +11,8 @@ logger = app_logger.get_logger(__name__)
 
 class TransactionGroup:
 
+    ERROR = 1e-6
+
     _provider = None
     _quotes = {}
 
@@ -37,20 +39,26 @@ class TransactionGroup:
             cls._quotes.clear()
 
     @classmethod
-    def _merge_docs(cls, transaction_docs):
+    def _merge_docs(cls, transaction_docs, updated_tx_list, created_tx_map):
         tx = [Transaction.from_doc(doc) for doc in transaction_docs]
-        return cls.merge(tx)
+        return cls.merge(tx, updated_tx_list, created_tx_map)
 
     @classmethod
-    def merge(cls, transactions):
+    def merge(cls, transactions, updated_tx_list, created_tx_map):
         if not transactions: return []
 
         res = [transactions[0]]
         for tx in transactions[1:]:
             prev = res[-1]
-            cur = prev.merge(tx)
+            cur, newly_created = prev.merge(tx)
             if cur:
                 res[-1] = cur
+                updated_tx_list.append(tx)
+                if prev.is_original():
+                    updated_tx_list.append(prev)
+                if newly_created:
+                    assert(cur.quantity > cls.ERROR)
+                    created_tx_map[str(cur.id)] = cur
             else:
                 res.append(tx)
         return res
@@ -70,10 +78,13 @@ class TransactionGroup:
     
     @classmethod
     def assemble(cls, leading_tx, following_tx):
-        merged_leading_tx = cls._merge_docs(leading_tx)
+        updated_tx_list = []
+        created_tx_map = {}
+        merged_leading_tx = cls._merge_docs(leading_tx, updated_tx_list, created_tx_map)
         groups = [cls(tx_list) for tx_list in cls.combine(merged_leading_tx)]
         groups.reverse() # LIFO match
-        merged_following_tx = cls._merge_docs(following_tx)
+
+        merged_following_tx = cls._merge_docs(following_tx, updated_tx_list, created_tx_map)
         following_tx_queue = deque(cls.combine(merged_following_tx))
         while following_tx_queue:
             tx_list = following_tx_queue.popleft()
@@ -83,7 +94,7 @@ class TransactionGroup:
             open_tx_list = [tx for tx in tx_list if tx.action.is_open()]
             grouped = False
             for group in groups: # search for matching transactions
-                if group._followed_by(close_tx_list):
+                if group._followed_by(close_tx_list, updated_tx_list, created_tx_map):
                     for tx in open_tx_list: # add new open transactions
                         group._chains[tx] = []
                     following_tx_queue.appendleft(close_tx_list)
@@ -95,21 +106,30 @@ class TransactionGroup:
         for group in groups:
             group._account = merged_leading_tx[0].account
             group._inventory()
-        return groups
+
+        return groups, updated_tx_list, created_tx_map
     
-    def _followed_by(self, following_tx_list):
+    def _followed_by(self, following_tx_list, updated_tx_list, created_tx_map):
         res = False
         for open_tx, close_tx_list in self.chains.items():
             opened = open_tx.quantity
             for close_tx in close_tx_list:
                 opened -= close_tx.quantity
-            assert(opened >= 0)
-            if opened == 0: continue
+            assert(opened > -self.ERROR)
+            if opened <= self.ERROR: continue
 
             for tx in following_tx_list:
-                if tx.quantity > 0 and open_tx.closed_by(tx):
-                    sliced_tx = tx.remove(min(opened, tx.quantity))
-                    if sliced_tx.quantity > 1e-6: # ignore tiny sliced transactions
+                assert(tx.is_effective())
+                if tx.quantity > self.ERROR and open_tx.closed_by(tx):
+                    sliced_tx, original_tx = tx.slice(min(opened, tx.quantity))
+                    if original_tx:
+                        if original_tx.is_original():
+                            updated_tx_list.append(original_tx)
+                        else:
+                            assert(original_tx.quantity >= self.ERROR)
+                            created_tx_map[str(original_tx.id)] = original_tx
+                    if sliced_tx.quantity > self.ERROR: # ignore tiny sliced transactions
+                        assert(sliced_tx.is_effective())
                         close_tx_list.append(sliced_tx)
                     res = True
         return res
@@ -131,7 +151,7 @@ class TransactionGroup:
                 total += close_tx.amount
                 first_date = min(first_date, close_tx.date)
                 last_date = max(first_date, close_tx.date)
-            if opened != 0:
+            if opened > self.ERROR:
                 symbol_str = open_tx.symbol.to_str()
                 positions[symbol_str] = (positions.get(symbol_str, 0)
                                      + opened * (1 if open_tx.action == Action.BTO else -1))
@@ -152,6 +172,10 @@ class TransactionGroup:
             else:
                 roi = math.exp(math.log(1 + roi) * (365 / days)) - 1
         self._roi = roi
+
+    @classmethod
+    def get_price(cls, symbol):
+        return cls._get_price(symbol.split("_")[0], symbol)
 
     @classmethod
     def _get_price(cls, ui, symbol):
@@ -223,12 +247,12 @@ class TransactionGroup:
             account = otx.account
             ui = otx.symbol.ui
         res = {'ui': ui, 'account': account, 'chains': chains}
+        res['completed'] = self.completed
         if verbose:
             res['profit'] = self.profit
             res['roi'] = self.roi
             res['cost'] = self.cost
             res['duration'] = self.duration
-            res['completed'] = self.completed
         return res
 
     @classmethod

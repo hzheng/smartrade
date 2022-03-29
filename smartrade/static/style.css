@@ -220,6 +220,19 @@ table.history td:nth-child(8) {
   text-align: right;
 }
 
+table.history td.virtual {
+}
+
+table.history tr.effective {
+  font-weight: 700;
+}
+
+table.history td.merged {
+}
+
+table.history td.sliced {
+}
+
 .amount, .duration,
 table.history td:nth-child(8) {
   color: green;

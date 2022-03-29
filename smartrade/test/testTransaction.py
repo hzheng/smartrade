@@ -77,15 +77,15 @@ class TestTransaction(TestBase):
                 amount="$101.36",
                 symbol="SPY 02/04/2022 436.00 P")
         ]
-        tx = transactions[0].merge(transactions[1])
+        tx, _ = transactions[0].merge(transactions[1])
         self.assertEqual(Action.STO, tx.action)
         self.assertAlmostEqual(853.40 + 1706.80, tx.amount)
-        tx = transactions[1].merge(transactions[2])
+        tx, _ = transactions[1].merge(transactions[2])
         self.assertIsNone(tx)
-        tx = transactions[3].merge(transactions[4])
+        tx, _ = transactions[3].merge(transactions[4])
         self.assertAlmostEqual(253.40 + 101.36, tx.amount)
 
-        merged_transactions = TransactionGroup.merge(transactions)
+        merged_transactions = TransactionGroup.merge(transactions, [], [])
         self.assertEqual(3, len(merged_transactions))
 
         aapl_tx, spy_tx = TransactionGroup.combine(merged_transactions)

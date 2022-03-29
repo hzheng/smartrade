@@ -5,6 +5,7 @@ from datetime import datetime
 from dateutil.parser import parse
 import pymongo
 
+from smartrade.Assembler import Assembler
 from smartrade.Transaction import Transaction
 from smartrade.TransactionGroup import TransactionGroup
 
@@ -17,6 +18,7 @@ class Inspector:
         self._group_collection = self._db.transaction_groups
         self._account_cond = {'account' : account[-4:]}
         self._valid_tx_cond = {**self._account_cond, 'valid': 1}
+        self._effective_tx_cond = {**self._valid_tx_cond, **Assembler.effective_condition()}
     
     def transaction_period(self):
         start_date = end_date = datetime.now()
@@ -45,7 +47,7 @@ class Inspector:
 
     def _total_amount(self, restritions, start_date=None, end_date=None):
         amount = 'total_amount'
-        condition = self._date_limit({**self._valid_tx_cond}, start_date, end_date)
+        condition = self._date_limit({**self._effective_tx_cond}, start_date, end_date)
         if restritions:
             condition.update(restritions)
         res = self._tx_collection.aggregate(
@@ -60,7 +62,7 @@ class Inspector:
 
     def ticker_costs(self, ticker, start_date=None, end_date=None):
         amount = 'total_amount'
-        condition = self._date_limit({**self._valid_tx_cond, 'ui': ticker}, start_date, end_date)
+        condition = self._date_limit({**self._effective_tx_cond, 'ui': ticker}, start_date, end_date)
         res = self._tx_collection.aggregate(
             [{'$match': condition},
              {'$group': {'_id': None, amount: {'$sum': "$amount"}}}])

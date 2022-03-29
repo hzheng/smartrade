@@ -32,10 +32,13 @@
             {% endfor %}
 
             <li class="load ui-tabs-tab ui-corner-top ui-state-default ui-tab">
-                <a href="/load/{{account}}" class="ui-tabs-anchor">Live load data</a>
+                <a href="/load/{{account}}?scope=2" class="ui-tabs-anchor">Reload all</a>
             </li>
             <li class="load ui-tabs-tab ui-corner-top ui-state-default ui-tab">
-                <a href="/load/{{account}}?all=true" class="ui-tabs-anchor">Reload all data</a>
+                <a href="/load/{{account}}?scope=0" class="ui-tabs-anchor">Reload basic</a>
+            </li>
+            <li class="load ui-tabs-tab ui-corner-top ui-state-default ui-tab">
+                <a href="/load/{{account}}?scope=1" class="ui-tabs-anchor">Live load</a>
             </li>
         </ul>
     </div>

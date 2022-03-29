@@ -46,11 +46,10 @@ def account_home():
     position_map = {symbol: qty for pos_map in positions.values() for symbol, qty in pos_map.items()}
     values=[{}, {}, 0, 0]
     symbols = position_map.keys()
-    quotes = provider.get_quotes(symbols)
     for symbol in symbols:
         quantity = position_map[symbol]
         index = 0
-        price = quotes.get(symbol, (0, 0, 0))
+        price = TransactionGroup.get_price(symbol)
         value = quantity * price[0]
         if '_' in symbol:
             index = 1
@@ -66,10 +65,16 @@ def load(account):
     data_files = sorted([join(data_dir, f) for f in listdir(data_dir)
                          if f.startswith(account) and (f.endswith('.csv') or f.endswith('.json'))])
     loader = Loader(db_name, account, app.config['broker'])
-    if request.args.get('all'):
+    load_scope = int(request.args.get('scope'))
+    if load_scope != 1: # load basic data
         for i, f in enumerate(data_files):
             loader.load(f, i == 0)
-    loader.live_load()
+    if load_scope > 0: # load live data
+        live_load_count = len(loader.live_load())
+        if load_scope == 1 and live_load_count == 0: # no new data
+            logger.debug("no new transactions")
+            return "0"
+
     assembler = Assembler(db_name, account)
     inspector = Inspector(db_name, account)
     tickers = inspector.distinct_tickers()
@@ -138,6 +143,7 @@ def transaction_history():
     if valid < -1:
         valid = None
     transactions = inspector.transaction_list(start_date, end_date, ticker, order == "1", valid)
+
     total_cash = inspector.total_cash(start_date, end_date)
     end_cash = inspector.total_cash(None, end_date)
     start_cash = 0
@@ -149,6 +155,6 @@ def transaction_history():
                  start_cash, end_cash, total_cash, delta)
     assert(abs(delta) < 1e-5)
     return {
-        'transactions': [tx.to_json(include_symbol=True) for tx in transactions],
+        'transactions': [tx.to_json(serialize=True) for tx in transactions],
         'cash': { 'start': start_cash, 'end': end_cash, 'total': total_cash }
     }
