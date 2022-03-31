@@ -148,7 +148,10 @@ class Loader:
                 else:
                     ignored = True
             elif tx_type == "JOURNAL":
-                ignored = True
+                if subtype == 'IT': # internal transfer
+                    action = "TRANSFER"
+                else:
+                    ignored = True
             else:
                 ignored = True
 
@@ -156,7 +159,7 @@ class Loader:
                 symbol = "" # ignore symbol MMDA1
             else:
                 symbol = self._get_symbol(instrument)
-                if not symbol:
+                if not symbol and tx_type != "JOURNAL":
                     ignored = True
 
             tx = Transaction.from_dict(account=self._account, date=date, action=action,
