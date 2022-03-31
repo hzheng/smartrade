@@ -220,17 +220,30 @@ table.history td:nth-child(8) {
   text-align: right;
 }
 
-table.history td.virtual {
+table.history tr.original {
+  font-style: normal;
+}
+
+table.history tr.virtual {
+  font-style: italic;
 }
 
 table.history tr.effective {
-  font-weight: 700;
+  color: hsl(240, 51%, 35%);
 }
 
-table.history td.merged {
+table.history tr.ineffective {
+  /* text-decoration: dotted line-through; */
+  color: rgb(150, 143, 103);
 }
 
-table.history td.sliced {
+table.history tr.merged {
+  font-weight: 400;
+  text-decoration: dotted overline;
+}
+
+table.history tr.sliced {
+  text-decoration: dotted underline;
 }
 
 .amount, .duration,

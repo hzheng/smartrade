@@ -139,7 +139,7 @@ const app = {
             $field.text(app.convertDate(value, $field.attr('format')));
             return $field;
         }
-        if ($field.hasClass('quantity')) {
+        if ($field.hasClass('quantity') || dataType == 'quantity') {
             $field.text(app.convertQuantity(value));
             return $field;
         }
@@ -294,39 +294,42 @@ const app = {
                 })
                 const valid = $("select[name='valid']", $form).val();
                 transactions.forEach(function (tx, index) {
-                    console.log("_id="+tx._id+";merge="+tx.merge_parent+";slice="+tx.slice_parent);
+                    console.log("_id=" + tx._id + ";merge=" + tx.merge_parent + ";slice=" + tx.slice_parent);
                     const isSliced = tx.slice_parent && tx.slice_parent != tx._id;
                     const isMerged = tx.merge_parent && tx.merge_parent != tx._id && tx.merge_parent != tx.slice_parent
                     const isVirtual = tx.merge_parent == tx._id || isSliced;
                     const isEffective = !isMerged && (tx.slice_parent != tx._id);
-                    let type = isVirtual ? "Virtual " : "Original ";
-                    if (isMerged) {
-                        type += "M";
-                    }
-                    if (isSliced) {
-                        type += "S";
-                    }
-                    type += " " +tx._id
-                    type += " " +tx.merge_parent
-                    type += " " +tx.slice_parent
                     const $row = $('<tr>').append(
                         $('<td>').text(index + 1),
                         app.setValue($('<td>').attr('format', 'yy-mm-dd HH:mm:ss'), tx.date, 'date'),
                         $('<td>').text(tx.symbol),
                         $('<td>').text(tx.action),
                         app.setValue($('<td>'), tx.price, 'amount'),
-                        $('<td>').text(tx.quantity),
+                        app.setValue($('<td>'), tx.quantity, 'quantity'),
                         app.setValue($('<td>'), tx.fee, 'amount'),
                         app.setValue($('<td>'), tx.amount, 'amount'),
-                        $('<td>').text(tx.description),
-                        $('<td>').text(type)
+                        $('<td>').text(tx.description)
                     ).appendTo($tbody);
+                    if (isVirtual) {
+                        $row.addClass("virtual");
+                    } else {
+                        $row.addClass("original");
+                    }
                     if (isEffective) {
                         $row.addClass("effective");
+                    } else {
+                        $row.addClass("ineffective");
+                    }
+                    if (isMerged) {
+                        $row.addClass("merged");
+                    }
+                    if (isSliced) {
+                        $row.addClass("sliced");
                     }
                     if (tx.valid <= 0) {
                         $row.addClass(tx.valid == 0 ? 'ignored' : 'invalid');
                     }
+                    $row.attr("id", tx._id);
                 });
                 app.showMessage($tabContent, "Loaded transaction history");
                 if (afterSuccess) {
