@@ -394,7 +394,8 @@ const app = {
                     $.ajax({
                         url: url, type: 'GET',
                         success: function (data, textStatus) {
-                            app.showMessage($tabContent, "Loaded " + data + " transaction group(s)");
+                            app.showMessage($tabContent, "Loaded "
+                             + data.transactions + " transaction(s) and " + data.transactionGroups + " transaction group(s)");
                         },
                         error: function (xhr, textStatus, errorThrown) {
                             app.showMessage($tabContent, "Failed to load: " + errorThrown, true);

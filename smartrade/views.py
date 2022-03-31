@@ -66,22 +66,26 @@ def load(account):
                          if f.startswith(account) and (f.endswith('.csv') or f.endswith('.json'))])
     loader = Loader(db_name, account, app.config['broker'])
     load_scope = int(request.args.get('scope'))
+    res = {'transactions': 0, 'transactionGroups': 0}
     if load_scope != 1: # load basic data
         for i, f in enumerate(data_files):
-            loader.load(f, i == 0)
+            loaded_tx = loader.load(f, i == 0)
+            res['transactions'] += len(loaded_tx)
     if load_scope > 0: # load live data
-        live_load_count = len(loader.live_load())
+        live_loaded_tx = loader.live_load()
+        live_load_count = len(live_loaded_tx)
         if load_scope == 1 and live_load_count == 0: # no new data
-            logger.debug("no new transactions")
-            return "0"
+            logger.info("no new transactions")
+            return res
+        res['transactions'] += live_load_count
 
     assembler = Assembler(db_name, account)
     inspector = Inspector(db_name, account)
     tickers = inspector.distinct_tickers()
-    total = 0
     for ticker in tickers:
-        total += len(assembler.group_transactions(ticker, True))
-    return str(total)
+        created_tx_groups = assembler.group_transactions(ticker, True)
+        res['transactionGroups'] += len(created_tx_groups)
+    return res
 
 @app.route("/transactionGroups")
 def transaction_groups():
