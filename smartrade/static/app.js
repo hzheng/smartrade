@@ -80,6 +80,31 @@ const app = {
         app.showMessage($tabContent, "Loaded page");
     },
 
+    convertQuantity: function(quantity) {
+        if (!quantity) return "0";
+
+        if (typeof(quantity) != 'number') {
+             return quantity;
+        }
+
+        let q = quantity.toFixed(6).toString();
+        let needRemoveDot = false;
+        let i = q.length - 1;
+        outer:
+        for (; i >= 0; i--) {
+            switch (q.charAt(i)) {
+                case '0':
+                    break;
+                case '.':
+                    i--;
+                    break outer;
+                default:
+                    break outer;
+            }
+        }
+        return q.substring(0, i + 1);
+    },
+
     convertAmount: function(amount) {
         if (!amount) return "0.00";
 
@@ -112,6 +137,10 @@ const app = {
     setValue: function($field, value, dataType) {
         if ($field.hasClass('date') || dataType == 'date') {
             $field.text(app.convertDate(value, $field.attr('format')));
+            return $field;
+        }
+        if ($field.hasClass('quantity')) {
+            $field.text(app.convertQuantity(value));
             return $field;
         }
         if (dataType != 'amount' && !$field.hasClass('amount')) {
