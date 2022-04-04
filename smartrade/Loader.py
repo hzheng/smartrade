@@ -107,6 +107,8 @@ class Loader:
             if tx_type == "DIVIDEND_OR_INTEREST":
                 if subtype == 'CA':
                     action = "INTEREST"
+                elif subtype == 'OD': # ORDINARY DIVIDEND
+                    action = "DIVIDEND"
                 else:
                     ignored = True
             elif tx_type == "RECEIVE_AND_DELIVER":
