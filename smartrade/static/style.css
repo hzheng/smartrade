@@ -208,7 +208,7 @@ table.history td:nth-child(9) {
 }
 
 .money::before {
-  content:"$";
+  content: "$";
 }
 
 .money,
@@ -228,22 +228,31 @@ table.history tr.virtual {
   font-style: italic;
 }
 
-table.history tr.effective {
-  color: hsl(240, 51%, 35%);
+table.history tr.effective td:first-child::before {
+  /* color: hsl(240, 87%, 33%); */
+  /* font-weight: bold; */
+  content: "*";
 }
 
-table.history tr.ineffective {
+table.history tr.ineffective td:first-child {
   /* text-decoration: dotted line-through; */
-  color: rgb(150, 143, 103);
+  /* color: rgb(150, 143, 103); */
 }
 
-table.history tr.merged {
-  font-weight: 400;
-  text-decoration: dotted overline;
+table.history tr.merged td:first-child {
+  text-decoration: overline;
 }
 
-table.history tr.sliced {
-  text-decoration: dotted underline;
+table.history tr.sliced td:first-child {
+  text-decoration: underline;
+}
+
+table.history tr.completed td:first-child {
+  color: rgb(55, 19, 184);
+}
+
+table.history tr.uncompleted td:first-child {
+  color: #0f8d0f;
 }
 
 .amount, .duration,

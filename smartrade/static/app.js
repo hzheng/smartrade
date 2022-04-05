@@ -329,6 +329,11 @@ const app = {
                     if (tx.valid <= 0) {
                         $row.addClass(tx.valid == 0 ? 'ignored' : 'invalid');
                     }
+                    if (tx.grouped) {
+                        $row.addClass("completed");
+                    } else if (tx.grouped === false) {
+                        $row.addClass("uncompleted");
+                    }
                     $row.attr("id", tx._id);
                 });
                 app.showMessage($tabContent, "Loaded transaction history");
