@@ -1,3 +1,7 @@
+# generated static files
+smartrade/static/generated
+.webassets-cache
+
 # Temporary files
 TODO
 tmp

@@ -4,7 +4,10 @@
 <head>
     <title>{% block title %}{% endblock %} - Smartrade ({{config['ENV']}})</title>
 
-    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}" />
+    {% assets "sass_all" %}
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='generated/all.css')}}" />
+    {% endassets %}
+
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"
         integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>

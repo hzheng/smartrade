@@ -16,6 +16,7 @@ import os
 import yaml
 
 from flask import Flask
+from flask_assets import Environment, Bundle
 
 from smartrade.BrokerClient import BrokerClient
 from smartrade.Logger import Logger
@@ -55,5 +56,13 @@ def configure_app(config=None):
         TransactionGroup.set_provider(provider)
 
 configure_app()
+
+def configure_asset():
+    assets = Environment(app)
+    assets.url = app.static_url_path
+    sass = Bundle('sass/style.sass', filters='pyscss', output='generated/all.css')
+    assets.register('sass_all', sass)
+
+configure_asset()
 
 import smartrade.views, smartrade.template_utils
