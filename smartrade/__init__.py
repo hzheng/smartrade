@@ -60,8 +60,8 @@ configure_app()
 def configure_asset():
     assets = Environment(app)
     assets.url = app.static_url_path
-    sass = Bundle('sass/style.sass', filters='pyscss', output='generated/all.css')
-    assets.register('sass_all', sass)
+    sass = Bundle('sass/style.scss', filters='pyscss', output='generated/all.css')
+    assets.register('scss_all', sass)
 
 configure_asset()
 
