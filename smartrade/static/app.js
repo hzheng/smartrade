@@ -284,7 +284,7 @@ const app = {
                 $tbody.empty();
                 const transactions = data['transactions'];
                 const cash = data['cash'];
-                $('.history_summary span', $tabContent).each(function () {
+                $('.history_summary>span', $tabContent).each(function () {
                     const splitAttr = $(this).attr("name").split("_");
                     if (splitAttr[0] == 'cash') {
                         app.setValue($(this), cash[splitAttr[1]]);
