@@ -47,67 +47,69 @@ nav {
   display: flex;
   align-items: center;
   padding: 0 0.5rem;
+
+  h1 {
+    flex: auto;
+    margin: 0;
+
+    a {
+      text-decoration: none;
+      padding: 0.25rem 0.5rem;
+    }
+  }
+
+  ul  {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      a, span {
+        display: block;
+        padding: 0.5rem;
+      }
+    }
+  }
 }
 
-nav h1 {
-  flex: auto;
-  margin: 0;
-}
-
-nav h1 a {
-  text-decoration: none;
-  padding: 0.25rem 0.5rem;
-}
-
-nav ul  {
-  display: flex;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-nav ul li a, nav ul li span, header .action {
+header .action {
   display: block;
   padding: 0.5rem;
 }
 
 main {
   padding: 0 1rem 1rem;
-}
 
-main > header {
-  border-bottom: 1px solid lightgray;
-  display: flex;
-  align-items: flex-end;
-}
+  > header {
+    border-bottom: 1px solid lightgray;
+    display: flex;
+    align-items: flex-end;
 
-main > header h1 {
-  flex: auto;
-  margin: 1rem 0 0.25rem 0;
-}
+    h1 {
+      flex: auto;
+      margin: 1rem 0 0.25rem 0;
+    }
+  }
 
-main:last-child {
-  margin-bottom: 0;
-}
+  &:last-child {
+    margin-bottom: 0;
+  }
 
-main form {
-  margin: 1em 0;
-  display: flex;
-  flex-direction: column;
-}
+  form {
+    margin: 1em 0;
+    display: flex;
+    flex-direction: column;
+  }
 
-main label {
-  font-weight: bold;
-  margin-bottom: 0.5em;
-}
+  label {
+    font-weight: bold;
+    margin-bottom: 0.5em;
+  }
 
-main input, main textarea {
-  margin-bottom: 1em;
-}
-
-main textarea {
-  min-height: 12em;
-  resize: vertical;
+  input {
+    margin-bottom: 1em;
+  }
 }
 
 section {
@@ -116,7 +118,43 @@ section {
   border-radius: 8px;
 }
 
-.summary, .transaction_group_summary {
+%amount {
+  color: green;
+}
+
+.negative {
+  color: red !important;
+}
+
+%money {
+  &:before {
+    content: "$";
+  }
+  text-align: right;
+  font-size: small;
+  font-family: Verdana;
+}
+
+.amount {
+  @extend %amount;
+}
+
+.money {
+  @extend %money;
+}
+
+.duration {
+  color: green;
+}
+
+%cell {
+  border: 1px solid gray;
+  padding: 4px;
+  text-align: center;
+}
+
+
+%summary {
   clear: both;
   font-family: 'Courier New', Courier, monospace;
   font-weight: 800;
@@ -124,14 +162,18 @@ section {
   padding-left: 2em;
 }
 
+.summary {
+  @extend %summary;
+}
+
 .transaction_group_summary {
+  @extend %summary;
   margin-top: 4em;
   padding-top: 1em;
   border-top: 2px dotted gray;
 }
 
-.summary .ticker,
-.transaction_group_summary .ticker {
+.ticker {
   font-weight: 900;
   color: rgb(62, 62, 199);
 }
@@ -161,63 +203,62 @@ table.transaction {
   border-collapse: collapse;
   border-style: hidden;
   width: 95%;
-  margin: 8px auto
+  margin: 8px auto;
+
+  th, td {
+    @extend %cell;
+  }
+
+  td.symbol {
+    background-color: rgb(197, 206, 235);
+  }
+
+  &.completed {
+    background:#E7E9EB;
+  }
 }
 
-table.transaction.completed {
-  background: #E7E9EB;
+table.history {
+  tbody tr {
+    background-color: #EFFDF9;
+  }
+
+  th, td {
+    @extend %cell;
+  }
+
+  tr.ignored {
+    background-color: #E6E7E6;
+  }
+
+  tr.invalid {
+    background-color: #E19887;
+  }
+
+  td:nth-child(3), td:nth-child(9) {
+    font-size: small;
+  }
+
+  td:nth-child(5), td:nth-child(7), td:nth-child(8) {
+    @extend %money;
+  }
+  
+  td:nth-child(8) {
+    @extend %amount;
+  }
 }
 
-table.history tbody tr {
-  background-color: #EFFDF9;
-}
-
-table.history tr.ignored {
-  background-color: #E6E7E6;
-}
-
-table.history tr.invalid {
-  background-color: #E19887;
-}
-
-table.transaction th, table.transaction td,
-table.history th, table.history td {
-  border: 1px solid gray;
-  padding: 4px;
-  text-align: center;
-}
-
-
-table.transaction td.money {
-  text-align: right;
-}
-
-.symbol,
-table.history td:nth-child(3) {
+.symbol {
   font-size: small;
   text-decoration: dotted underline;
 }
 
-.description,
-table.history td:nth-child(9) {
+.description {
   font-size: small;
 }
 
 .quantity {
   font: bold;
-}
-
-.money::before {
-  content: "$";
-}
-
-.money,
-table.history td:nth-child(5),
-table.history td:nth-child(7),
-table.history td:nth-child(8) {
-  font-family: Verdana;
-  font-size: small;
-  text-align: right;
 }
 
 .history_summary {
@@ -268,46 +309,37 @@ table.history td:nth-child(8) {
   text-decoration: underline;
 }
 
-table.history tr.original, span.original {
+tr.original, span.original {
   @extend %original;
 }
 
 
-table.history tr.virtual, span.virtual {
+tr.virtual, span.virtual {
   @extend %virtual;
 }
 
-table.history tr.effective td:first-child, span.effective {
+tr.effective td:first-child, span.effective {
   @extend %effective;
 }
 
-table.history tr.ineffective td:first-child, span.ineffective {
+tr.ineffective td:first-child, span.ineffective {
   @extend %ineffective;
 }
 
-table.history tr.merged td:first-child, span.merged {
+tr.merged td:first-child, span.merged {
   @extend %merged;
 }
 
-table.history tr.sliced td:first-child, span.sliced {
+tr.sliced td:first-child, span.sliced {
   @extend %sliced;
 }
 
-table.history tr.completed td:first-child, span.completed {
+tr.completed td:first-child, span.completed {
   @extend %completed;
 }
 
-table.history tr.uncompleted td:first-child, span.uncompleted {
+tr.uncompleted td:first-child, span.uncompleted {
   @extend %uncompleted;
-}
-
-.amount, .duration,
-table.history td:nth-child(8) {
-  color: green;
-}
-
-.negative {
-  color: red !important;
 }
 
 .toggle {
@@ -333,17 +365,12 @@ tr.open {
   background-color: rgb(190, 216, 180);
 }
 
-table.transaction td.symbol {
-  background-color: rgb(197, 206, 235);
-}
-
 table.positions {
   margin: 4px;
   width: 60%;
-}
-
-table.positions td{
-  text-align: center;
+  td {
+    text-align: center;
+  }
 }
 
 div.search_result {
@@ -383,7 +410,7 @@ div.condition {
 }
 
 
-section.tx_group, .none{
+section.tx_group, .none {
   display: none;
 }
 
@@ -391,70 +418,74 @@ section.tx_group, .none{
   font-size: small;
 }
 
-ul.account_nav .ui-tabs-active {
-  margin-bottom: 0;
-  padding-bottom: 1px;
-}
+ul.account_nav {
+  .ui-tabs-active {
+    margin-bottom: 0;
+    padding-bottom: 1px;
 
-ul.account_nav .ui-tabs-active a {
-  cursor: text;
-}
+    a {
+      cursor: text;
+    }
+  }
 
-ul.account_nav li.load {
-  float: right;
-  font-size: medium;
-}
+  li.load {
+    float: right;
+    font-size: medium;
 
-ul.account_nav li.load a {
-  text-decoration: dotted underline;
-  color: white !important;
-  background-color:#007fff !important;
-  margin-top: -3px;
-  border-radius: 5px;
-  padding: 6px !important;
-  font-size: 0.8em !important;
-  font-weight: 550 !important;
+    a {
+      text-decoration: dotted underline;
+      color: white !important;
+      background-color:#007fff !important;
+      margin-top: -3px;
+      border-radius: 5px;
+      padding: 6px !important;
+      font-size: 0.8em !important;
+      font-weight: 550 !important;
+    }
+  }
 }
 
 .account_content {
   background: transparent;
   border: none;
-}
 
-.account_content .ui-widget-header {
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid #c0c0c0;
-  -moz-border-radius: 0px;
-  -webkit-border-radius: 0px;
-  border-radius: 0px;
-}
+  .ui-widget-header {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #c0c0c0;
+    -moz-border-radius: 0px;
+    -webkit-border-radius: 0px;
+    border-radius: 0px;
+  }
 
-.account_content .ui-tabs-nav .ui-state-default {
-  background: transparent;
-  border: none;
-}
+  .ui-tabs-nav {
+      .ui-state-default {
+        background: transparent;
+        border: none;
 
-.account_content .ui-tabs-nav .ui-state-active {
-  background: transparent url(img/uiTabsArrow.png) no-repeat bottom center;
-  border: none;
-}
+        a {
+          color: #c0c0c0;
+          font-weight: 800;
+        }
+      }
 
-.account_content .ui-tabs-nav .ui-state-default a {
-  color: #c0c0c0;
-  font-weight: 800;
-}
+      .ui-state-active {
+        background: transparent url(../img/uiTabsArrow.png) no-repeat bottom center;
+        border: none;
 
-.account_content .ui-tabs-nav .ui-state-active a {
-  color: #007fff;
+        a {
+          color: #007fff;
+        }
+      }
+  }
 }
 
 .message {
   color: green;
   font-size: small;
   float: right;
-}
 
-.message.error {
-  color: red;
+  &.error {
+    color: red;
+  }
 }
