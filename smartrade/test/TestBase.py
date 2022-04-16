@@ -16,3 +16,9 @@ class TestBase(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         print(f"\n=====END {cls.__name__}=====\n")
+
+    def setUp(self):
+        print(f"\n-----BEGIN {self._testMethodName}-----")
+
+    def tearDown(self):
+        print(f"-----END {self._testMethodName}-----")
