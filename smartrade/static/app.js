@@ -59,8 +59,15 @@ const app = {
     
     _initLoadTransactionGroups: function (data, $tab, $tabContent) {
         const $select = $('select[name="ticker"]', $tabContent);
-        for (const [_, ticker] of Object.entries(data.tickers)) {
-            $('<option>').val(ticker).text(ticker).appendTo($select);
+        for (const [ticker, hasPosition] of Object.entries(data.positions)) {
+            if (hasPosition) {
+                $('<option>').val(ticker).text("*" + ticker).appendTo($select);
+            }
+        }
+        for (const [ticker, hasPosition] of Object.entries(data.positions)) {
+            if (!hasPosition) {
+                $('<option>').val(ticker).text(ticker).appendTo($select);
+            }
         }
         app._commonLoad(data, $tab, $tabContent);
     },
@@ -292,7 +299,7 @@ const app = {
                         app.setValue($(this), transactions.length);
                     }
                 })
-                const valid = $("select[name='valid']", $form).val();
+                // const valid = $("select[name='valid']", $form).val();
                 transactions.forEach(function (tx, index) {
                     console.log("_id=" + tx._id + ";merge=" + tx.merge_parent + ";slice=" + tx.slice_parent);
                     const isSliced = tx.slice_parent && tx.slice_parent != tx._id;

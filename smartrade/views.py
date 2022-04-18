@@ -41,7 +41,6 @@ def account_home():
     }
     # avoid negative total_investment when calculating total profit rate
     summary['total_profit_rate'] = summary['total_profit'] / max(summary['total_investment'], 1)
-    provider = app.config['provider']
     positions = inspector.total_positions()
     position_map = {symbol: qty for pos_map in positions.values() for symbol, qty in pos_map.items()}
     values=[{}, {}, 0, 0]
@@ -97,9 +96,10 @@ def transaction_groups():
     db_name = app.config['DATABASE']
     inspector = Inspector(db_name, account)
     if ajax == "1":
+        positions = {symbol: bool(pos) for symbol, pos in inspector.total_positions().items()}
         return {
             'period': inspector.transaction_period(),
-            'tickers': inspector.distinct_tickers()
+            'positions': positions
         }
 
     ticker = request.args.get('ticker')
