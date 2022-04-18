@@ -50,10 +50,35 @@ Transaction History
                 <div class="condition">
                     <label for="valid">Valid:</label>
                     <select name="valid">
-                        <option value="-2">all transactions</option>
-                        <option value="1" selected="selected">valid transactions</option>
-                        <option value="0">ignored transactions</option>
-                        <option value="-1">invalid transactions</option>
+                        <option value="-2">all</option>
+                        <option value="1" selected="selected">valid</option>
+                        <option value="0">ignored</option>
+                        <option value="-1">invalid</option>
+                    </select>
+                </div>
+                <div class="condition">
+                    <label for="completed">Completed:</label>
+                    <select name="completed">
+                        <option value="-2">all</option>
+                        <option value="1">completed</option>
+                        <option value="0">uncompleted</option>
+                        <option value="-1">ungrouped</option>
+                    </select>
+                </div>
+                <div class="condition">
+                    <label for="effective">Effective:</label>
+                    <select name="effective">
+                        <option value="-1">all</option>
+                        <option value="1">effective</option>
+                        <option value="0">ineffective</option>
+                    </select>
+                </div>
+                <div class="condition">
+                    <label for="original">Original:</label>
+                    <select name="original">
+                        <option value="-1">all</option>
+                        <option value="1">original</option>
+                        <option value="0">virtual</option>
                     </select>
                 </div>
                 <div class="condition">

@@ -13,13 +13,37 @@ class Assembler:
         self._db = client[db_name]
         self._tx_collection = self._db.transactions
         self._group_collection = self._db.transaction_groups
-        self._account_cond = {'account' : account[-4:]}
+        self._account_cond = self.account_condition(account)
+
+    @classmethod
+    def account_condition(cls, account):
+        return {'account' : account[-4:]}
 
     @classmethod
     def effective_condition(cls):
         unmerged_cond = {'$or':[{'merge_parent': None}, {'$expr':{'$eq':["$merge_parent", "$_id"]}}, {'$expr':{'$eq':["$merge_parent", "$slice_parent"]}}]}
         unsliced_cond = {'$expr':{'$ne':["$slice_parent", "$_id"]}}
         return {'$and': [unmerged_cond, unsliced_cond]}
+
+    @classmethod
+    def ineffective_condition(cls):
+        merged_cond = {'$and':[{'merge_parent': {'$ne': None}}, {'$expr':{'$ne':["$merge_parent", "$_id"]}}, {'$expr':{'$ne':["$merge_parent", "$slice_parent"]}}]}
+        sliced_cond = {'$expr':{'$eq':["$slice_parent", "$_id"]}}
+        return {'$or': [merged_cond, sliced_cond]}
+
+    @classmethod
+    def virtual_condition(cls):
+        sliced_cond = {'$expr':{'$ne':["$slice_parent", "$_id"]}}
+        is_sliced_cond = {'$and': [sliced_cond, {'slice_parent': {'$ne': None}}]}
+        merged_cond = {'$expr':{'$eq':["$merge_parent", "$_id"]}}
+        return {'$or': [merged_cond, is_sliced_cond]}
+
+    @classmethod
+    def original_condition(cls):
+        sliced_cond = {'$expr':{'$eq':["$slice_parent", "$_id"]}}
+        is_sliced_cond = {'$or': [sliced_cond, {'slice_parent': {'$eq': None}}]}
+        merged_cond = {'$expr':{'$ne':["$merge_parent", "$_id"]}}
+        return {'$and': [merged_cond, is_sliced_cond]}
 
     def group_transactions(self, ticker, save_db=False):
         tx_collection = self._tx_collection

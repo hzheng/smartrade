@@ -144,9 +144,11 @@ def transaction_history():
     order = request.args.get('dateOrder') or "0"
     ticker = request.args.get('ticker')
     valid = int(request.args.get('valid'))
-    if valid < -1:
-        valid = None
-    transactions = inspector.transaction_list(start_date, end_date, ticker, order == "1", valid)
+    completed = int(request.args.get('completed'))
+    effective = int(request.args.get('effective'))
+    original = int(request.args.get('original'))
+    transactions = inspector.transaction_list(start_date, end_date, ticker, order == "1",
+                                              valid, completed, effective, original)
 
     total_cash = inspector.total_cash(start_date, end_date)
     end_cash = inspector.total_cash(None, end_date)
