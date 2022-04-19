@@ -65,4 +65,9 @@ def configure_asset():
 
 configure_asset()
 
+from smartrade import jobs
+
+if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+    jobs.run(app)
+
 import smartrade.views, smartrade.template_utils
