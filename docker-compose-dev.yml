@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  web:
+    environment:
+      - FLASK_ENV=development
+      - MONGODB_URI=mongodb://smartrade:smartrade@mongo_db:27017
+    ports:
+      - 5000:5001
+    volumes:
+      - code:/app/smartrade
+
+  mongodb:
+    volumes:
+      #- ./init-db.js:/docker-entrypoint-initdb.d/init-db.js:ro
+      - mongo-data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=smartrade
+      - MONGO_INITDB_ROOT_PASSWORD=smartrade
+
+volumes:
+  code:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: smartrade
+  mongo-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: tmp/data

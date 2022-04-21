@@ -3,6 +3,7 @@
 import csv
 import datetime
 import json
+import os
 import re
 
 import pymongo
@@ -14,7 +15,7 @@ logger = app_logger.get_logger(__name__)
 
 class Loader:
     def __init__(self, db_name, account, broker=None):
-        client = pymongo.MongoClient()
+        client = pymongo.MongoClient(os.environ.get('MONGODB_URI', "mongodb://127.0.0.1:27017"))
         db = client[db_name]
         self._transactions = db.transactions
         self._transaction_groups = db.transaction_groups
@@ -42,10 +43,9 @@ class Loader:
         return transactions
 
     def _parse_file(self, path):
-        path = path.upper()
-        if path.endswith(".CSV"): # schwab format
+        if path.endswith(".csv"): # schwab format
             return self._parse_csv(path)
-        if path.endswith(".JSON"): # tdameritrade format
+        if path.endswith(".json"): # tdameritrade format
             return self._parse_json(path)
         raise ValueError(f"unsupported file extension: {path}")
 

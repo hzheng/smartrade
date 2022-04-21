@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+import os
 
 from dateutil.parser import parse
 import pymongo
@@ -12,7 +13,7 @@ from smartrade.TransactionGroup import TransactionGroup
 
 class Inspector:
     def __init__(self, db_name, account):
-        client = pymongo.MongoClient()
+        client = pymongo.MongoClient(os.environ.get('MONGODB_URI', "mongodb://127.0.0.1:27017"))
         self._db = client[db_name]
         self._tx_collection = self._db.transactions
         self._group_collection = self._db.transaction_groups

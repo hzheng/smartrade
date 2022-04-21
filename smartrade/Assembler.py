@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import os
+
 import pymongo
 
 from smartrade import app_logger
@@ -9,7 +11,7 @@ logger = app_logger.get_logger(__name__)
 
 class Assembler:
     def __init__(self, db_name, account):
-        client = pymongo.MongoClient()
+        client = pymongo.MongoClient(os.environ.get('MONGODB_URI', "mongodb://127.0.0.1:27017"))
         self._db = client[db_name]
         self._tx_collection = self._db.transactions
         self._group_collection = self._db.transaction_groups

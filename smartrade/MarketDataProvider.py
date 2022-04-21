@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import os
 from datetime import datetime, time, timedelta, timezone
 
 from dateutil.parser import parse
@@ -16,7 +17,7 @@ class MarketDataProvider:
 
     def __init__(self, broker: BrokerClient, db_name: str):
         self._broker = broker
-        mongo_client = pymongo.MongoClient()
+        mongo_client = pymongo.MongoClient(os.environ.get('MONGODB_URI', "mongodb://127.0.0.1:27017"))
         self._db = mongo_client[db_name]
         self._quote_collection = self._db.quotes
 

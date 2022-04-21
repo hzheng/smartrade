@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    environment:
+      - FLASK_RUN_HOST=0.0.0.0
+      - FLASK_RUN_PORT=5001
+      - FLASK_APP=smartrade
+      - FLASK_CONF_PATH=/app/config.yml 
+      - TRADE_DATA=/app
+    links:
+      - mongodb
+
+  mongodb:
+    container_name: mongo_db
+    image: mongo:4.4.5

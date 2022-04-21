@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  web:
+    restart: always
+    environment:
+      - FLASK_ENV=production
+      - MONGODB_URI=mongodb://smartrade:smartradeProd@mongo_db:27017
+    ports:
+      - 5050:5001
+
+  mongodb:
+    restart: always
+    volumes:
+      - mongo-data-prod:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=smartrade
+      - MONGO_INITDB_ROOT_PASSWORD=smartradeProd
+
+volumes:
+  mongo-data-prod:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: tmp/data-prod
