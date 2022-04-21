@@ -23,4 +23,4 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: tmp/data-prod
+      device: /usr/local/mongodb
