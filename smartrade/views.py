@@ -96,11 +96,7 @@ def transaction_groups():
     db_name = app.config['DATABASE']
     inspector = Inspector(db_name, account)
     if ajax == "1":
-        positions = {symbol: bool(pos) for symbol, pos in inspector.total_positions().items()}
-        return {
-            'period': inspector.transaction_period(),
-            'positions': positions
-        }
+        return _get_transaction_info(inspector)
 
     ticker = request.args.get('ticker')
     tx_groups = inspector.ticker_transaction_groups(ticker)
@@ -112,6 +108,13 @@ def transaction_groups():
         'profit': profit,
         'total': total
     }
+
+def _get_transaction_info(inspector):
+        positions = {symbol: bool(pos) for symbol, pos in inspector.total_positions().items()}
+        return {
+            'period': inspector.transaction_period(),
+            'positions': positions
+        }
 
 def _get_date_range(context):
     start_date = end_date = None
@@ -135,10 +138,7 @@ def transaction_history():
     db_name = app.config['DATABASE']
     inspector = Inspector(db_name, account)
     if ajax == "1":
-        return {
-            'period': inspector.transaction_period(),
-            'tickers': inspector.distinct_tickers()
-        }
+        return _get_transaction_info(inspector)
 
     start_date, end_date = _get_date_range("transaction_history")
     order = request.args.get('dateOrder') or "0"

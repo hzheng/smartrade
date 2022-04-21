@@ -57,7 +57,7 @@ const app = {
         app._commonLoad(data, $tab, $tabContent);
     },
     
-    _initLoadTransactionGroups: function (data, $tab, $tabContent) {
+    _loadTransactionInfo: function (data, $tab, $tabContent) {
         const $select = $('select[name="ticker"]', $tabContent);
         for (const [ticker, hasPosition] of Object.entries(data.positions)) {
             if (hasPosition) {
@@ -72,12 +72,12 @@ const app = {
         app._commonLoad(data, $tab, $tabContent);
     },
     
+    _initLoadTransactionGroups: function (data, $tab, $tabContent) {
+        app._loadTransactionInfo(data, $tab, $tabContent);
+    },
+    
     _initLoadTransactions: function (data, $tab, $tabContent) {
-        const $select = $("select[name='ticker']", $tabContent);
-        for (const [_, ticker] of Object.entries(data.tickers)) {
-            $('<option>').val(ticker).text(ticker).appendTo($select);
-        }
-        app._commonLoad(data, $tab, $tabContent);
+        app._loadTransactionInfo(data, $tab, $tabContent);
     },
 
     _commonLoad: function (data, $tab, $tabContent) {
