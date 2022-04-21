@@ -15,10 +15,12 @@ bail() {
 } 
 
 ## help message
-declare -r HELP_MSG="Usage: $SCRIPT_NAME database
-  -n       new database
-  -h       display this help and exit
+declare -r HELP_MSG="Usage: $SCRIPT_NAME [-n database] [-d date] [-H host] [-i ip] database
   -d       date
+  -h       display this help and exit
+  -H       target host
+  -i       target ip
+  -n       new database
 "
 
 ## print the usage and exit the shell(default status code: 2)
@@ -31,7 +33,7 @@ usage() {
     bail "${1}$HELP_MSG" $status
 }
 
-while getopts ":d:hn:" opt; do
+while getopts ":d:hH:i:n:" opt; do
     case $opt in
         h)
             usage 0
@@ -39,8 +41,14 @@ while getopts ":d:hn:" opt; do
         d)
             date=${OPTARG}
             ;;
+        i)
+            ip=${OPTARG}
+            ;;
         n)
             new_db=${OPTARG}
+            ;;
+        H)
+            host=${OPTARG}
             ;;
         \?)
             usage "Invalid option: -$OPTARG \n"
@@ -62,8 +70,17 @@ data_dir=$dir/$date
 
 db=$1
 
+if [[ -n "$host" ]]; then
+    uri="--uri=mongodb://smartrade:smartradeProd@${host}:${ip-27019}/?authSource=admin"
+    if [[ -z "$new_db" ]]; then
+        new_db=trading_prod
+    fi
+fi
+
 if [[ -z "$new_db" ]]; then
     new_db=$db
 fi
 
-mongorestore --db $new_db --drop $data_dir/$db
+echo restore database $new_db from $data_dir/$db...
+
+mongorestore $uri --db $new_db --drop $data_dir/$db

@@ -9,9 +9,19 @@ services:
       - FLASK_APP=smartrade
       - FLASK_CONF_PATH=/app/config.yml 
       - TRADE_DATA=/app
+    volumes:
+      - log:/var/log/smartrade
     links:
       - mongodb
 
   mongodb:
     container_name: mongo_db
     image: mongo:4.4.5
+
+volumes:
+  log:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/log/smartrade

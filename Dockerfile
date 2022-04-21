@@ -15,8 +15,5 @@ RUN apk add --no-cache --virtual .build-deps gcc musl-dev libffi-dev \
     && pip install --no-cache-dir -r requirements.txt \
     && apk del .build-deps
 
-# create directory for logs
-RUN mkdir -p /var/log/smartrade
-
 # run flask app
 ENTRYPOINT ["python3", "-m", "flask", "run"]

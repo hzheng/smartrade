@@ -11,12 +11,14 @@ services:
       - code:/app/smartrade
 
   mongodb:
-    volumes:
-      #- ./init-db.js:/docker-entrypoint-initdb.d/init-db.js:ro
-      - mongo-data:/data/db
     environment:
       - MONGO_INITDB_ROOT_USERNAME=smartrade
       - MONGO_INITDB_ROOT_PASSWORD=smartrade
+    ports:
+      - 27018:27017
+    volumes:
+      #- ./init-db.js:/docker-entrypoint-initdb.d/init-db.js:ro
+      - mongo-data:/data/db
 
 volumes:
   code:
