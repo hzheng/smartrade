@@ -1,7 +1,8 @@
 version: '3.8'
 
 services:
-  web:
+  flask:
+    container_name: flask_server
     build: .
     environment:
       - FLASK_RUN_HOST=0.0.0.0
@@ -17,6 +18,9 @@ services:
   mongodb:
     container_name: mongo_db
     image: mongo:4.4.5
+    command: ['--logpath', '/var/log/mongodb/mongodb.log']
+    volumes:
+      - log:/var/log/mongodb
 
 volumes:
   log:

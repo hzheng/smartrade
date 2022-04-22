@@ -22,6 +22,6 @@ done
 cp ~/.smartrade/*{json,yml} $TMP_DIR
 
 env=${1-prod}
-docker-compose -f docker-compose.yml -f docker-compose-${env}.yml up --build -d
+docker-compose -f docker-compose.yml -f docker-compose-${env}.yml up --remove-orphan --build -d
 
 rm -rf $TMP_DIR
