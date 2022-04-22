@@ -25,7 +25,7 @@ services:
     ports:
       - 5050:80
     volumes:
-      - log:/var/log/smartrade
+      - log:/var/log/nginx
     depends_on:
       - flask
 

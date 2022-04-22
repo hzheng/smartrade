@@ -18,7 +18,7 @@ services:
   mongodb:
     container_name: mongo_db
     image: mongo:4.4.5
-    command: ['--logpath', '/var/log/mongodb/mongodb.log']
+    command: ['--logpath', '/var/log/mongodb/mongod.log']
     volumes:
       - log:/var/log/mongodb
 
