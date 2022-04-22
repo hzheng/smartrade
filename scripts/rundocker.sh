@@ -10,6 +10,8 @@ if [ ! -d "$TRADE_DATA" ]; then
     exit 1
 fi
 
+docker-compose rm -fs
+
 TMP_DIR=tmp/ext
 mkdir -p $TMP_DIR
 find "$TRADE_DATA" -maxdepth 1 \( -name '*csv' -o -name '*json' \) -print0 | while read -d $'\0' file

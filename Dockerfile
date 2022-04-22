@@ -16,4 +16,4 @@ RUN apk add --no-cache --virtual .build-deps gcc musl-dev libffi-dev \
     && apk del .build-deps
 
 # run flask app
-ENTRYPOINT ["python3", "-m", "flask", "run"]
+#ENTRYPOINT ["python3", "-m", "flask", "run"]

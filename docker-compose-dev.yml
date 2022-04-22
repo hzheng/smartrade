@@ -9,6 +9,7 @@ services:
       - 5000:5001
     volumes:
       - code:/app/smartrade
+    command: python3 -m flask run
 
   mongodb:
     environment:
