@@ -373,21 +373,19 @@ const app = {
             });
 
             const $form = $('form[name="searchTransactionGroupForm"]', $tabContent);
-            const $btn = $('button[name="searchTransactionGroupBtn"]', $tabContent);
             $("select[name='ticker']", $form).on('change', function (e) {
-                $btn.prop("disabled", $(this).val() == "");
+                if (!$(this).val()) {
+                    $(".search_result", $tabContent).css("visibility", "hidden");
+                    return;
+                }
+                app.searchTransactionGroups($form,
+                    function (ticker) {
+                        $('.transaction_group_summary span.ticker', $tabContent).text(ticker);
+                    });
             });
 
             $("input[name='showCompleted']", $form).on('click', function (e) {
                 $(".completed", $form.closest(".account_content")).parent().toggle();
-            });
-
-            $btn.click(function (e) {
-                e.preventDefault();
-                app.searchTransactionGroups($form,
-                    function (ticker) {
-                        $('.transaction_group_summary span.ticker', $tabContent).text(ticker);
-                    })
             });
         });
     },
