@@ -301,7 +301,7 @@ const app = {
                 })
                 // const valid = $("select[name='valid']", $form).val();
                 transactions.forEach(function (tx, index) {
-                    console.log("_id=" + tx._id + ";merge=" + tx.merge_parent + ";slice=" + tx.slice_parent);
+                    // console.log("_id=" + tx._id + ";merge=" + tx.merge_parent + ";slice=" + tx.slice_parent);
                     const isSliced = tx.slice_parent && tx.slice_parent != tx._id;
                     const isMerged = tx.merge_parent && tx.merge_parent != tx._id && tx.merge_parent != tx.slice_parent
                     const isVirtual = tx.merge_parent == tx._id || isSliced;
