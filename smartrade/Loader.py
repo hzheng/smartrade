@@ -3,20 +3,17 @@
 import csv
 import datetime
 import json
-import os
 import re
-
-import pymongo
 
 from smartrade import app_logger
 from smartrade.Transaction import Transaction
+from smartrade.utils import get_database, DESC
 
 logger = app_logger.get_logger(__name__)
 
 class Loader:
     def __init__(self, db_name, account, broker=None):
-        client = pymongo.MongoClient(os.environ.get('MONGODB_URI', "mongodb://127.0.0.1:27017"))
-        db = client[db_name]
+        db = get_database(db_name)
         self._transactions = db.transactions
         self._transaction_groups = db.transaction_groups
         self._account = account[-4:]
@@ -28,7 +25,7 @@ class Loader:
         if not self._broker: raise ValueError("Broker is null")
 
         if not start_date:
-            for obj in self._transactions.find(self._valid_tx_cond).sort([("date", pymongo.DESCENDING)]).limit(1):
+            for obj in self._transactions.find(self._valid_tx_cond).sort([("date", DESC)]).limit(1):
                 start_date = obj['date'] + datetime.timedelta(1)
         logger.debug("BEGIN: live load account %s from date: %s", self._account, start_date)
         json_obj = self._broker.get_transactions(self._account, start_date, end_date)

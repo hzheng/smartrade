@@ -1,20 +1,16 @@
 # -*- coding: utf-8 -*-
 
-import os
-
-import pymongo
-
 from smartrade import app_logger
 from smartrade.TransactionGroup import TransactionGroup
+from smartrade.utils import get_database, ASC
 
 logger = app_logger.get_logger(__name__)
 
 class Assembler:
     def __init__(self, db_name, account):
-        client = pymongo.MongoClient(os.environ.get('MONGODB_URI', "mongodb://127.0.0.1:27017"))
-        self._db = client[db_name]
-        self._tx_collection = self._db.transactions
-        self._group_collection = self._db.transaction_groups
+        db = get_database(db_name)
+        self._tx_collection = db.transactions
+        self._group_collection = db.transaction_groups
         self._account_cond = self.account_condition(account)
 
     @classmethod
@@ -64,11 +60,7 @@ class Assembler:
                           'action': {'$in': ['STC', 'BTC', 'EXPIRED', 'ASSIGNED', 'EXERCISE', 'STO', 'BTO']},
                           'date': {'$in': list(following_dates)},
                           **ungrouped_cond}
-        order = [('date', pymongo.ASCENDING),
-                 ('action', pymongo.ASCENDING),
-                 ('expired', pymongo.ASCENDING),
-                 ('strike', pymongo.ASCENDING),
-                 ('type', pymongo.ASCENDING)]
+        order = [('date', ASC), ('action', ASC), ('expired', ASC), ('strike', ASC), ('type', ASC)]
 
         leading_tx = tx_collection.find(leading_cond).sort(order)
         following_tx = tx_collection.find(following_cond).sort(order)

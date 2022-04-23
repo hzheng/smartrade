@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import os
 from datetime import datetime, time, timedelta, timezone
 
 from dateutil.parser import parse
-import pymongo
 
 from smartrade import app_logger
 from smartrade.BrokerClient import BrokerClient
+from smartrade.utils import get_database, ASC, DESC
 
 logger = app_logger.get_logger(__name__)
 
@@ -17,9 +16,8 @@ class MarketDataProvider:
 
     def __init__(self, broker: BrokerClient, db_name: str):
         self._broker = broker
-        mongo_client = pymongo.MongoClient(os.environ.get('MONGODB_URI', "mongodb://127.0.0.1:27017"))
-        self._db = mongo_client[db_name]
-        self._quote_collection = self._db.quotes
+        db = get_database(db_name)
+        self._quote_collection = db.quotes
 
     @classmethod
     def _trading_day(cls, day):
@@ -81,7 +79,7 @@ class MarketDataProvider:
         quotes = {}
         for symbol in symbols:
             for doc in self._quote_collection.find({'date': {'$lte': day}, 'symbol': symbol}).sort(
-                [("date", pymongo.DESCENDING)]).limit(1):
+                [("date", DESC)]).limit(1):
                 quotes[symbol]=(doc['bidPrice'] + doc['askPrice']) / 2
         return quotes
 

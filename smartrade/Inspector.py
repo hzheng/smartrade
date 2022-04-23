@@ -1,31 +1,29 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
-import os
 
 from dateutil.parser import parse
-import pymongo
 
 from smartrade.Assembler import Assembler
 from smartrade.Transaction import Transaction
 from smartrade.TransactionGroup import TransactionGroup
+from smartrade.utils import get_database, ASC, DESC
 
 
 class Inspector:
     def __init__(self, db_name, account):
-        client = pymongo.MongoClient(os.environ.get('MONGODB_URI', "mongodb://127.0.0.1:27017"))
-        self._db = client[db_name]
-        self._tx_collection = self._db.transactions
-        self._group_collection = self._db.transaction_groups
+        db = get_database(db_name)
+        self._tx_collection = db.transactions
+        self._group_collection = db.transaction_groups
         self._account_cond = Assembler.account_condition(account)
         self._valid_tx_cond = {**self._account_cond, 'valid': 1}
         self._effective_tx_cond = {**self._valid_tx_cond, **Assembler.effective_condition()}
     
     def transaction_period(self):
         start_date = end_date = datetime.now()
-        for obj in self._db.transactions.find(self._valid_tx_cond).sort([("date", pymongo.ASCENDING)]).limit(1):
+        for obj in self._tx_collection.find(self._valid_tx_cond).sort([("date", ASC)]).limit(1):
             start_date = obj['date']
-        for obj in self._db.transactions.find(self._valid_tx_cond).sort([("date", pymongo.DESCENDING)]).limit(1):
+        for obj in self._tx_collection.find(self._valid_tx_cond).sort([("date", DESC)]).limit(1):
             end_date = obj['date']
         return (start_date, end_date)
 
@@ -129,7 +127,7 @@ class Inspector:
 
         return [Transaction.from_doc(doc) for doc in self._tx_collection.find(
             self._date_limit(cond, start_date, end_date))
-            .sort([("date", pymongo.ASCENDING if asc else pymongo.DESCENDING)])]
+            .sort([("date", ASC if asc else DESC)])]
 
     def ticker_transactions(self, ticker):
         return [Transaction.from_doc(doc) for doc in self._tx_collection.find({**self._valid_tx_cond, 'ui': ticker})]
