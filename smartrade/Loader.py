@@ -21,7 +21,7 @@ class Loader:
         self._valid_tx_cond = {**self._account_cond, 'valid': 1}
         self._broker = broker
     
-    def live_load(self, start_date=None, end_date=None):
+    def live_load(self, reload_all=True, start_date=None, end_date=None):
         if not self._broker: raise ValueError("Broker is null")
 
         if not start_date:
@@ -31,7 +31,7 @@ class Loader:
         json_obj = self._broker.get_transactions(self._account, start_date, end_date)
         transactions = []
         for tx in self._get_transactions(json_obj):
-            if tx.valid == Validity.VALID:
+            if reload_all or tx.valid == Validity.VALID:
                 transactions.append(tx)
             else:
                 logger.warning("ignore non-valid transaction: %s", tx)

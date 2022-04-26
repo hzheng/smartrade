@@ -71,7 +71,7 @@ def load(account):
             loaded_tx = loader.load(f, i == 0)
             res['transactions'] += len(loaded_tx)
     if load_scope > 0: # load live data
-        live_loaded_tx = loader.live_load()
+        live_loaded_tx = loader.live_load(reload_all=(load_scope == 2))
         live_load_count = len(live_loaded_tx)
         if load_scope == 1 and live_load_count == 0: # no new data
             logger.info("no new transactions")
