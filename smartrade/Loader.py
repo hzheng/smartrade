@@ -6,7 +6,7 @@ import json
 import re
 
 from smartrade import app_logger
-from smartrade.Transaction import Transaction
+from smartrade.Transaction import Transaction, Validity
 from smartrade.utils import get_database, DESC
 
 logger = app_logger.get_logger(__name__)
@@ -29,7 +29,12 @@ class Loader:
                 start_date = obj['date'] + datetime.timedelta(1)
         logger.debug("BEGIN: live load account %s from date: %s", self._account, start_date)
         json_obj = self._broker.get_transactions(self._account, start_date, end_date)
-        transactions = self._get_transactions(json_obj)
+        transactions = []
+        for tx in self._get_transactions(json_obj):
+            if tx.valid == Validity.VALID:
+                transactions.append(tx)
+            else:
+                logger.warning("ignore non-valid transaction: %s", tx)
         self._save(transactions, False)
         logger.debug("END: live load account %s from date: %s", self._account, start_date)
         return transactions

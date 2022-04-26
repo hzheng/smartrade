@@ -377,7 +377,7 @@ class Transaction:
     def __repr__(self):
         return (f"account={self.account}, date={self.date}, action={str(self.action)}, symbol={self.symbol},"
                 f" price={self.price:.4f}, quantity={self.quantity},"
-                # f" fee={self.fee:.2f}, amount={self.amount}, valid={self.valid}"
+                f" fee={self.fee:.2f}, amount={self.amount}, desc={self.description}, valid={self.valid}"
                 f" id={self.id}, merge_parent={self.merge_parent}, slice_parent={self.slice_parent}")
 
     def __str__(self):
