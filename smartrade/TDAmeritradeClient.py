@@ -3,6 +3,7 @@ from tda import auth
 from smartrade import app_logger
 from smartrade.BrokerClient import BrokerClient
 from smartrade.exceptions import ParameterError
+from smartrade.utils import check
 
 logger = app_logger.get_logger(__name__)
 
@@ -45,11 +46,11 @@ class TDAmeritradeClient(BrokerClient):
         r = self._client.get_transactions(account_id,
                                           start_date=start_date, end_date=end_date)
         logger.debug("END: get_transaction for account %s", account_id)
-        assert r.status_code == 200, r.raise_for_status()
+        check(r.status_code == 200, r.raise_for_status())
         return r.json()
 
     def get_quotes(self, symbols):
         logger.debug("get quotes for %s", symbols)
         r = self._client.get_quotes(symbols)
-        assert r.status_code == 200, r.raise_for_status()
+        check(r.status_code == 200, r.raise_for_status())
         return r.json()

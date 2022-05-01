@@ -6,6 +6,7 @@ import math
 
 from smartrade import app_logger
 from smartrade.Transaction import InstrumentType, Transaction, Action
+from smartrade.utils import check
 
 logger = app_logger.get_logger(__name__)
 
@@ -57,7 +58,7 @@ class TransactionGroup:
                 if prev.is_original():
                     updated_tx_list.append(prev)
                 if newly_created:
-                    assert(cur.quantity > cls.ERROR)
+                    check(cur.quantity > cls.ERROR, f"quantity {cur.quantity} should be positive")
                     created_tx_map[str(cur.id)] = cur
             else:
                 res.append(tx)
@@ -100,9 +101,7 @@ class TransactionGroup:
                     following_tx_queue.appendleft(close_tx_list)
                     grouped = True
                     break
-            if not grouped:
-                logger.error("at least one group should be matched")
-                assert(False)
+            check(grouped, "at least one group should be matched")
         for group in groups:
             group._account = merged_leading_tx[0].account
             group._inventory()
@@ -115,21 +114,22 @@ class TransactionGroup:
             opened = open_tx.quantity
             for close_tx in close_tx_list:
                 opened -= close_tx.quantity
-            assert(opened > -self.ERROR)
+            check(opened > -self.ERROR, f"opened {opened} should be positive")
             if opened <= self.ERROR: continue
 
             for tx in following_tx_list:
-                assert(tx.is_effective())
+                check(tx.is_effective(), f"{tx} should be effective")
                 if tx.quantity > self.ERROR and open_tx.closed_by(tx):
                     sliced_tx, original_tx = tx.slice(min(opened, tx.quantity))
                     if original_tx:
                         if original_tx.is_original():
                             updated_tx_list.append(original_tx)
                         else:
-                            assert(original_tx.quantity >= self.ERROR)
+                            check(original_tx.quantity >= self.ERROR,
+                             f"quantity {original_tx.quantity} should be positive")
                             created_tx_map[str(original_tx.id)] = original_tx
                     if sliced_tx.quantity > self.ERROR: # ignore tiny sliced transactions
-                        assert(sliced_tx.is_effective())
+                        check(sliced_tx.is_effective(), f"{sliced_tx} should be effective")
                         close_tx_list.append(sliced_tx)
                     res = True
         return res
@@ -158,7 +158,7 @@ class TransactionGroup:
         self._total = total
         self._positions = positions
         cost = self._cost = self._get_cost()
-        assert(cost > 0)
+        check(cost > 0, f"cost {cost} should be positive")
         profit = self._profit = total + self._get_market_value()
         if positions:
             last_date = datetime.today()
@@ -205,6 +205,7 @@ class TransactionGroup:
         open_tx = self.chains.keys()
         options = [set(), set(), set(), set()]
         first_tx = next(iter(open_tx))
+        premium = 0
         for tx in open_tx:
             symbol = tx.symbol
             if not symbol.is_option(): continue
@@ -213,18 +214,21 @@ class TransactionGroup:
             if symbol.type == InstrumentType.PUT:
                 index += 2
             options[index].add(symbol.strike)
+            premium += tx.amount
 
         if not any(options): return abs(first_tx.amount) # only stock
         
+        if premium < 0: # assume buy options
+            return -premium
         if not (options[2] or options[3]): # only calls
-            if not options[1]: return -first_tx.amount # only buy call
+            # if not options[1]: return -first_tx.amount # only buy call
             if not options[0]: # only sell call
                 return list(options[1])[0] * 100 * first_tx.quantity
             # assume short call spread
             return (list(options[0])[0] - list(options[1])[0]) * 100 * first_tx.quantity
         
         if not (options[0] or options[1]): # only puts
-            if not options[3]: return -first_tx.amount # only buy put
+            # if not options[3]: return -first_tx.amount # only buy put
             if not options[2]: # only sell put
                 return list(options[3])[0] * 100 * first_tx.quantity
             # assume short put spread

@@ -2,7 +2,7 @@
 
 from smartrade import app_logger
 from smartrade.TransactionGroup import TransactionGroup
-from smartrade.utils import get_database, ASC
+from smartrade.utils import get_database, ASC, check
 
 logger = app_logger.get_logger(__name__)
 
@@ -70,19 +70,19 @@ class Assembler:
             logger.debug("deleted %s incomplete transaction group(s)", incomplete.deleted_count)
 
         for tx in created_tx_map.values():
-            assert(tx.is_virtual() and tx.grouped is None)
+            check(tx.is_virtual() and tx.grouped is None, f"transaction {tx} should be virtual and not grouped")
             self._save(save_db, tx, False)
         for tx in updated_tx_list:
-            assert(tx.is_original())
+            check(tx.is_original(), f"transaction {tx} should be original")
             self._save(save_db, tx, True)
         for group in groups:
             for otx, ctx in group.chains.items():
-                assert(otx.is_effective())
+                check(otx.is_effective(), f"transaction {otx} should be effective")
                 update = self._was_created(otx, created_tx_map)
                 otx.grouped = group.completed
                 self._save(save_db, otx, update)
                 for tx in ctx:
-                    assert(tx.is_effective())
+                    check(tx.is_effective(), f"transaction {tx} should be effective")
                     update = self._was_created(tx, created_tx_map)
                     tx.grouped = group.completed
                     self._save(save_db, tx, update)

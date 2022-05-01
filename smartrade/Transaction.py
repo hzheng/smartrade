@@ -7,6 +7,7 @@ from bson import ObjectId
 from dateutil.parser import parse, ParserError
 
 from smartrade import app_logger
+from smartrade.utils import check
 
 logger = app_logger.get_logger(__name__)
 
@@ -193,7 +194,7 @@ class Transaction:
         self._id = doc.get('_id', None)
         for attr in ['account', 'date', 'quantity', 'price', 'fee', 'amount', 'ui', 'strike', 'expired', 'description', 'merge_parent', 'slice_parent', 'grouped']:
             setattr(self, "_" + attr, doc.get(attr, None))
-        assert(self.quantity is None or self.quantity >= 0)
+        check(self.quantity is None or self.quantity >= 0, f"quantity {self.quantity} can't be negative")
         self._action = Action.from_str(doc['action'])
         symbol = ""
         ui = doc.get('ui', None)

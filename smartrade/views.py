@@ -12,6 +12,7 @@ from smartrade.Assembler import Assembler
 from smartrade.Inspector import Inspector
 from smartrade.Loader import Loader
 from smartrade.TransactionGroup import TransactionGroup
+from smartrade.utils import check
 
 logger = app_logger.get_logger(__name__)
 
@@ -159,8 +160,13 @@ def transaction_history():
     delta = end_cash - start_cash - total_cash
     logger.debug("start_cash=%s, end_cash=%s, total_cash=%s, (end_cash - start_cash - total_cash)=%s",
                  start_cash, end_cash, total_cash, delta)
-    assert(abs(delta) < 1e-5)
+    check(abs(delta) < 1e-5, f"delta {delta} should be small")
     return {
         'transactions': [tx.to_json(serialize=True) for tx in transactions],
         'cash': { 'start': start_cash, 'end': end_cash, 'total': total_cash }
     }
+
+@app.errorhandler(Exception)
+def server_error(err):
+    logger.exception(err)
+    return "Exception happened", 500
