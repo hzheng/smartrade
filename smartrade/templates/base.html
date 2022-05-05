@@ -8,6 +8,7 @@
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='generated/all.css')}}" />
     {% endassets %}
 
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"
         integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
@@ -33,7 +34,7 @@
     <aside>
         {% block aside %}{% endblock %}
     </aside>
-    <footer> Copyright © 2022 All Rights Reserved ({{config['ENV']}} v0.2.5)</footer>
+    <footer> Copyright © 2022 All Rights Reserved ({{config['ENV']}} v0.2.6)</footer>
 </body>
 
 </html>
