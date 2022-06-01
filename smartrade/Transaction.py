@@ -273,7 +273,7 @@ class Transaction:
         original = copy.copy(self)
         if self.quantity - qty <= 1e-6:
             self._quantity = 0
-            return original, None
+            return original, original, False
 
         sliced = copy.copy(self)
         # set slice parents
@@ -291,7 +291,9 @@ class Transaction:
         self._amount -= sliced._amount
         sliced._quantity = qty
         self._quantity -= qty
-        return sliced, None if is_sliced else original # don't create intermediate sliced tx
+        # don't create intermediate sliced transaction
+        #return sliced, None if is_sliced else original
+        return sliced, original, not is_sliced
 
     def is_sliced(self):
         """Is the transaction sliced?"""

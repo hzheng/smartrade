@@ -6,7 +6,7 @@ __author__ = "Hui Zheng"
 __copyright__ = "Copyright 2022 Hui Zheng"
 __credits__ = ["Hui Zheng"]
 __license__ = "MIT <http://www.opensource.org/licenses/mit-license.php>"
-__version__ = "0.1"
+__version__ = "0.2.7"
 __maintainer__ = "Hui Zheng"
 __email__ = "XYZ.DLL[AT]gmail[DOT]com"
 __url__ = "https://github.com/hzheng/smartrade"
@@ -40,6 +40,7 @@ def create_app(config=None):
             app.config.update(config)
         elif config.endswith('.py'):
             app.config.from_pyfile(config)
+    app.config['version'] = __version__
     return app, Logger(app.config['LOG_FILE'])
 
 app, app_logger = create_app()

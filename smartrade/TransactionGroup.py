@@ -120,14 +120,16 @@ class TransactionGroup:
             for tx in following_tx_list:
                 check(tx.is_effective(), f"{tx} should be effective")
                 if tx.quantity > self.ERROR and open_tx.closed_by(tx):
-                    sliced_tx, original_tx = tx.slice(min(opened, tx.quantity))
-                    if original_tx:
-                        if original_tx.is_original():
-                            updated_tx_list.append(original_tx)
-                        else:
+                    sliced_tx, original_tx, slice_created = tx.slice(min(opened, tx.quantity))
+                    if original_tx.is_original():
+                        if slice_created:
+                            updated_tx_list.append(original_tx) # update slice_parent
+                    else:
+                        tx_id = str(original_tx.id)
+                        if tx_id in created_tx_map or slice_created:
                             check(original_tx.quantity >= self.ERROR,
-                             f"quantity {original_tx.quantity} should be positive")
-                            created_tx_map[str(original_tx.id)] = original_tx
+                                f"quantity {original_tx.quantity} should be positive")
+                            created_tx_map[tx_id] = original_tx # restore original copy to avoid quantity change
                     if sliced_tx.quantity > self.ERROR: # ignore tiny sliced transactions
                         check(sliced_tx.is_effective(), f"{sliced_tx} should be effective")
                         close_tx_list.append(sliced_tx)
