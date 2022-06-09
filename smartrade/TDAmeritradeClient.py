@@ -1,4 +1,6 @@
-from tda import auth
+import time
+
+from tda import auth, client
 
 from smartrade import app_logger
 from smartrade.BrokerClient import BrokerClient
@@ -54,3 +56,27 @@ class TDAmeritradeClient(BrokerClient):
         r = self._client.get_quotes(symbols)
         check(r.status_code == 200, r.raise_for_status())
         return r.json()
+
+    def get_daily_prices(self, symbol, start_date, end_date):
+        logger.debug("get daily price for %s", symbol)
+        r = self._client.get_price_history_every_day(
+            symbol, start_datetime=start_date, end_datetime=end_date)
+        check(r.status_code == 200, r.raise_for_status())
+        res = r.json()['candles']
+        for obj in res:
+            obj['time'] = time.gmtime(obj.pop('datetime') / 1000)
+        return res
+
+    # TODO: add more arguments
+    def get_prices(self, symbol):
+        logger.debug("get price for %s", symbol)
+        r = self._client.get_price_history(symbol,
+                                           period_type=client.Client.PriceHistory.PeriodType.YEAR,
+                                           period=client.Client.PriceHistory.Period.TWENTY_YEARS,
+                                           frequency_type=client.Client.PriceHistory.FrequencyType.DAILY,
+                                           frequency=client.Client.PriceHistory.Frequency.DAILY)
+        check(r.status_code == 200, r.raise_for_status())
+        res = r.json()['candles']
+        for obj in res:
+            obj['time'] = time.gmtime(obj.pop('datetime') / 1000)
+        return res

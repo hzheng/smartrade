@@ -5,9 +5,9 @@ from datetime import datetime
 from dateutil.parser import parse
 
 from smartrade.Assembler import Assembler
-from smartrade.Transaction import Transaction
+from smartrade.Transaction import InstrumentType, Transaction
 from smartrade.TransactionGroup import TransactionGroup
-from smartrade.utils import get_database, ASC, DESC
+from smartrade.utils import check, get_database, ASC, DESC
 
 
 class Inspector:
@@ -18,6 +18,7 @@ class Inspector:
         self._account_cond = Assembler.account_condition(account)
         self._valid_tx_cond = {**self._account_cond, 'valid': 1}
         self._effective_tx_cond = {**self._valid_tx_cond, **Assembler.effective_condition()}
+        self._trading_tx_cond = {'action': {'$in': ['BTO', 'STO', 'STC', 'BTC', 'EXPIRED', 'ASSIGNED', 'EXERCISE']}}
     
     def transaction_period(self):
         start_date = end_date = datetime.now()
@@ -37,9 +38,7 @@ class Inspector:
         return self._total_amount({'action': {'$in': ['DIVIDEND']}}, start_date, end_date)
 
     def total_trading(self, start_date=None, end_date=None):
-        return -self._total_amount({'action':
-                                    {'$in': ['BTO', 'STO', 'STC', 'BTC', 'EXPIRED', 'ASSIGNED', 'EXERCISE']}},
-                                   start_date, end_date)
+        return -self._total_amount(self._trading_tx_cond, start_date, end_date)
 
     def total_cash(self, start_date=None, end_date=None):
         return self._total_amount(None, start_date, end_date)
@@ -138,3 +137,25 @@ class Inspector:
         # add start_date and end_date condition?
         #condition = self._date_limit({**self._account_cond, 'ui': ticker}, start_date, end_date)
         #return [TransactionGroup.from_doc(doc) for doc in self._group_collection.find(condition)]
+
+    def positions(self, tickers=None, end_date=None):
+        condition = self._date_limit({**self._effective_tx_cond, **self._trading_tx_cond}, None, end_date)
+        if tickers:
+            condition['ui'] = {'$in': tickers}
+        positions = {}
+        for tx in [Transaction.from_doc(doc) for doc in self._tx_collection.find(condition).sort([("date", ASC)])]:
+            key = str(tx.symbol)
+            if tx.symbol.type == InstrumentType.AUTO:
+                key = key[:-1] + "C"
+                if key not in positions:
+                    key = key[:-1] + "P"
+                    check(key in positions, f"key {key} should be in positions")
+            bal = positions.get(key, 0)
+            qty = tx.quantity * tx.position_sign(bal)
+            positions[key] = bal + qty
+        return {k : v for k, v in positions.items() if v != 0}
+
+    def balance(self, tickers=None, end_date=None):
+        pos = self.positions(tickers, end_date=end_date)
+        cash = self.total_cash(end_date=end_date)
+        return (cash, pos)

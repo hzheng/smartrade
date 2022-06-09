@@ -16,7 +16,9 @@ from smartrade.BrokerClient import BrokerClient
 from smartrade.exceptions import ConfigurationError
 from smartrade.Inspector import Inspector
 from smartrade.Loader import Loader
+from smartrade.MarketApi import MarketApi
 from smartrade.MarketDataProvider import MarketDataProvider
+from smartrade.PolygonApi import PolygonApi
 from smartrade.TDAmeritradeClient import TDAmeritradeClient
 from smartrade.TransactionGroup import TransactionGroup
 
@@ -67,6 +69,10 @@ def group_transactions(db_name, account, ticker, save_db=False):
 def get_broker(config):
     cfg_path = expanduser(config['conf_path'])
     return BrokerClient.get_brokers(cfg_path)[0]
+
+def get_api(config):
+    cfg_path = expanduser(config['conf_path'])
+    return MarketApi.get_providers(cfg_path)[0]
     
 def get_config():
     cfg_path = join(dirname(abspath(__file__)), "../smartrade.yml")
@@ -75,7 +81,8 @@ def get_config():
 
 def get_provider(config, db_name):
     broker = get_broker(config)
-    return MarketDataProvider(broker, db_name)
+    api = get_api(config)
+    return MarketDataProvider(broker, api, db_name)
 
 # ============Command Argument Parse============
 
@@ -120,9 +127,10 @@ def load(config, args):
     env = _get_env(args)
     db_name = args.database_name or config['DATABASE'][env]
     broker = get_broker(config)
-    account_id = broker.get_account_id(args.account)
-    provider = MarketDataProvider(broker, db_name)
+    api = get_api(config)
+    provider = MarketDataProvider(broker, api, db_name)
     TransactionGroup.set_provider(provider)
+    account_id = broker.get_account_id(args.account)
     loader = Loader(db_name, account_id, broker)
     start_date = parse(args.start_date) if args.start_date else None
     end_date = parse(args.end_date) if args.end_date else None
@@ -196,6 +204,19 @@ def quote(config, args):
     provider = get_provider(config, db_name)
     pprint(provider.get_quotes(args.symbols, args.date))
 
+@subcommand(*data_options, *filter_options,
+    argument('-t', '--date', help='date'),
+    argument('-a', '--account', help='account id or alias or index'),
+    argument('symbol', help="symbol"))
+def price(config, args):
+    """Get the price of a symbol(s)."""
+    env = _get_env(args)
+    db_name = args.database_name or config['DATABASE'][env]
+    provider = get_provider(config, db_name)
+    start_date = parse(args.start_date) if args.start_date else None
+    end_date = parse(args.end_date) if args.end_date else None
+    pprint(provider.get_daily_prices(args.symbol, start_date, end_date))
+
 
 @subcommand(*filter_options,
     argument('-a', '--account', help='account id or alias or index'))
@@ -206,6 +227,23 @@ def transaction(config, args):
     end_date = parse(args.end_date) if args.end_date else None
     tx = client.get_transactions(args.account, start_date, end_date)
     print(json.dumps(tx, indent=4, sort_keys=False))
+
+
+@subcommand(*data_options, *filter_options,
+    argument('-a', '--account', help='account id or alias or index'),
+    argument('-t', '--ticker', nargs='+', help="ticker name(s)"))
+def balance(config, args):
+    """Get balance."""
+    env = _get_env(args)
+    db_name = args.database_name or config['DATABASE'][env]
+    broker = get_broker(config)
+    account_id = broker.get_account_id(args.account)
+    inspector = Inspector(db_name, account_id)
+    end_date = parse(args.end_date) if args.end_date else None
+    ticker = args.ticker
+    bal = inspector.balance(ticker, end_date)
+    pprint(bal)
+
 
 def _get_env(args):
     env = args.env or 'test'

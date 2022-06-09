@@ -2,7 +2,6 @@
 
 from smartrade.cli import get_provider, distinct_tickers, get_config, group_transactions, \
     ticker_costs, ticker_transaction_groups, total_cash, total_dividend, total_interest, total_investment, total_profit, total_trading
-from smartrade.MarketDataProvider import MarketDataProvider
 from smartrade.test.TestBase import TestBase
 from smartrade.TransactionGroup import TransactionGroup
 

@@ -6,7 +6,7 @@ __author__ = "Hui Zheng"
 __copyright__ = "Copyright 2022 Hui Zheng"
 __credits__ = ["Hui Zheng"]
 __license__ = "MIT <http://www.opensource.org/licenses/mit-license.php>"
-__version__ = "0.2.7"
+__version__ = "0.2.8"
 __maintainer__ = "Hui Zheng"
 __email__ = "XYZ.DLL[AT]gmail[DOT]com"
 __url__ = "https://github.com/hzheng/smartrade"
@@ -19,6 +19,7 @@ from flask import Flask
 from flask_assets import Environment, Bundle
 
 from smartrade.BrokerClient import BrokerClient
+from smartrade.MarketApi import MarketApi
 from smartrade.Logger import Logger
 
 CONF_FILE = os.environ.get('FLASK_CONF_PATH', None)
@@ -50,8 +51,10 @@ def configure_app(config=None):
         from smartrade.TDAmeritradeClient import TDAmeritradeClient
         broker = BrokerClient.get_brokers(CONF_FILE)[0]
         app.config['broker'] = broker
+        from smartrade.PolygonApi import PolygonApi
+        api = MarketApi.get_providers(CONF_FILE)[0]
         from smartrade.MarketDataProvider import MarketDataProvider
-        provider = MarketDataProvider(broker, app.config['DATABASE'])
+        provider = MarketDataProvider(broker, api, app.config['DATABASE'])
         app.config['provider'] = provider
         from smartrade.TransactionGroup import TransactionGroup
         TransactionGroup.set_provider(provider)

@@ -6,6 +6,7 @@ from dateutil.parser import parse
 
 from smartrade import app_logger
 from smartrade.BrokerClient import BrokerClient
+from smartrade.MarketApi import MarketApi
 from smartrade.utils import get_database, ASC, DESC
 
 logger = app_logger.get_logger(__name__)
@@ -14,8 +15,9 @@ class MarketDataProvider:
     OPEN_TIME = time(13, 30)
     CLOSE_TIME = time(20)
 
-    def __init__(self, broker: BrokerClient, db_name: str):
+    def __init__(self, broker: BrokerClient, market_api: MarketApi, db_name: str):
         self._broker = broker
+        self._api = market_api
         db = get_database(db_name)
         self._quote_collection = db.quotes
 
@@ -110,3 +112,15 @@ class MarketDataProvider:
             # logger.error("Error occurred", exc_info=True)
             logger.error("failed to quota occurred: %s", e)
 
+    def get_daily_prices(self, symbol, start_date=None, end_date=None):
+        now = datetime.now()
+        if not start_date:
+            start_date = now - timedelta(days=1)
+        if not end_date:
+            end_date = now + timedelta(days=1)
+        delta = (now - start_date).days
+        if '_' in symbol or delta < 365 * 2:
+            # api only support 2-year history
+            return self._api.get_daily_prices(symbol, start_date, end_date)
+        # broker doesn't support option and some stock data(e.g. HOOD) are unavailable
+        return self._broker.get_daily_prices(symbol, start_date, end_date)

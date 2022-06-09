@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import copy
+import re
+from datetime import datetime
 from enum import Enum, IntEnum
 
 from bson import ObjectId
@@ -107,8 +109,10 @@ class Symbol:
 
         if "_" in text:
             self._parse1(text)
-        else:
+        elif " " in text or not text[-1].isdigit():
             self._parse2(text)
+        else:
+            self._parse3(text)
 
     def _parse1(self, text):
         """Format: HOOD_031122C14.5"""
@@ -128,6 +132,14 @@ class Symbol:
             self._type = InstrumentType.from_str(tokens[3])
             self._strike = float(tokens[2])
             self._expired = parse(tokens[1])
+
+    def _parse3(self, text):
+        """Format: AMD230120C00120000"""
+        res = re.match('(\D+)(\d{6})(.)(\d+)', text)
+        self._ui, date_str, opt_type, strike = res.groups()
+        self._type = InstrumentType.from_str(opt_type)
+        self._strike = int(strike) / 1000
+        self._expired = datetime.strptime(date_str, '%y%m%d')
 
     def is_option(self):
         return self.type == InstrumentType.CALL or self.type == InstrumentType.PUT
@@ -155,6 +167,12 @@ class Symbol:
         if not self.expired: return self.ui
 
         return f"{self.ui}_{self.expired.strftime('%m%d%y')}{self.type.to_str()}{self.strike:g}"
+
+    def to_str2(self):
+        if not self.expired: return self.ui
+
+        strike = f"{self.strike * 1000:g}".zfill(8)
+        return f"{self.ui}{self.expired.strftime('%y%m%d')}{self.type.to_str()}{strike}"
 
     @property
     def type(self):
@@ -239,11 +257,22 @@ class Transaction:
         self._valid = self._verify()
         return self
 
+    def cash_sign(self):
+        return -1 if abs(self.action) == Action.BTC else 1
+ 
+    def position_sign(self, balance):
+        if self.action in(Action.BTO, Action.BTC, Action.ASSIGNED): return 1
+
+        if self.action == Action.EXPIRED:
+            return -1 if balance > 0 else 1
+
+        return -1
+
     def _verify(self):
         action = self.action
         if action >= Action.EXERCISE: return Validity.VALID
 
-        amt = self.share * self.price * (-1 if abs(self.action) == Action.BTC else 1) - self.fee 
+        amt = self.share * self.price * self.cash_sign() - self.fee 
         if abs(amt - self.amount) > self.price * 0.001: # assume minimal amount is 0.001
             logger.warning(f"amount {amt} and {self.amount} don't match in %s", self)
             return Validity.INVALID
