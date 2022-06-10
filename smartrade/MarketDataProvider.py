@@ -20,6 +20,7 @@ class MarketDataProvider:
         self._api = market_api
         db = get_database(db_name)
         self._quote_collection = db.quotes
+        self._price_collection = db.price_history
 
     @classmethod
     def _trading_day(cls, day):
@@ -112,15 +113,47 @@ class MarketDataProvider:
             # logger.error("Error occurred", exc_info=True)
             logger.error("failed to quota occurred: %s", e)
 
-    def get_daily_prices(self, symbol, start_date=None, end_date=None):
-        now = datetime.now()
+    def get_daily_price_history(self, symbol, start_date=None, end_date=None):
+        '''
+        Retrieve daily price history as late as yesterday.
+
+        start_date: date in UTC timezone, default: earliest yesterday
+        end_date: date in UTC timezone, default: latest yesterday
+        '''
+        today = datetime.utcnow().date()
+        earliest_today = datetime.combine(today, datetime.min.time())
+        latest_yesterday = earliest_today - timedelta(minutes=1)
+        if not end_date or end_date > latest_yesterday:
+            end_date = latest_yesterday
         if not start_date:
-            start_date = now - timedelta(days=1)
-        if not end_date:
-            end_date = now + timedelta(days=1)
-        delta = (now - start_date).days
-        if '_' in symbol or delta < 365 * 2:
-            # api only support 2-year history
-            return self._api.get_daily_prices(symbol, start_date, end_date)
-        # broker doesn't support option and some stock data(e.g. HOOD) are unavailable
-        return self._broker.get_daily_prices(symbol, start_date, end_date)
+            start_date = earliest_today - timedelta(days=1)
+        if start_date > end_date: return []
+
+        next_saved_time = None
+        for doc in self._price_collection.find({'symbol': symbol}).sort([("time", DESC)]).limit(1):
+            next_saved_time = doc['time'] + timedelta(days=1)
+        if next_saved_time and next_saved_time >= end_date:
+            logger.info(f"all prices of {symbol} were retrieved before")
+        elif next_saved_time:
+            logger.info(f"part of prices of {symbol} were retrieved before")
+            self._retrieve_and_save_daily_prices(symbol, next_saved_time, latest_yesterday, True)
+        else:
+            logger.info(f"price of {symbol} is never retrieved before")
+            self._retrieve_and_save_daily_prices(symbol, earliest_today - timedelta(days=365*20), latest_yesterday, False)
+
+        res = self._price_collection.find(
+            {'symbol': symbol, 'time': {'$gte': start_date, '$lte': end_date}}).sort([("time", ASC)])
+        return [doc for doc in res]
+    
+    def _retrieve_and_save_daily_prices(self, symbol, start_date, end_date, short_term):
+        logger.info(f"Retrieving price history of {symbol} from {start_date} to {end_date}...")
+        if '_' in symbol or short_term: # delta < 365 * 2:
+            # free polygon api only support 2-year history
+            res = self._api.get_daily_prices(symbol, start_date, end_date)
+        else:
+            # TDAmeritrade doesn't support option and some stock data(e.g. HOOD) sometimes are unavailable
+            res = self._broker.get_daily_prices(symbol, start_date, end_date)
+        for doc in res:
+            doc['symbol'] = symbol
+            specifier = {'time': doc['time'], 'symbol': symbol}
+            self._price_collection.replace_one(specifier, doc, upsert=True)

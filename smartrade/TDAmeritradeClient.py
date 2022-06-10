@@ -1,4 +1,4 @@
-import time
+from datetime import datetime
 
 from tda import auth, client
 
@@ -64,7 +64,7 @@ class TDAmeritradeClient(BrokerClient):
         check(r.status_code == 200, r.raise_for_status())
         res = r.json()['candles']
         for obj in res:
-            obj['time'] = time.gmtime(obj.pop('datetime') / 1000)
+            obj['time'] = datetime.fromtimestamp(obj.pop('datetime') / 1000)
         return res
 
     # TODO: add more arguments
@@ -78,5 +78,5 @@ class TDAmeritradeClient(BrokerClient):
         check(r.status_code == 200, r.raise_for_status())
         res = r.json()['candles']
         for obj in res:
-            obj['time'] = time.gmtime(obj.pop('datetime') / 1000)
+            obj['time'] = datetime.fromtimestamp(obj.pop('datetime') / 1000)
         return res

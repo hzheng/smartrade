@@ -1,7 +1,7 @@
 
 import requests
 
-from time import gmtime
+from datetime import datetime
 
 from smartrade import app_logger
 from smartrade.MarketApi import MarketApi
@@ -33,5 +33,5 @@ class PolygonApi(MarketApi):
             obj['volume'] = obj.pop('v')
             obj['weighted_average'] = obj.pop('vw')
             obj['transactions'] = obj.pop('n')
-            obj['time'] = gmtime(obj.pop('t') / 1000)
+            obj['time'] = datetime.fromtimestamp(obj.pop('t') / 1000)
         return res

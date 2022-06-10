@@ -215,7 +215,7 @@ def price(config, args):
     provider = get_provider(config, db_name)
     start_date = parse(args.start_date) if args.start_date else None
     end_date = parse(args.end_date) if args.end_date else None
-    pprint(provider.get_daily_prices(args.symbol, start_date, end_date))
+    pprint(provider.get_daily_price_history(args.symbol, start_date, end_date))
 
 
 @subcommand(*filter_options,
