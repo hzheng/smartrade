@@ -15,7 +15,6 @@ class TransactionGroup:
     ERROR = 1e-6
 
     _provider = None
-    _quotes = {}
 
     def __init__(self, leading_transactions=None):
         self._account = None
@@ -32,13 +31,6 @@ class TransactionGroup:
     def set_provider(cls, broker):
         cls._provider = broker
     
-    @classmethod
-    def clear_quotes(cls, ticker=None):
-        if ticker:
-            cls._quotes.get(ticker, {}).clear()
-        else:
-            cls._quotes.clear()
-
     @classmethod
     def _merge_docs(cls, transaction_docs, updated_tx_list, created_tx_map):
         tx = [Transaction.from_doc(doc) for doc in transaction_docs]
@@ -176,30 +168,19 @@ class TransactionGroup:
         self._roi = roi
 
     @classmethod
-    def get_price(cls, symbol):
-        return cls._get_price(symbol.split("_")[0], symbol)
-
-    @classmethod
-    def _get_price(cls, ui, symbol):
-        prices = cls._quotes.get(ui, None)
-        if prices is None:
-            prices = cls._quotes[ui] = {}
-        price = prices.get(symbol, None)
+    def _get_price(cls, symbol):
         try:
-            if price is None:
-                price = cls._provider.get_quotes(symbol)[symbol]
-                prices[symbol] = price
+            return cls._provider.get_quotes(symbol)[symbol]
         except KeyError:
-            price = (0, 0, 0)
             logger.warning("cannot find the quote of symbol %s", symbol)
-        return price
+            return (0, 0, 0)
 
     def _get_market_value(self):
         if not self._provider: return 0
 
         val = 0
         for symbol, qty in self.positions.items():
-            price = self._get_price(self.ui, symbol)[0]
+            price = self._get_price(symbol)[0]
             val += price * qty * (100 if '_' in symbol else 1)
         return val
 
@@ -305,8 +286,8 @@ class TransactionGroup:
         prices = {}
         if ui and include_quotes:
             for symbol in positions_list[ui]:
-                prices[symbol] = cls._get_price(ui, symbol)
-            prices[ui] = cls._get_price(ui, ui)
+                prices[symbol] = cls._get_price(symbol)
+            prices[ui] = cls._get_price(ui)
 
         return total, profit, positions_list, prices
 

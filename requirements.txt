@@ -7,3 +7,4 @@ tda-api>=1.5.1
 Flask-Assets>=2.0
 pyscss>=1.4.0
 APScheduler>=3.9.0
+requests>=2.27

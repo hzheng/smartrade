@@ -171,7 +171,7 @@ class Symbol:
     def to_str2(self):
         if not self.expired: return self.ui
 
-        strike = f"{self.strike * 1000:g}".zfill(8)
+        strike = f"{self.strike * 1000}".rstrip('0').rstrip('.').zfill(8)
         return f"{self.ui}{self.expired.strftime('%y%m%d')}{self.type.to_str()}{strike}"
 
     @property

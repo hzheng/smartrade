@@ -5,21 +5,22 @@ from datetime import datetime
 from dateutil.parser import parse
 
 from smartrade.Assembler import Assembler
-from smartrade.Transaction import InstrumentType, Transaction
+from smartrade.Transaction import InstrumentType, Symbol, Transaction
 from smartrade.TransactionGroup import TransactionGroup
 from smartrade.utils import check, get_database, ASC, DESC
 
 
 class Inspector:
-    def __init__(self, db_name, account):
+    def __init__(self, db_name, account, provider=None):
         db = get_database(db_name)
+        self._provider = provider
         self._tx_collection = db.transactions
         self._group_collection = db.transaction_groups
         self._account_cond = Assembler.account_condition(account)
         self._valid_tx_cond = {**self._account_cond, 'valid': 1}
         self._effective_tx_cond = {**self._valid_tx_cond, **Assembler.effective_condition()}
         self._trading_tx_cond = {'action': {'$in': ['BTO', 'STO', 'STC', 'BTC', 'EXPIRED', 'ASSIGNED', 'EXERCISE']}}
-    
+
     def transaction_period(self):
         start_date = end_date = datetime.now()
         for obj in self._tx_collection.find(self._valid_tx_cond).sort([("date", ASC)]).limit(1):
@@ -43,11 +44,11 @@ class Inspector:
     def total_cash(self, start_date=None, end_date=None):
         return self._total_amount(None, start_date, end_date)
 
-    def _total_amount(self, restritions, start_date=None, end_date=None):
+    def _total_amount(self, restrictions, start_date=None, end_date=None):
         amount = 'total_amount'
         condition = self._date_limit({**self._effective_tx_cond}, start_date, end_date)
-        if restritions:
-            condition.update(restritions)
+        if restrictions:
+            condition.update(restrictions)
         res = self._tx_collection.aggregate(
             [{'$match': condition},
              {'$group': {'_id': None, amount: {'$sum': "$amount"}}}])
@@ -132,7 +133,6 @@ class Inspector:
         return [Transaction.from_doc(doc) for doc in self._tx_collection.find({**self._valid_tx_cond, 'ui': ticker})]
     
     def ticker_transaction_groups(self, ticker):
-        TransactionGroup.clear_quotes(ticker)
         return [TransactionGroup.from_doc(doc) for doc in self._group_collection.find({**self._account_cond, 'ui': ticker})]
         # add start_date and end_date condition?
         #condition = self._date_limit({**self._account_cond, 'ui': ticker}, start_date, end_date)
@@ -155,7 +155,14 @@ class Inspector:
             positions[key] = bal + qty
         return {k : v for k, v in positions.items() if v != 0}
 
-    def balance(self, tickers=None, end_date=None):
-        pos = self.positions(tickers, end_date=end_date)
-        cash = self.total_cash(end_date=end_date)
-        return (cash, pos)
+    def balance(self, tickers=None, day=None):
+        cash = self.total_cash(end_date=day)
+        total_value = cash
+        pos = self.positions(tickers, end_date=day)
+        for symbol, quantity in pos.items():
+            symbol_obj = Symbol(symbol)
+            symbol_str = symbol_obj.to_str()
+            price = self._provider.get_price(symbol_str, day)
+            value = quantity * price * (100 if symbol_obj.is_option() else 1)
+            total_value += value
+        return (pos, cash, round(total_value, 2))

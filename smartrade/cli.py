@@ -194,7 +194,7 @@ def _display_transaction_groups(ticker, tx_groups):
 
 @subcommand(
     *data_options,
-    argument('-t', '--date', help='date'),
+    argument('-T', '--date', help='date'),
     argument('-a', '--account', help='account id or alias or index'),
     argument('symbols', nargs="+", help="symbol"))
 def quote(config, args):
@@ -205,11 +205,9 @@ def quote(config, args):
     pprint(provider.get_quotes(args.symbols, args.date))
 
 @subcommand(*data_options, *filter_options,
-    argument('-t', '--date', help='date'),
-    argument('-a', '--account', help='account id or alias or index'),
     argument('symbol', help="symbol"))
-def price(config, args):
-    """Get the price of a symbol(s)."""
+def prices(config, args):
+    """Get the price history of a symbol."""
     env = _get_env(args)
     db_name = args.database_name or config['DATABASE'][env]
     provider = get_provider(config, db_name)
@@ -217,6 +215,16 @@ def price(config, args):
     end_date = parse(args.end_date) if args.end_date else None
     pprint(provider.get_daily_price_history(args.symbol, start_date, end_date))
 
+@subcommand(*data_options,
+    argument('-T', '--date', help='date'),
+    argument('symbol', help="symbol"))
+def price(config, args):
+    """Get the price of a symbol at the given day."""
+    env = _get_env(args)
+    db_name = args.database_name or config['DATABASE'][env]
+    provider = get_provider(config, db_name)
+    day = parse(args.date) if args.date else None
+    pprint(provider.get_price(args.symbol, day))
 
 @subcommand(*filter_options,
     argument('-a', '--account', help='account id or alias or index'))
@@ -229,20 +237,24 @@ def transaction(config, args):
     print(json.dumps(tx, indent=4, sort_keys=False))
 
 
-@subcommand(*data_options, *filter_options,
+@subcommand(*data_options,
+    argument('-T', '--date', help='date'),
     argument('-a', '--account', help='account id or alias or index'),
-    argument('-t', '--ticker', nargs='+', help="ticker name(s)"))
+    argument('-t', '--ticker', nargs='+', help="ticker name(s)"),
+    argument('-v', '--verbose', action='store_true', help='verbose'))
 def balance(config, args):
     """Get balance."""
     env = _get_env(args)
     db_name = args.database_name or config['DATABASE'][env]
     broker = get_broker(config)
     account_id = broker.get_account_id(args.account)
-    inspector = Inspector(db_name, account_id)
-    end_date = parse(args.end_date) if args.end_date else None
+    provider = get_provider(config, db_name)
+    TransactionGroup.set_provider(provider)
+    inspector = Inspector(db_name, account_id, provider)
+    day = parse(args.date) if args.date else None
     ticker = args.ticker
-    bal = inspector.balance(ticker, end_date)
-    pprint(bal)
+    bal = inspector.balance(ticker, day)
+    pprint(bal if args.verbose else bal[-1])
 
 
 def _get_env(args):

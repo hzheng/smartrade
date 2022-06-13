@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from typing import Iterable, Union
+
 from datetime import datetime, time, timedelta, timezone
 
 from dateutil.parser import parse
@@ -39,9 +41,9 @@ class MarketDataProvider:
         return self._quote_collection.find({**self._day_range(day, min_time, max_time),
                                             'symbol': {'$in': symbols}}).limit(1)
 
-    def get_quotes(self, symbols, day=None):
+    def get_quotes(self, symbols : Union[str, Iterable[str]], day=None):
         '''
-        day: date in UTC timezone, default: today's date
+        day: date of quotes, default: today's date
         '''
         if isinstance(symbols, str):
             symbols = [symbols]
@@ -57,7 +59,9 @@ class MarketDataProvider:
         if not day:
             day = now
         elif isinstance(day, str):
-            day = parse(day)
+            day = parse(day).replace(tzinfo=time_zone)
+        elif isinstance(day, datetime):
+            day = day.replace(tzinfo=time_zone)
         logger.debug("get quotes for %s at the day: %s", symbols, day)
         res = None
         if market_open_time <= day <= market_close_time:
@@ -75,8 +79,10 @@ class MarketDataProvider:
             res = self._get_quotes(symbols, day)
         if res:
             return {doc['symbol']: ((doc['bidPrice'] + doc['askPrice']) / 2,
-                                    doc['netChange'], #doc['markChangeInDouble'],
-                                    doc['netPercentChangeInDouble']) for doc in res}
+                                    doc['netChange'],
+                                    # doc['markChangeInDouble'],
+                                    doc.get('netPercentChangeInDouble', 0)
+                                    ) for doc in res}
                 
         logger.warning("resort to old quote for %s", symbols)
         quotes = {}
@@ -122,7 +128,7 @@ class MarketDataProvider:
         '''
         today = datetime.utcnow().date()
         earliest_today = datetime.combine(today, datetime.min.time())
-        latest_yesterday = earliest_today - timedelta(minutes=1)
+        latest_yesterday = earliest_today - timedelta(milliseconds=1)
         if not end_date or end_date > latest_yesterday:
             end_date = latest_yesterday
         if not start_date:
@@ -157,3 +163,24 @@ class MarketDataProvider:
             doc['symbol'] = symbol
             specifier = {'time': doc['time'], 'symbol': symbol}
             self._price_collection.replace_one(specifier, doc, upsert=True)
+
+    def get_price(self, symbol, day : datetime = None):
+        '''
+        day: date of price, default: today's date
+        '''
+        today = datetime.now().date()
+        earliest_today = datetime.combine(today, datetime.min.time())
+        latest_yesterday = earliest_today - timedelta(milliseconds=1)
+        if not day or day > latest_yesterday:
+            day = datetime.now()
+        prices = self.get_quotes(symbol, day).get(symbol, None)
+        price = prices[0] if prices else 0
+        if price > 0 or not day: return price
+
+        logger.warning("cannot find the quote of symbol %s", symbol)
+        # fallback: price history
+        start_date = day - timedelta(days=10)
+        end_date = datetime.combine(day.date(), datetime.max.time())
+        prices = self.get_daily_price_history(symbol, start_date, end_date)
+        #return prices[-1]['weighted_average'] if prices else 0
+        return prices[-1]['close'] if prices else 0

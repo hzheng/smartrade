@@ -1,7 +1,7 @@
+from datetime import datetime
+import time
 
 import requests
-
-from datetime import datetime
 
 from smartrade import app_logger
 from smartrade.MarketApi import MarketApi
@@ -20,9 +20,15 @@ class PolygonApi(MarketApi):
         end = end_date.strftime("%Y-%m-%d")
         symbol_obj = Symbol(symbol)
         s = "O:" + symbol_obj.to_str2() if symbol_obj.is_option() else symbol
-        r = requests.get(f"{self._url}/v2/aggs/ticker/{s}/range/1/day/{start}/{end}?apiKey={self._api_key}")
-        json = r.json()
-        if json['resultsCount'] <= 0: return []
+        while True:
+            r = requests.get(f"{self._url}/v2/aggs/ticker/{s}/range/1/day/{start}/{end}?apiKey={self._api_key}")
+            json = r.json()
+            count = json.get('resultsCount', -1)
+            if count == 0: return []
+            if count > 0: break
+            
+            logger.warning("wait for the next request of the price of symbol %s", symbol)
+            time.sleep(30)
 
         res = r.json()['results']
         for obj in res:
