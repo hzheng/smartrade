@@ -27,7 +27,8 @@ def account_home():
         return render_template("home.html", init_account=account)
 
     db_name = app.config['DATABASE']
-    inspector = Inspector(db_name, account)
+    provider = app.config['provider']
+    inspector = Inspector(db_name, account, provider)
     total_profit, total_market_value = inspector.total_profit()
     total_cash = inspector.total_cash()
     total_market_value += total_cash
@@ -49,8 +50,8 @@ def account_home():
     for symbol in symbols:
         quantity = position_map[symbol]
         index = 0
-        price = TransactionGroup.get_price(symbol)
-        value = quantity * price[0]
+        price = provider.get_price(symbol)
+        value = quantity * price
         if '_' in symbol:
             index = 1
             value *= 100
