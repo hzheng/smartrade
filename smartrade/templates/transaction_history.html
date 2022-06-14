@@ -24,23 +24,8 @@ Transaction History
         <div class="search">
             <form name="searchTransactionForm" class="container" method="get"
                 action="{{url_for(request.endpoint, **request.view_args)}}">
-                <div class="condition">
-                    <label for="dateRange">Date Range</label>
-                    <select name="dateRange">
-                        <option value="">all</option>
-                        <option value="{{today|first_week_day}},">current week</option>
-                        <option value="{{last_week_first_day}},{{last_week_last_day}}">last week</option>
-                        <option value="{{today|first_month_day}},">current month</option>
-                        <option value="{{last_month_first_day}},{{last_month_last_day}}">previous month</option>
-                        <option value="{{today|first_year_day}},">current year</option>
-                        <option value="{{last_year|first_year_day}},{{last_year|last_year_day}}">previous year</option>
-                        <option name="custom" value="custom">custom</option>
-                    </select>
-                    <div class="customDate">
-                        From: <input type="text" name="start_date">
-                        To: <input type="text" name="end_date">
-                    </div>
-                </div>
+                {% include 'date.html' %}
+
                 <div class="condition">
                     <label for="ticker">Ticker:</label>
                     <select name="ticker">

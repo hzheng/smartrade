@@ -21,6 +21,9 @@ const app = {
             case '/transactions':
                 loadFunction = "_initLoadTransactions";
                 break;
+            case '/balances':
+                loadFunction = "_initLoadBalances";
+                break;
             default:
                 console.assert(false, "unknown url: " + baseUrl);
         }
@@ -48,7 +51,7 @@ const app = {
                 const $newRow = $row.clone().insertBefore($row);
                 app.setValue($("td[name='symbol']", $newRow), symbol);
                 app.setValue($("td[name='quantity']", $newRow), quantity);
-                app.setValue($("td[name='price']", $newRow), price[0]);
+                app.setValue($("td[name='price']", $newRow), price);
                 app.setValue($("td[name='value']", $newRow), value);
             }
             app.setValue($total.eq(i), data.values[i + 2]);
@@ -95,7 +98,6 @@ const app = {
         }
 
         let q = quantity.toFixed(6).toString();
-        let needRemoveDot = false;
         let i = q.length - 1;
         outer:
         for (; i >= 0; i--) {
@@ -116,7 +118,7 @@ const app = {
         if (!amount) return "0.00";
 
         if (typeof(amount) == 'number') {
-            return amount.toFixed(2);
+            return amount.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
         return amount;
     },
@@ -354,6 +356,41 @@ const app = {
         });
     },
 
+    searchBalanceHistory: function($form) {
+        const url = $form.attr('action');
+        $('input[name="ajax"]', $form).val(2);
+        const $tabContent = $form.closest("div.ui-tabs-panel");
+        const tabContentId = $tabContent.attr("id");
+        const accountId = app.getAccountId(tabContentId);
+        $('input[name="account"]', $form).val(accountId);
+
+        if ($('.customDate', $tabContent).css('visibility') != 'hidden') {
+            const startDate = $("input[name='start_date']", $tabContent).val();
+            const endDate = $("input[name='end_date']", $tabContent).val();
+            $("option[name='custom']").val(startDate + ',' + endDate);
+        }
+        app.showMessage($tabContent, "Loading balance history...");
+        $.ajax({
+            type: "GET",
+            url: url,
+            data: $form.serialize(),
+            success: function (data) {
+                const $tbody = $('table.history tbody', $tabContent);
+                $tbody.empty();
+                for (const [date, bal] of Object.entries(data.balances)) {
+                    const $row = $('<tr>').append(
+                        app.setValue($('<td>'), date, 'date'),
+                        app.setValue($('<td>'), bal, 'amount')
+                    ).appendTo($tbody);
+                };
+                app.showMessage($tabContent, "Loaded balance history");
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                app.showMessage($tabContent, "Failed to load balance history: " + errorThrown, true);
+            }
+        });
+    },
+
     initAccountSummary: function($tabContents) {
         const $accountTemplates = $("#account_template section");
         $tabContents.each(function () {
@@ -422,6 +459,38 @@ const app = {
                     optionSelected.attr('name') == 'custom' ? 'visible' : 'hidden');
             });
         });
+    },
+    
+    initBalanceHistory: function($tabContents) {
+        const $balTemplates = $("#balance_template").children();
+        $tabContents.each(function () {
+            const $tabContent = $(this);
+            $balTemplates.each(function () {
+                $(this).clone().appendTo($tabContent);
+            });
+            $("input[name='start_date']", $tabContent).datepicker();
+            $("input[name='end_date']", $tabContent).datepicker();
+            $("button[name='searchBalanceBtn']", $tabContent).click(function (e) {
+                e.preventDefault();
+                app.searchBalanceHistory($(this).closest('form'))
+            });
+            $("select[name='dateRange']", $tabContent).on('change', function (e) {
+                const optionSelected = $("option:selected", this);
+                $('.customDate', $tabContent).css('visibility',
+                    optionSelected.attr('name') == 'custom' ? 'visible' : 'hidden');
+            });
+        });
+    },
+
+    _initLoadBalances: function (data, $tab, $tabContent) {
+        console.log("data", data);
+        app._commonLoad(data, $tab, $tabContent);
+        const $content = $(".balance_summary", $tabContent);
+        // $content.append("cash=" + data.balance[1] + "<br/>");
+        // $content.append("balance=" + data.balance[2] + "<br/>");
+        // for (const [key, value] of Object.entries(data.balance[0])) {
+        //     $content.append(key + "=>" + value + "<br/>");
+        // }
     },
 
     initLoad: function($tabContents) {
@@ -500,5 +569,6 @@ $(function() {
     app.initAccountSummary($tabContents);
     app.initTransactionGroups($tabContents);
     app.initTransactionHistory($tabContents);
+    app.initBalanceHistory($tabContents);
     app.initLoad($tabContents);
 });

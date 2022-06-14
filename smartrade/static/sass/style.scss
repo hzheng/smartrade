@@ -219,6 +219,9 @@ table.transaction {
 }
 
 table.history {
+  margin-left: auto;
+  margin-right: auto;
+
   tbody tr {
     background-color: #EFFDF9;
   }
@@ -273,6 +276,12 @@ table.history {
       font-weight: bold;
     }
   }
+}
+
+.balance_summary {
+  clear: both;
+  padding-left: 1em;
+  padding-bottom: 1em;
 }
 
 %effective {

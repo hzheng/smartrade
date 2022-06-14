@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}
+Balance History
+{% endblock %}
+
+{% block head %}
+{% endblock %}
+
+{% block header %}
+{% endblock %}
+
+{% set account = request.path.split('/')[-1] %}
+
+{% block nav %}
+{% endblock %}
+
+{% block main %}
+
+<article>
+    {% include 'account.html' %}
+
+    <div id="balance_template" style="display: none;">
+        <div class="search">
+            <form name="searchBalanceForm" class="container" method="get"
+                action="{{url_for(request.endpoint, **request.view_args)}}">
+                {% include 'date.html' %}
+                <div class="condition">
+                    <button name="searchBalanceBtn" type="submit">Search</button>
+                </div>
+                <input type="hidden" name="account" />
+                <input type="hidden" name="ajax" />
+            </form>
+        </div>
+        <section>
+            <div class="balance_summary">
+            </div>
+            <table class="history">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Balance</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+    </div>
+</article>
+{% endblock %}

@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from dateutil.parser import parse
 
+from smartrade import app_logger
 from smartrade.Assembler import Assembler
 from smartrade.Transaction import InstrumentType, Symbol, Transaction
 from smartrade.TransactionGroup import TransactionGroup
 from smartrade.utils import check, get_database, ASC, DESC
 
+logger = app_logger.get_logger(__name__)
 
 class Inspector:
     def __init__(self, db_name, account, provider=None):
@@ -138,8 +140,8 @@ class Inspector:
         #condition = self._date_limit({**self._account_cond, 'ui': ticker}, start_date, end_date)
         #return [TransactionGroup.from_doc(doc) for doc in self._group_collection.find(condition)]
 
-    def positions(self, tickers=None, end_date=None):
-        condition = self._date_limit({**self._effective_tx_cond, **self._trading_tx_cond}, None, end_date)
+    def positions(self, tickers=None, day=None):
+        condition = self._date_limit({**self._effective_tx_cond, **self._trading_tx_cond}, None, day)
         if tickers:
             condition['ui'] = {'$in': tickers}
         positions = {}
@@ -155,10 +157,10 @@ class Inspector:
             positions[key] = bal + qty
         return {k : v for k, v in positions.items() if v != 0}
 
-    def balance(self, tickers=None, day=None):
+    def balance(self, day=None):
         cash = self.total_cash(end_date=day)
         total_value = cash
-        pos = self.positions(tickers, end_date=day)
+        pos = self.positions(day=day)
         for symbol, quantity in pos.items():
             symbol_obj = Symbol(symbol)
             symbol_str = symbol_obj.to_str()
@@ -166,3 +168,21 @@ class Inspector:
             value = quantity * price * (100 if symbol_obj.is_option() else 1)
             total_value += value
         return (pos, cash, round(total_value, 2))
+    
+    def balance_history(self, start_date=None, end_date=None):
+        min_date = self.transaction_period()[0]
+        max_date = datetime.combine(datetime.now().date(), datetime.max.time())
+        if not start_date or start_date < min_date:
+            start_date = min_date
+        if not end_date or end_date > max_date:
+            end_date = max_date
+        start = datetime.combine(start_date.date(), datetime.max.time())
+        end = datetime.combine(end_date.date(), datetime.max.time())
+        logger.debug("getting balance history from %s to %s", start, end)
+        delta = timedelta(days=1)
+        res = {}
+        while start <= end:
+            bal = self.balance(start)[-1]
+            res[start.strftime("%m/%d/%Y")] = bal #f"{bal:,.2f}"
+            start += delta
+        return res

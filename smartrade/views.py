@@ -167,6 +167,22 @@ def transaction_history():
         'cash': { 'start': start_cash, 'end': end_cash, 'total': total_cash }
     }
 
+@app.route("/balances")
+def balance_history():
+    account = request.args.get('account')
+    ajax = request.args.get('ajax')
+    if not ajax:
+        return render_template("balance_history.html", init_account=account)
+
+    db_name = app.config['DATABASE']
+    provider = app.config['provider']
+    inspector = Inspector(db_name, account, provider)
+    if ajax == "1":
+        return {**_get_transaction_info(inspector), 'balance': inspector.balance()}
+    
+    start_date, end_date = _get_date_range("transaction_history")
+    return {'balances': inspector.balance_history(start_date, end_date)}
+
 @app.errorhandler(Exception)
 def server_error(err):
     logger.exception(err)

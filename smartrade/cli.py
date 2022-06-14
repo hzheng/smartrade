@@ -240,7 +240,6 @@ def transaction(config, args):
 @subcommand(*data_options,
     argument('-T', '--date', help='date'),
     argument('-a', '--account', help='account id or alias or index'),
-    argument('-t', '--ticker', nargs='+', help="ticker name(s)"),
     argument('-v', '--verbose', action='store_true', help='verbose'))
 def balance(config, args):
     """Get balance."""
@@ -252,8 +251,7 @@ def balance(config, args):
     TransactionGroup.set_provider(provider)
     inspector = Inspector(db_name, account_id, provider)
     day = parse(args.date) if args.date else None
-    ticker = args.ticker
-    bal = inspector.balance(ticker, day)
+    bal = inspector.balance(day=day)
     pprint(bal if args.verbose else bal[-1])
 
 
