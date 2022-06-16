@@ -8,6 +8,8 @@ class ClientError(Exception):
 class ConfigurationError(ClientError):
     """Configuration error"""
 
-
 class ParameterError(ClientError):
+    """Parameter error"""
+
+class TooManyRequestsError(ClientError):
     """Parameter error"""

@@ -251,9 +251,8 @@ def balance(config, args):
     TransactionGroup.set_provider(provider)
     inspector = Inspector(db_name, account_id, provider)
     day = parse(args.date) if args.date else None
-    bal = inspector.balance(day=day)
+    bal = inspector.compute_balance(day=day) # or: get_balance
     pprint(bal if args.verbose else bal[-1])
-
 
 def _get_env(args):
     env = args.env or 'test'

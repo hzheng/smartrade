@@ -5,7 +5,7 @@ from tda import auth, client
 from smartrade import app_logger
 from smartrade.BrokerClient import BrokerClient
 from smartrade.exceptions import ParameterError
-from smartrade.utils import check
+from smartrade.utils import http_response
 
 logger = app_logger.get_logger(__name__)
 
@@ -48,21 +48,19 @@ class TDAmeritradeClient(BrokerClient):
         r = self._client.get_transactions(account_id,
                                           start_date=start_date, end_date=end_date)
         logger.debug("END: get_transaction for account %s", account_id)
-        check(r.status_code == 200, r.raise_for_status())
-        return r.json()
+        return http_response(r)
 
     def get_quotes(self, symbols):
         logger.debug("get quotes for %s", symbols)
         r = self._client.get_quotes(symbols)
-        check(r.status_code == 200, r.raise_for_status())
-        return r.json()
+        return http_response(r)
 
     def get_daily_prices(self, symbol, start_date, end_date):
-        logger.debug("get daily price for %s", symbol)
+        logger.debug("get daily price for %s during %s - %s", symbol, start_date, end_date)
         r = self._client.get_price_history_every_day(
             symbol, start_datetime=start_date, end_datetime=end_date)
-        check(r.status_code == 200, r.raise_for_status())
-        res = r.json()['candles']
+        
+        res = http_response(r)['candles']
         for obj in res:
             obj['time'] = datetime.fromtimestamp(obj.pop('datetime') / 1000)
         return res
@@ -75,8 +73,7 @@ class TDAmeritradeClient(BrokerClient):
                                            period=client.Client.PriceHistory.Period.TWENTY_YEARS,
                                            frequency_type=client.Client.PriceHistory.FrequencyType.DAILY,
                                            frequency=client.Client.PriceHistory.Frequency.DAILY)
-        check(r.status_code == 200, r.raise_for_status())
-        res = r.json()['candles']
+        res = http_response(r)['candles']
         for obj in res:
             obj['time'] = datetime.fromtimestamp(obj.pop('datetime') / 1000)
         return res

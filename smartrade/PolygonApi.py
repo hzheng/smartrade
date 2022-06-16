@@ -4,8 +4,10 @@ import time
 import requests
 
 from smartrade import app_logger
+from smartrade.exceptions import TooManyRequestsError
 from smartrade.MarketApi import MarketApi
 from smartrade.Transaction import Symbol
+from smartrade.utils import http_response
 
 logger = app_logger.get_logger(__name__)
 
@@ -21,14 +23,15 @@ class PolygonApi(MarketApi):
         symbol_obj = Symbol(symbol)
         s = "O:" + symbol_obj.to_str2() if symbol_obj.is_option() else symbol
         while True:
-            r = requests.get(f"{self._url}/v2/aggs/ticker/{s}/range/1/day/{start}/{end}?apiKey={self._api_key}")
-            json = r.json()
-            count = json.get('resultsCount', -1)
-            if count == 0: return []
-            if count > 0: break
-            
-            logger.warning("wait for the next request of the price of symbol %s", symbol)
-            time.sleep(30)
+            try:
+                r = requests.get(f"{self._url}/v2/aggs/ticker/{s}/range/1/day/{start}/{end}?apiKey={self._api_key}")
+                json = http_response(r)
+                count = json.get('resultsCount', -1)
+                if count == 0: return []
+                if count > 0: break
+            except TooManyRequestsError: 
+                logger.warning("wait 30 seconds for the next request of the price of symbol %s", symbol)
+                time.sleep(30)
 
         res = r.json()['results']
         for obj in res:

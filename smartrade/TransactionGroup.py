@@ -128,7 +128,7 @@ class TransactionGroup:
                     res = True
         return res
 
-    def _inventory(self):
+    def _inventory(self, include_quotes=True):
         total = 0
         positions = {}
         first_date = datetime.max
@@ -153,7 +153,7 @@ class TransactionGroup:
         self._positions = positions
         cost = self._cost = self._get_cost()
         check(cost > 0, f"cost {cost} should be positive")
-        profit = self._profit = total + self._get_market_value()
+        profit = self._profit = total + (self._get_market_value() if include_quotes else 0)
         if positions:
             last_date = datetime.today()
         days = self._duration = (last_date.date() - first_date.date()).days + 1
@@ -170,7 +170,7 @@ class TransactionGroup:
     @classmethod
     def _get_price(cls, symbol):
         try:
-            return cls._provider.get_quotes(symbol)[symbol]
+            return cls._provider.get_quotes(symbol)[0][symbol]
         except KeyError:
             logger.warning("cannot find the quote of symbol %s", symbol)
             return (0, 0, 0)
@@ -243,7 +243,7 @@ class TransactionGroup:
         return res
 
     @classmethod
-    def from_doc(cls, doc):
+    def from_doc(cls, doc, include_quotes=True):
         self = cls()
         self._account = doc['account']
         chains = self._chains = {}
@@ -261,7 +261,7 @@ class TransactionGroup:
                 close_tx = Transaction.from_doc(tx)
                 close_tx_list.append(close_tx)
             chains[open_tx] = close_tx_list
-        self._inventory()
+        self._inventory(include_quotes)
         return self
 
     @classmethod

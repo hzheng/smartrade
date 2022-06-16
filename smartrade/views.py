@@ -111,12 +111,12 @@ def transaction_groups():
         'total': total
     }
 
-def _get_transaction_info(inspector):
-        positions = {symbol: bool(pos) for symbol, pos in inspector.total_positions().items()}
-        return {
-            'period': inspector.transaction_period(),
-            'positions': positions
-        }
+def _get_transaction_info(inspector, full=True, include_quotes=False):
+    info = {'period': inspector.transaction_period()}
+    if full:
+        positions = {symbol: bool(pos) for symbol, pos in inspector.total_positions(include_quotes).items()}
+        info['positions'] = positions
+    return info
 
 def _get_date_range(context):
     start_date = end_date = None
@@ -178,7 +178,7 @@ def balance_history():
     provider = app.config['provider']
     inspector = Inspector(db_name, account, provider)
     if ajax == "1":
-        return {**_get_transaction_info(inspector), 'balance': inspector.balance()}
+        return _get_transaction_info(inspector, False)
     
     start_date, end_date = _get_date_range("transaction_history")
     return {'balances': inspector.balance_history(start_date, end_date)}

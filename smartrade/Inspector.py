@@ -18,6 +18,7 @@ class Inspector:
         self._provider = provider
         self._tx_collection = db.transactions
         self._group_collection = db.transaction_groups
+        self._bal_collection = db.balance_history
         self._account_cond = Assembler.account_condition(account)
         self._valid_tx_cond = {**self._account_cond, 'valid': 1}
         self._effective_tx_cond = {**self._valid_tx_cond, **Assembler.effective_condition()}
@@ -81,12 +82,12 @@ class Inspector:
             total_market_value += profit - total
         return total_profit, total_market_value
 
-    def total_positions(self, start_date=None, end_date=None):
+    def total_positions(self, include_quotes=True, start_date=None, end_date=None):
         tickers = self.distinct_tickers(start_date, end_date)
         positions = {}
         for ticker in tickers:
-            tx_groups = self.ticker_transaction_groups(ticker)
-            position = TransactionGroup.summarize(tx_groups)[2]
+            tx_groups = self.ticker_transaction_groups(ticker, include_quotes)
+            position = TransactionGroup.summarize(tx_groups, include_quotes)[2]
             positions.update(position)
         return positions
 
@@ -134,8 +135,8 @@ class Inspector:
     def ticker_transactions(self, ticker):
         return [Transaction.from_doc(doc) for doc in self._tx_collection.find({**self._valid_tx_cond, 'ui': ticker})]
     
-    def ticker_transaction_groups(self, ticker):
-        return [TransactionGroup.from_doc(doc) for doc in self._group_collection.find({**self._account_cond, 'ui': ticker})]
+    def ticker_transaction_groups(self, ticker, include_quotes=True):
+        return [TransactionGroup.from_doc(doc, include_quotes) for doc in self._group_collection.find({**self._account_cond, 'ui': ticker})]
         # add start_date and end_date condition?
         #condition = self._date_limit({**self._account_cond, 'ui': ticker}, start_date, end_date)
         #return [TransactionGroup.from_doc(doc) for doc in self._group_collection.find(condition)]
@@ -157,7 +158,7 @@ class Inspector:
             positions[key] = bal + qty
         return {k : v for k, v in positions.items() if v != 0}
 
-    def balance(self, day=None):
+    def compute_balance(self, day=None):
         cash = self.total_cash(end_date=day)
         total_value = cash
         pos = self.positions(day=day)
@@ -169,9 +170,20 @@ class Inspector:
             total_value += value
         return (pos, cash, round(total_value, 2))
     
+    def get_balance(self, day):
+        day = datetime.combine(day.date(), datetime.min.time())
+        cond = {**self._account_cond, 'date': day}
+        for obj in self._bal_collection.find(cond):
+            logger.debug("found saved balance %s", cond)
+            return obj['balance'] 
+        
+        logger.debug("retrieving balance %s", cond)
+        bal = self.compute_balance(day)[-1]
+        self._bal_collection.insert_one({**cond, 'balance': bal})
+        return bal
+
     def balance_history(self, start_date=None, end_date=None):
-        min_date = self.transaction_period()[0]
-        max_date = datetime.combine(datetime.now().date(), datetime.max.time())
+        min_date, max_date = self.transaction_period()
         if not start_date or start_date < min_date:
             start_date = min_date
         if not end_date or end_date > max_date:
@@ -182,7 +194,7 @@ class Inspector:
         delta = timedelta(days=1)
         res = {}
         while start <= end:
-            bal = self.balance(start)[-1]
-            res[start.strftime("%m/%d/%Y")] = bal #f"{bal:,.2f}"
+            bal = self.get_balance(start)
+            res[start.strftime("%Y-%m-%d")] = bal #f"{bal:,.2f}"
             start += delta
-        return res
+        return res #dict(sorted(res.items()))
