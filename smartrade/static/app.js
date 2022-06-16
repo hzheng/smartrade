@@ -370,25 +370,34 @@ const app = {
             $("option[name='custom']").val(startDate + ',' + endDate);
         }
         app.showMessage($tabContent, "Loading balance history...");
-        $.ajax({
-            type: "GET",
-            url: url,
-            data: $form.serialize(),
-            success: function (data) {
-                const $tbody = $('table.history tbody', $tabContent);
-                $tbody.empty();
-                for (const [date, bal] of Object.entries(data.balances)) {
-                    const $row = $('<tr>').append(
-                        app.setValue($('<td>'), date, 'date'),
-                        app.setValue($('<td>'), bal, 'amount')
-                    ).appendTo($tbody);
-                };
-                app.showMessage($tabContent, "Loaded balance history");
-            },
-            error: function (xhr, textStatus, errorThrown) {
-                app.showMessage($tabContent, "Failed to load balance history: " + errorThrown, true);
-            }
-        });
+        app._doSearchBalanceHistory(url, $form, $tabContent);
+    },
+
+    _doSearchBalanceHistory: async function(url, $form, $tabContent) {
+        console.log("searching bal...", new Date());
+        fetch(url + "?" + $form.serialize()).then(
+            response => {
+                response.json().then(data => {
+                    const $tbody = $('table.history tbody', $tabContent);
+                    $tbody.empty();
+                    for (const [date, bal] of Object.entries(data.balances)) {
+                        const $row = $('<tr>').append(
+                            app.setValue($('<td>'), date, 'date'),
+                            app.setValue($('<td>'), bal, 'amount')
+                        ).appendTo($tbody);
+                    };
+                    app.showMessage($tabContent, "Loaded balance history");
+                }).catch(error => {
+                    app.showMessage($tabContent, "Failed to load balance history: " + error, true);
+                });
+            }).catch(error => {
+                if (error instanceof TypeError) { // timeout
+                    app.showMessage($tabContent, error.message + "; retrying...", true);
+                    setTimeout(() => app._doSearchBalanceHistory(url, $form, $tabContent), 10000);
+                } else {
+                    app.showMessage($tabContent, "Failed to load balance history: " + error, true);
+                }
+            });
     },
 
     initAccountSummary: function($tabContents) {
@@ -472,7 +481,7 @@ const app = {
             $("input[name='end_date']", $tabContent).datepicker();
             $("button[name='searchBalanceBtn']", $tabContent).click(function (e) {
                 e.preventDefault();
-                app.searchBalanceHistory($(this).closest('form'))
+                app.searchBalanceHistory($(this).closest('form'));
             });
             $("select[name='dateRange']", $tabContent).on('change', function (e) {
                 const optionSelected = $("option:selected", this);

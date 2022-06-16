@@ -186,4 +186,4 @@ def balance_history():
 @app.errorhandler(Exception)
 def server_error(err):
     logger.exception(err)
-    return "Exception happened", 500
+    return f"Exception happened: {err}", 500
