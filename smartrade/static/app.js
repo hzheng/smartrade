@@ -546,7 +546,9 @@ const app = {
             $messageBoard.addClass("error");
         } else {
             $messageBoard.removeClass("error");
-            setTimeout(() => $messageBoard.text(''), 10000);
+            if (!message.endsWith("...")) {
+                setTimeout(() => $messageBoard.text(''), 10000);
+            }
         }
     },
 

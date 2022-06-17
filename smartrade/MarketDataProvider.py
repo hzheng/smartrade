@@ -82,8 +82,9 @@ class MarketDataProvider:
         if market_open_time <= day < market_close_time:
             logger.debug("market is open at the time: %s", day)
         else:
-            logger.debug("market is closed, check if we already have record for day: %s", market_close_time)
-            res = [doc for doc in self._get_quotes(symbols, market_close_time, self.CLOSE_TIME)]
+            close_time = self._trading_time(day)[1]
+            logger.debug("market is closed, check if we already have record for day: %s", close_time)
+            res = [doc for doc in self._get_quotes(symbols, close_time, self.CLOSE_TIME)]
             if len(res) == len(symbols):
                 logger.debug("we already have all data")
             else:
