@@ -158,7 +158,7 @@ class MarketDataProvider:
         latest_day = earliest_today - timedelta(milliseconds=1)
         symbol_obj = Symbol(symbol)
         if symbol_obj.is_option():
-            latest_day = min(latest_day, datetime.combine(symbol_obj.expired, datetime.max.time()).replace(tzinfo=time_zone))
+            latest_day = min(latest_day, datetime.combine(symbol_obj.expired, datetime.min.time()).replace(tzinfo=time_zone))
             #TODO: option price may not available when it's 0
         if not end_date or end_date > latest_day:
             end_date = latest_day

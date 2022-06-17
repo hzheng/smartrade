@@ -374,9 +374,24 @@ const app = {
     },
 
     _doSearchBalanceHistory: async function(url, $form, $tabContent) {
-        console.log("searching bal...", new Date());
+        console.log("searching balance history...", new Date());
+        const retry = (error) => {
+            app.showMessage($tabContent, (error.statusText || error.message) + "; retrying...", true);
+            setTimeout(() => app._doSearchBalanceHistory(url, $form, $tabContent), 10000);
+        };
+        const fail = error => {
+            app.showMessage($tabContent, "Failed to load balance history: " + (error.statusText || error.message), true);
+        }
         fetch(url + "?" + $form.serialize()).then(
             response => {
+                if (response.status != 200) {
+                    if (response.status == 502) { // timeout
+                        retry(response);
+                    } else {
+                        fail(response);
+                    }
+                    return;
+                }
                 response.json().then(data => {
                     const $tbody = $('table.history tbody', $tabContent);
                     $tbody.empty();
@@ -387,15 +402,13 @@ const app = {
                         ).appendTo($tbody);
                     };
                     app.showMessage($tabContent, "Loaded balance history");
-                }).catch(error => {
-                    app.showMessage($tabContent, "Failed to load balance history: " + error, true);
-                });
+                }).catch(fail);
             }).catch(error => {
                 if (error instanceof TypeError) { // timeout
-                    app.showMessage($tabContent, error.message + "; retrying...", true);
-                    setTimeout(() => app._doSearchBalanceHistory(url, $form, $tabContent), 10000);
+                    retry(error);
                 } else {
-                    app.showMessage($tabContent, "Failed to load balance history: " + error, true);
+                    console.log("err:", error);
+                    fail(error);
                 }
             });
     },
