@@ -72,24 +72,17 @@ class Inspector:
             return r[amount]
         return 0.0
 
-    def total_profit(self, start_date=None, end_date=None):
+    def summarize(self, include_quotes=True, start_date=None, end_date=None):
         total_market_value = 0
         total_profit = 0
+        positions = {}
         for ticker in self.distinct_tickers(start_date, end_date):
-            tx_groups = self.ticker_transaction_groups(ticker)
-            total, profit, *_ = TransactionGroup.summarize(tx_groups)
+            tx_groups = self.ticker_transaction_groups(ticker, include_quotes)
+            total, profit, position, *_ = TransactionGroup.summarize(tx_groups, include_quotes)
             total_profit += profit
             total_market_value += profit - total
-        return total_profit, total_market_value
-
-    def total_positions(self, include_quotes=True, start_date=None, end_date=None):
-        tickers = self.distinct_tickers(start_date, end_date)
-        positions = {}
-        for ticker in tickers:
-            tx_groups = self.ticker_transaction_groups(ticker, include_quotes)
-            position = TransactionGroup.summarize(tx_groups, include_quotes)[2]
             positions.update(position)
-        return positions
+        return total_profit, total_market_value, positions
 
     def _date_limit(self, condition, start_date, end_date):
         date_limit = {}
@@ -183,11 +176,14 @@ class Inspector:
         return bal
 
     def balance_history(self, start_date=None, end_date=None):
-        min_date, max_date = self.transaction_period()
-        if not start_date or start_date < min_date:
-            start_date = min_date
-        if not end_date or end_date > max_date:
-            end_date = max_date
+        first_tx_date, last_tx_date = self.transaction_period()
+        if not start_date or start_date < first_tx_date:
+            start_date = first_tx_date
+        today = datetime.now()
+        if not end_date or end_date > today:
+            end_date = today
+        if end_date > last_tx_date and not self.positions():
+            end_date = last_tx_date
         start = datetime.combine(start_date.date(), datetime.max.time())
         end = datetime.combine(end_date.date(), datetime.max.time())
         logger.debug("getting balance history from %s to %s", start, end)

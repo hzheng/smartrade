@@ -47,10 +47,6 @@ def total_cash(db_name, account, start_date=None, end_date=None):
     inspector = Inspector(db_name, account)
     return inspector.total_cash(start_date, end_date)
 
-def total_profit(db_name, account, start_date=None, end_date=None):
-    inspector = Inspector(db_name, account)
-    return inspector.total_profit(start_date, end_date)
-
 def distinct_tickers(db_name, account, start_date=None, end_date=None):
     inspector = Inspector(db_name, account)
     return inspector.distinct_tickers(start_date, end_date)

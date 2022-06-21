@@ -29,21 +29,9 @@ def account_home():
     db_name = app.config['DATABASE']
     provider = app.config['provider']
     inspector = Inspector(db_name, account, provider)
-    total_profit, total_market_value = inspector.total_profit()
+    total_profit, total_market_value, positions = inspector.summarize(False)
     total_cash = inspector.total_cash()
     total_market_value += total_cash
-    summary = {
-        'total_investment': inspector.total_investment(),
-        'total_interest': inspector.total_interest(),
-        'total_dividend': inspector.total_dividend(),
-        'total_trading': inspector.total_trading(),
-        'total_profit': total_profit,
-        'total_market_value': total_market_value,
-        'total_cash': total_cash
-    }
-    # avoid negative total_investment when calculating total profit rate
-    summary['total_profit_rate'] = summary['total_profit'] / max(summary['total_investment'], 1)
-    positions = inspector.total_positions()
     position_map = {symbol: qty for pos_map in positions.values() for symbol, qty in pos_map.items()}
     values=[{}, {}, 0, 0]
     symbols = position_map.keys()
@@ -57,6 +45,20 @@ def account_home():
             value *= 100
         values[index][symbol] = (quantity, price, value)
         values[index + 2] += value
+        total_market_value += value
+        total_profit += value
+    summary = {
+        'total_investment': inspector.total_investment(),
+        'total_interest': inspector.total_interest(),
+        'total_dividend': inspector.total_dividend(),
+        'total_trading': inspector.total_trading(),
+        'total_profit': total_profit,
+        'total_market_value': total_market_value,
+        'total_cash': total_cash
+    }
+    # avoid negative total_investment when calculating total profit rate
+    summary['total_profit_rate'] = summary['total_profit'] / max(summary['total_investment'], 1)
+    
     return {'summary': summary, 'values': values, 'period': inspector.transaction_period()}
 
 @app.route("/load/<account>")
@@ -114,7 +116,7 @@ def transaction_groups():
 def _get_transaction_info(inspector, full=True, include_quotes=False):
     info = {'period': inspector.transaction_period()}
     if full:
-        positions = {symbol: bool(pos) for symbol, pos in inspector.total_positions(include_quotes).items()}
+        positions = {symbol: bool(pos) for symbol, pos in inspector.summarize(include_quotes)[2].items()}
         info['positions'] = positions
     return info
 

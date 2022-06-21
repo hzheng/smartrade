@@ -17,7 +17,7 @@ def _retrieve_quotes(app):
     for account in app.config['broker_client'][0]['accounts']:
         acct_id = list(account.values())[0]
         db_name = app.config['DATABASE']
-        Inspector(db_name, acct_id).total_positions()
+        Inspector(db_name, acct_id).summarize()
 
 def run(app):
     logger.debug("Scheduling jobs")
