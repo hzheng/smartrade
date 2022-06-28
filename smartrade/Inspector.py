@@ -168,12 +168,12 @@ class Inspector:
         cond = {**self._account_cond, 'date': day}
         for obj in self._bal_collection.find(cond):
             logger.debug("found saved balance %s", cond)
-            return obj['balance'] 
+            return obj['balance'], obj.get('actual_balance', None)
         
         logger.debug("retrieving balance %s", cond)
         bal = self.compute_balance(day)[-1]
-        self._bal_collection.insert_one({**cond, 'balance': bal})
-        return bal
+        self._bal_collection.replace_one(cond, {**cond, 'balance': bal}, upsert=True)
+        return bal, None
 
     def balance_history(self, start_date=None, end_date=None):
         first_tx_date, last_tx_date = self.transaction_period()
@@ -194,3 +194,11 @@ class Inspector:
             res[start.strftime("%Y-%m-%d")] = bal #f"{bal:,.2f}"
             start += delta
         return res #dict(sorted(res.items()))
+
+    def save_actual_balance(self, balance_map):
+        logger.debug("saving actual balance")
+        for date_str, balance in balance_map.items():
+            date_obj = parse(date_str)
+            day = datetime.combine(date_obj.date(), datetime.min.time())
+            cond = {**self._account_cond, 'date': day}
+            self._bal_collection.update_one(cond, {'$set': {'actual_balance': balance}})

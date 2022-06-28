@@ -152,7 +152,8 @@ const app = {
             $field.text(app.convertQuantity(value));
             return $field;
         }
-        if (dataType != 'amount' && !$field.hasClass('amount')) {
+        const isPercentType = (dataType == 'percent' || $field.hasClass('percent'));
+        if (dataType != 'amount' && !$field.hasClass('amount') && !isPercentType) {
             $field.text(value);
             return $field;
         }
@@ -162,7 +163,7 @@ const app = {
         }
         console.assert(typeof(value) == 'number');
         let postfix = "";
-        if ($field.hasClass('percent')) {
+        if (isPercentType) {
             value *= 100;
             postfix = "%";
         }
@@ -393,12 +394,18 @@ const app = {
                     return;
                 }
                 response.json().then(data => {
-                    const $tbody = $('table.history tbody', $tabContent);
+                    const $tbody = $('table.balance_history tbody', $tabContent);
                     $tbody.empty();
-                    for (const [date, bal] of Object.entries(data.balances)) {
+                    for (const [date, [bal, actual_bal]] of Object.entries(data.balances)) {
+                        let diff = null;
+                        if (actual_bal) {
+                            diff = (bal - actual_bal) / actual_bal;
+                        }
                         const $row = $('<tr>').append(
                             app.setValue($('<td>'), date, 'date'),
-                            app.setValue($('<td>'), bal, 'amount')
+                            app.setValue($('<td>'), bal, 'amount'),
+                            app.setValue($('<td>'), actual_bal, 'amount'),
+                            app.setValue($('<td>'), diff, 'percent')
                         ).appendTo($tbody);
                     };
                     app.showMessage($tabContent, "Loaded balance history");
@@ -411,6 +418,36 @@ const app = {
                     fail(error);
                 }
             });
+    },
+
+    uploadBalanceHistory: function($form) {
+        const url = $form.attr('action');
+        const $tabContent = $form.closest("div.ui-tabs-panel");
+        const tabContentId = $tabContent.attr("id");
+        const accountId = app.getAccountId(tabContentId);
+        $('input[name="account"]', $form).val(accountId);
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: new FormData($form[0]),
+            cache: false,
+            contentType: false,
+            processData: false,
+            xhr: function () {
+                var myXhr = $.ajaxSettings.xhr();
+                if (myXhr.upload) {
+                    myXhr.upload.addEventListener('progress', function (e) {
+                        if (e.lengthComputable) {
+                            $('progress').attr({
+                                value: e.loaded,
+                                max: e.total,
+                            });
+                        }
+                    }, false);
+                }
+                return myXhr;
+            }
+        });
     },
 
     initAccountSummary: function($tabContents) {
@@ -462,6 +499,8 @@ const app = {
 
             $("button[name='searchTransactionBtn']", $tabContent).click(function (e) {
                 e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
                 app.searchTransactionHistory($(this).closest('form'))
             });
             $("span[name='dateOrderArrow']", $tabContent).on('click', function (e) {
@@ -494,12 +533,21 @@ const app = {
             $("input[name='end_date']", $tabContent).datepicker();
             $("button[name='searchBalanceBtn']", $tabContent).click(function (e) {
                 e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
                 app.searchBalanceHistory($(this).closest('form'));
             });
             $("select[name='dateRange']", $tabContent).on('change', function (e) {
                 const optionSelected = $("option:selected", this);
                 $('.customDate', $tabContent).css('visibility',
                     optionSelected.attr('name') == 'custom' ? 'visible' : 'hidden');
+            });
+            $(":file", $tabContent).on('change', function () {
+                //var file = this.files[0];
+            });
+            $(":button", $tabContent).click(function (e) {
+                e.preventDefault();
+                app.uploadBalanceHistory($(this).closest('form'));
             });
         });
     },

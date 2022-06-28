@@ -3,6 +3,7 @@
 from os import listdir
 from os.path import join
 import datetime
+import re
 
 from dateutil.parser import parse
 from flask import render_template, redirect, request
@@ -15,6 +16,7 @@ from smartrade.TransactionGroup import TransactionGroup
 from smartrade.utils import check
 
 logger = app_logger.get_logger(__name__)
+BAL_HIST_PATTERN = re.compile('.*"([^"]+)","([^"]+)"')
 
 @app.route("/")
 def home():
@@ -169,16 +171,28 @@ def transaction_history():
         'cash': { 'start': start_cash, 'end': end_cash, 'total': total_cash }
     }
 
-@app.route("/balances")
+@app.route("/balances", methods=['GET', 'POST'])
 def balance_history():
-    account = request.args.get('account')
+    db_name = app.config['DATABASE']
+    provider = app.config['provider']
+    account = request.form['account'] if request.method == 'POST' else request.args.get('account')
+    inspector = Inspector(db_name, account, provider)
+    upload_file = request.files.get('file')
+    if upload_file:
+        balance_map = {}
+        for row in upload_file:
+            line = row.decode("utf-8").strip()
+            date_str, balance_str = BAL_HIST_PATTERN.match(line).groups()
+            balance = float(balance_str.replace(',',''))
+            logger.debug("date %s %s", date_str, balance)
+            balance_map[date_str] = balance
+        inspector.save_actual_balance(balance_map)
+        return {"status": True}
+    
     ajax = request.args.get('ajax')
     if not ajax:
         return render_template("balance_history.html", init_account=account)
 
-    db_name = app.config['DATABASE']
-    provider = app.config['provider']
-    inspector = Inspector(db_name, account, provider)
     if ajax == "1":
         return _get_transaction_info(inspector, False)
     

@@ -218,7 +218,7 @@ table.transaction {
   }
 }
 
-table.history {
+table.history, table.balance_history {
   margin-left: auto;
   margin-right: auto;
 
@@ -229,6 +229,9 @@ table.history {
   th, td {
     @extend %cell;
   }
+}
+
+table.history {
 
   tr.ignored {
     background-color: #E6E7E6;
@@ -425,6 +428,26 @@ section.tx_group, .none {
 
 .search {
   font-size: small;
+}
+
+.upload {
+  clear: both;
+  
+  form {
+    display: block;
+  }
+
+  label {
+    width: 10em;
+  }
+
+  input[type="file"] {
+    width: calc(100% - 35em);
+  }
+
+  input[type="button"] {
+    width: 6em;
+  }
 }
 
 ul.account_nav {
