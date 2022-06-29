@@ -11,5 +11,8 @@ class ConfigurationError(ClientError):
 class ParameterError(ClientError):
     """Parameter error"""
 
+class BadRequestError(ClientError):
+    """Bad request error"""
+
 class TooManyRequestsError(ClientError):
-    """Parameter error"""
+    """Too many requests error"""

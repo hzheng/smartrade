@@ -4,7 +4,7 @@ import os
 
 import pymongo
 
-from smartrade.exceptions import TooManyRequestsError
+from smartrade.exceptions import BadRequestError, TooManyRequestsError
 
 ASC = pymongo.ASCENDING
 DESC = pymongo.DESCENDING
@@ -22,6 +22,9 @@ def check(assertion, error_message, logger=None):
     
 def http_response(response):
     code = response.status_code
+    if code == 400:
+        raise BadRequestError()
+ 
     if code == 429:
         raise TooManyRequestsError()
 

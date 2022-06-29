@@ -12,7 +12,7 @@ from smartrade.BrokerClient import BrokerClient
 from smartrade.MarketApi import MarketApi
 from smartrade.Transaction import Symbol
 from smartrade.exceptions import TooManyRequestsError
-from smartrade.utils import get_database, ASC, DESC
+from smartrade.utils import check, get_database, ASC, DESC
 
 logger = app_logger.get_logger(__name__)
 
@@ -71,6 +71,13 @@ class MarketDataProvider:
         now = datetime.now(time_zone)
         market_open_time, market_close_time = self._trading_time(now)
         logger.debug("open time: %s, close time: %s", market_open_time, market_close_time)
+        market_hours = self.get_market_hours(now)
+        if market_hours:
+            if False: # TODO: may differ due to time zone
+                check(market_hours[0] == market_open_time, f"{market_hours[0]} should equal to {market_open_time}")
+                check(market_hours[1] == market_close_time, f"{market_hours[1]} should equal to {market_close_time}")
+        else: # weekend, holiday or any day before today
+            logger.info("market hours is unavailable") # TODO: check a non-weekend holiday
         if not day:
             day = now
         elif isinstance(day, str):
@@ -224,3 +231,15 @@ class MarketDataProvider:
         prices = self.get_daily_price_history(symbol, start_date, end_date)
         #return prices[-1]['weighted_average'] if prices else 0
         return prices[-1]['close'] if prices else 0
+    
+    def get_market_hours(self, day=None):
+        if not day:
+            day = datetime.now()
+        elif isinstance(day, str):
+            day = parse(day)
+        hours = self._broker.get_market_hours(day)
+        if not hours:
+            return None
+        
+        start, end = hours
+        return parse(start), parse(end)

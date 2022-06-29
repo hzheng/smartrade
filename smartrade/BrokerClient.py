@@ -16,6 +16,8 @@ class BrokerClient:
  
     def get_daily_prices(self, symbol, start_date, end_date): ...
 
+    def get_market_hours(self, day): ...
+
     @classmethod
     def get_brokers(cls, config_path):
         brokers = []

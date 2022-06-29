@@ -4,7 +4,7 @@ from tda import auth, client
 
 from smartrade import app_logger
 from smartrade.BrokerClient import BrokerClient
-from smartrade.exceptions import ParameterError
+from smartrade.exceptions import BadRequestError, ParameterError
 from smartrade.utils import http_response
 
 logger = app_logger.get_logger(__name__)
@@ -77,3 +77,25 @@ class TDAmeritradeClient(BrokerClient):
         for obj in res:
             obj['time'] = datetime.fromtimestamp(obj.pop('datetime') / 1000)
         return res
+
+    def get_market_hours(self, day):
+        logger.debug("get hours on the day: %s", day)
+        market = client.Client.Markets.EQUITY
+        try:
+            r = self._client.get_hours_for_multiple_markets([market], day)
+            response = http_response(r)
+            logger.debug("response: %s", response)
+            market_str = str(market).split(".")[-1]
+            for v in response[market_str.lower()].values():
+                if v.get('marketType', None) == market_str:
+                    hours = v['sessionHours']
+                    if not hours: return None
+
+                    market_hours = hours['regularMarket'][0]
+                    logger.debug("regular market hours: %s", market_hours)
+                    start = market_hours['start']
+                    end = market_hours['end']
+                    return (start, end)
+        except BadRequestError:
+            logger.warn("bad request")
+        return None

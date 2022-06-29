@@ -250,6 +250,16 @@ def balance(config, args):
     bal = inspector.compute_balance(day=day) # or: get_balance
     pprint(bal if args.verbose else bal[-1])
 
+@subcommand(
+    *data_options,
+    argument('date', nargs='?', help="date"))
+def hours(config, args):
+    """Get market hours."""
+    env = _get_env(args)
+    db_name = args.database_name or config['DATABASE'][env]
+    provider = get_provider(config, db_name)
+    pprint(provider.get_market_hours(args.date))
+
 def _get_env(args):
     env = args.env or 'test'
     if env not in ('test', 'dev', 'prod'):
