@@ -146,7 +146,7 @@ class TransactionGroup:
                 first_date = min(first_date, close_tx.date)
                 last_date = max(first_date, close_tx.date)
             if opened > self.ERROR:
-                symbol_str = open_tx.symbol.to_str()
+                symbol_str = format(open_tx.symbol)
                 positions[symbol_str] = (positions.get(symbol_str, 0)
                                      + opened * (1 if open_tx.action == Action.BTO else -1))
         self._total = total

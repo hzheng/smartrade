@@ -157,7 +157,7 @@ class Inspector:
         pos = self.positions(day=day)
         for symbol, quantity in pos.items():
             symbol_obj = Symbol(symbol)
-            symbol_str = symbol_obj.to_str()
+            symbol_str = format(symbol_obj)
             price = self._provider.get_price(symbol_str, day)
             value = quantity * price * (100 if symbol_obj.is_option() else 1)
             total_value += value

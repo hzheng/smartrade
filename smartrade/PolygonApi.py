@@ -21,7 +21,7 @@ class PolygonApi(MarketApi):
         start = start_date.strftime("%Y-%m-%d")
         end = end_date.strftime("%Y-%m-%d")
         symbol_obj = Symbol(symbol)
-        s = "O:" + symbol_obj.to_str2() if symbol_obj.is_option() else symbol
+        s = f"O:{symbol_obj:x}" if symbol_obj.is_option() else symbol
         while True:
             try:
                 r = requests.get(f"{self._url}/v2/aggs/ticker/{s}/range/1/day/{start}/{end}?apiKey={self._api_key}")

@@ -23,19 +23,19 @@ class TestTransaction(TestBase):
 
         symbol_str = "HOOD_031122C14.5"
         symbol = Symbol(symbol_str)
-        self.assertEqual(symbol_str, symbol.to_str())
+        self.assertEqual(symbol_str, format(symbol))
 
         symbol_str = "HOOD_031122C14"
         symbol = Symbol(symbol_str)
-        self.assertEqual(symbol_str, symbol.to_str())
+        self.assertEqual(symbol_str, format(symbol))
         
         symbol_str = "AMD230120C00120000"
         symbol = Symbol(symbol_str)
-        self.assertEqual(symbol_str, symbol.to_str2())
+        self.assertEqual(symbol_str, format(symbol, 'x'))
         
         symbol_str = "GOOG_062422C2200"
         symbol = Symbol(symbol_str)
-        self.assertEqual("GOOG220624C02200000", symbol.to_str2())
+        self.assertEqual("GOOG220624C02200000", format(symbol, 'x'))
 
     def test_transaction(self):
         transactions = [

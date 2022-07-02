@@ -38,7 +38,7 @@ class Action(IntEnum):
     def is_close(self):
         return Action.STC <= self <= Action.EXERCISE
  
-    def to_str(self):
+    def __format__(self, _):
         return str(self).split(".")[1]
 
     @classmethod
@@ -93,7 +93,7 @@ class InstrumentType(Enum):
         if text == 'A': return cls.AUTO
         raise ValueError(f"Unknown {cls.__name__}: {text}")
 
-    def to_str(self):
+    def __format__(self, _):
         if self == self.STOCK: return 'S'
         if self == self.CALL: return 'C'
         if self == self.PUT: return 'P'
@@ -161,18 +161,16 @@ class Symbol:
     def __str__(self):
         if not self.expired: return self.ui or ""
         
-        return f"{self.ui} {self.expired.strftime('%m/%d/%Y')} {self.strike:.2f} {self.type.to_str()}"
+        return f"{self.ui} {self.expired.strftime('%m/%d/%Y')} {self.strike:.2f} {self.type}"
 
-    def to_str(self):
+    def __format__(self, spec):
         if not self.expired: return self.ui
 
-        return f"{self.ui}_{self.expired.strftime('%m%d%y')}{self.type.to_str()}{self.strike:g}"
-
-    def to_str2(self):
-        if not self.expired: return self.ui
+        if not spec:
+            return f"{self.ui}_{self.expired.strftime('%m%d%y')}{self.type}{self.strike:g}"
 
         strike = f"{self.strike * 1000}".rstrip('0').rstrip('.').zfill(8)
-        return f"{self.ui}{self.expired.strftime('%y%m%d')}{self.type.to_str()}{strike}"
+        return f"{self.ui}{self.expired.strftime('%y%m%d')}{self.type}{strike}"
 
     @property
     def type(self):
@@ -383,7 +381,7 @@ class Transaction:
             'price': self.price,
             'fee': self.fee,
             'amount': self.amount,
-            'action': self.action.to_str()
+            'action': format(self.action)
         }
         if not hide and self.valid == Validity.VALID:
             json['type'] = str(symbol.type).split('.')[1]
