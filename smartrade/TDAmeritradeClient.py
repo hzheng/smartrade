@@ -1,11 +1,18 @@
+# -*- coding: utf-8 -*-
+
+from dataclasses import field, fields
 from datetime import datetime
+from turtle import position
 
 from tda import auth, client
+from tda.client.base import BaseClient
 
 from smartrade import app_logger
+from smartrade.AccountInfo import AccountInfo, BalanceInfo, LegInfo, OrderInfo, PositionInfo
 from smartrade.BrokerClient import BrokerClient
 from smartrade.exceptions import BadRequestError, ParameterError
-from smartrade.utils import http_response
+from smartrade.Transaction import Action, Symbol
+from smartrade.utils import get_value, http_response
 
 logger = app_logger.get_logger(__name__)
 
@@ -36,6 +43,108 @@ class TDAmeritradeClient(BrokerClient):
             return next(iter(self._accounts[index].values()))
             
         raise ParameterError("cannot find account alias: " + account_alias)
+
+    def get_account_info(self, account_alias=None, include_pos=False, include_order=False):
+        account_id = self.get_account_id(account_alias)
+        if len(account_id) <= 4:
+            logger.info("skipping get_account for account: %s", account_id)
+            return {}
+
+        logger.debug("BEGIN: get_account for account %s", account_id)
+        fields = []
+        if include_pos:
+            fields.append(BaseClient.Account.Fields.POSITIONS)
+        if include_order:
+            fields.append(BaseClient.Account.Fields.ORDERS)
+        r = self._client.get_account(account_id, fields=fields)
+        json = http_response(r)
+        logger.debug("response: %s", json)
+        res = json.get('securitiesAccount', None)
+        if not res:
+            logger.warn("no account information found")
+            return None
+        
+        cur_bal = self._get_balance(res['currentBalances'])
+        pre_bal = self._get_balance(res['initialBalances'])
+        positions = self._get_positions(res['positions']) if include_pos else None
+        orders = self._get_orders(res['orderStrategies']) if include_order else None
+        return AccountInfo(res['accountId'], cur_bal, pre_bal, 
+                           positions=positions, orders=orders,
+                           account_type=res['type'],
+                           day_trader=res['isDayTrader'])
+ 
+    @classmethod
+    def _get_balance(cls, bal):
+        return BalanceInfo(
+             account_value=bal['liquidationValue'],
+             cash_value=bal['cashBalance'] + bal['moneyMarketFund'], # + bal['accruedInterest'],
+             buying_power=bal['availableFundsNonMarginableTrade'], # better than bal['buyingPower']?
+             long_margin_value=bal['longMarginValue'],
+             long_stock_value=get_value(bal, 'longStockValue', 'longMarketValue'),
+             short_stock_value=get_value(bal, 'shortStockValue', 'shortMarketValue'),
+             long_option_value=bal['longOptionMarketValue'],
+             short_option_value=bal['shortOptionMarketValue'],
+             total_interest=bal['accruedInterest'],
+             margin_equity=bal['equity'],
+             maint_req=bal['maintenanceRequirement'],
+             margin_balance=bal['marginBalance']
+             )
+
+    @classmethod
+    def _get_positions(cls, positions):
+        res = []
+        for p in (positions or []):
+            instrument = p['instrument']
+            if instrument["assetType"] == "CASH_EQUIVALENT": continue
+
+            qty = p['longQuantity']
+            if qty == 0.0:
+                qty = -p['shortQuantity']
+            pre_qty = p.get('previousSessionLongQuantity', 0.0)
+            if pre_qty == 0.0:
+                pre_qty = -p['previousSessionShortQuantity']
+            pos = PositionInfo(
+                symbol=Symbol(instrument['symbol']),
+                quantity=qty,
+                price=p['marketValue'] / qty,
+                cost=p['averagePrice'],
+                day_gain=p['currentDayProfitLoss'],
+                day_gain_percent=p['currentDayProfitLossPercentage'],
+                day_cost=p['currentDayCost'],
+                pre_quantity=pre_qty,
+                maint_req=p['maintenanceRequirement']
+            )
+            res.append(pos)
+        return res
+ 
+    @classmethod
+    def _get_orders(cls, orders):
+        res = []
+        for o in orders or []:
+            order = OrderInfo(
+                legs=cls._get_order(o['orderLegCollection']),
+                price=o['price'],
+                quantity=o['quantity'],
+                filled_quantity=o['filledQuantity'],
+                order_type=o['orderType'],
+                status=o['status'],
+                strategy_type=o['orderStrategyType'],
+                duration=o['duration'],
+                cancel_time=o['cancelTime']
+            )
+            res.append(order)
+        return res
+    
+    @classmethod
+    def _get_order(cls, legs):
+        res = []
+        for leg in legs:
+            res.append(LegInfo(
+                symbol=Symbol(leg['instrument']['symbol']),
+                quantity=leg['quantity'],
+                action=Action.from_str(leg['instruction']),
+            ))
+        return res
 
     def get_transactions(self, account_alias=None, start_date=None, end_date=None):
         account_id = self.get_account_id(account_alias)

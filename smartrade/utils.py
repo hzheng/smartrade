@@ -30,3 +30,9 @@ def http_response(response):
 
     check(code == 200, response.raise_for_status())
     return response.json()
+
+def get_value(obj, *attrs):
+    for attr in attrs:
+        if attr in obj:
+            return obj[attr]
+    return None

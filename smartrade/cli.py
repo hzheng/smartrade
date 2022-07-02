@@ -250,6 +250,16 @@ def balance(config, args):
     bal = inspector.compute_balance(day=day) # or: get_balance
     pprint(bal if args.verbose else bal[-1])
 
+@subcommand(*data_options,
+    argument('-a', '--account', help='account id or alias or index'),
+    argument('-p', '--pos', action='store_true', help='include positions'),
+    argument('-o', '--order', action='store_true', help='include orders'),
+    argument('-v', '--verbose', action='store_true', help='verbose'))
+def account(config, args):
+    """Get account information."""
+    broker = get_broker(config)
+    pprint(broker.get_account_info(args.account, args.pos, args.order))
+
 @subcommand(
     *data_options,
     argument('date', nargs='?', help="date"))

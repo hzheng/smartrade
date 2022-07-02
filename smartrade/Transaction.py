@@ -47,13 +47,13 @@ class Action(IntEnum):
             name = name[7:]
         name = name.upper()
 
-        if name in ('BTO', 'BUY', 'BUY TO OPEN', 'REINVEST SHARES'):
+        if name in ('BTO', 'BUY', 'BUY TO OPEN', 'BUY_TO_OPEN', 'REINVEST SHARES'):
             return cls.BTO
-        if name in ('STC', 'SELL', 'SELL TO CLOSE'):
+        if name in ('STC', 'SELL', 'SELL TO CLOSE', 'SELL_TO_CLOSE'):
             return cls.STC
-        if name in ('STO', 'SELL TO OPEN'):
+        if name in ('STO', 'SELL TO OPEN', 'SELL_TO_OPEN'):
             return cls.STO
-        if name in ('BTC', 'BUY TO CLOSE'):
+        if name in ('BTC', 'BUY TO CLOSE', 'BUY_TO_CLOSE'):
             return cls.BTC
         if name in ('EXPIRED', ):
             # return cls.BTC if qty > 0 else cls.STC
