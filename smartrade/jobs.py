@@ -20,9 +20,11 @@ def _retrieve_quotes(app):
         Inspector(db_name, acct_id).summarize()
 
 def run(app):
-    logger.debug("Scheduling jobs")
+    hour = '20-23'
+    minute = '30' if app.config['ENV'] == 'production' else '45'
+    logger.debug(f"Scheduling jobs on HH({hour}):MM({minute}) every weekday")
     scheduler = BackgroundScheduler(timezone=timezone.utc)
     scheduler.add_job(func=lambda: _retrieve_quotes(app), trigger="cron",
-                      day_of_week='mon-fri', hour='20-23', minute='30')
+                      day_of_week='mon-fri', hour=hour, minute=minute)
     scheduler.start()
     atexit.register(lambda: scheduler.shutdown())

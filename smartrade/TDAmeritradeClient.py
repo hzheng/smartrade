@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from dataclasses import field, fields
 from datetime import datetime
-from turtle import position
 
 from tda import auth, client
 from tda.client.base import BaseClient

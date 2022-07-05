@@ -1,6 +1,6 @@
 import logging
 import sys
-from logging.handlers import TimedRotatingFileHandler
+from logging.handlers import RotatingFileHandler
 
 
 class Logger():
@@ -17,7 +17,8 @@ class Logger():
         return console_handler
 
     def _get_file_handler(self):
-        file_handler = TimedRotatingFileHandler(self._log_file, when='midnight')
+        #file_handler = TimedRotatingFileHandler(self._log_file, when='midnight')
+        file_handler = RotatingFileHandler(self._log_file, maxBytes=10**6, backupCount=100)
         file_handler.setFormatter(self.FORMATTER)
         return file_handler
 
