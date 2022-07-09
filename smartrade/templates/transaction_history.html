@@ -54,7 +54,7 @@ Transaction History
                     <label for="effective">Effective:</label>
                     <select name="effective">
                         <option value="-1">all</option>
-                        <option value="1">effective</option>
+                        <option value="1" selected="selected">effective</option>
                         <option value="0">ineffective</option>
                     </select>
                 </div>
@@ -64,6 +64,23 @@ Transaction History
                         <option value="-1">all</option>
                         <option value="1">original</option>
                         <option value="0">virtual</option>
+                    </select>
+                </div>
+                <div class="condition">
+                    <label for="action">Action:</label>
+                    <select name="action">
+                        <option value="">all</option>
+                        <option value="BTO">BTO</option>
+                        <option value="STO">STO</option>
+                        <option value="STC">STC</option>
+                        <option value="BTC">BTC</option>
+                        <option value="EXPIRED">expired</option>
+                        <option value="ASSIGNED">assigned</option>
+                        <option value="EXERCISE">exercise</option>
+                        <option value="TRANSFER">transfer</option>
+                        <option value="INTEREST">interest</option>
+                        <option value="DIVIDEND">dividend</option>
+                        <option value="JOURNAL">journal</option>
                     </select>
                 </div>
                 <div class="condition">

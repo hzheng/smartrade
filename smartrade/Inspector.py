@@ -99,7 +99,7 @@ class Inspector:
         return condition
 
     def transaction_list(self, start_date=None, end_date=None, ticker=None, asc=False,
-                         valid=-2, grouped=-2, effective=-1, original=-1):
+                         valid=-2, grouped=-2, effective=-1, original=-1, action=""):
         cond = {**self._account_cond}
         if ticker:
             cond['ui'] = ticker.upper()
@@ -109,6 +109,8 @@ class Inspector:
             cond['grouped'] = None
         elif grouped >= 0:
             cond['grouped'] = grouped > 0
+        if action:
+            cond['action'] = action
         expr = None
         if effective >= 0:
             expr = Assembler.effective_condition() if effective else Assembler.ineffective_condition()
