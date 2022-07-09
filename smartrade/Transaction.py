@@ -99,6 +99,10 @@ class InstrumentType(Enum):
         if self == self.PUT: return 'P'
         if self == self.AUTO: return 'A'
 
+    def to_json(self):
+        return format(self)
+
+
 class Symbol:
     def __init__(self, text):
         self._ui = None
@@ -171,6 +175,9 @@ class Symbol:
 
         strike = f"{self.strike * 1000}".rstrip('0').rstrip('.').zfill(8)
         return f"{self.ui}{self.expired.strftime('%y%m%d')}{self.type}{strike}"
+
+    def to_json(self):
+        return format(self)
 
     @property
     def type(self):

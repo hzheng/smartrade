@@ -13,7 +13,7 @@ from smartrade.Assembler import Assembler
 from smartrade.Inspector import Inspector
 from smartrade.Loader import Loader
 from smartrade.TransactionGroup import TransactionGroup
-from smartrade.utils import check
+from smartrade.utils import check, to_json
 
 logger = app_logger.get_logger(__name__)
 BAL_HIST_PATTERN = re.compile('.*"([^"]+)","([^"]+)"')
@@ -49,10 +49,13 @@ def account_home():
         values[index + 2] += value
         total_market_value += value
         total_profit += value
+    total_dividend = inspector.total_dividend()
+    total_interest = inspector.total_interest()
+    total_profit += total_dividend + total_interest
     summary = {
         'total_investment': inspector.total_investment(),
-        'total_interest': inspector.total_interest(),
-        'total_dividend': inspector.total_dividend(),
+        'total_interest': total_interest,
+        'total_dividend': total_dividend,
         'total_trading': inspector.total_trading(),
         'total_profit': total_profit,
         'total_market_value': total_market_value,
@@ -61,7 +64,10 @@ def account_home():
     # avoid negative total_investment when calculating total profit rate
     summary['total_profit_rate'] = summary['total_profit'] / max(summary['total_investment'], 1)
     
-    return {'summary': summary, 'values': values, 'period': inspector.transaction_period()}
+    broker = app.config['broker']
+    account_info = broker.get_account_info(account, True, True)
+    return {'summary': summary, 'values': values, 'period': inspector.transaction_period(),
+            'accountInfo': to_json(account_info)}
 
 @app.route("/load/<account>")
 def load(account):

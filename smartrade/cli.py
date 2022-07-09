@@ -21,6 +21,7 @@ from smartrade.MarketDataProvider import MarketDataProvider
 from smartrade.PolygonApi import PolygonApi
 from smartrade.TDAmeritradeClient import TDAmeritradeClient
 from smartrade.TransactionGroup import TransactionGroup
+from smartrade.utils import to_json
 
 
 def load_db(db_name, account, path, reload=True):
@@ -258,7 +259,8 @@ def balance(config, args):
 def account(config, args):
     """Get account information."""
     broker = get_broker(config)
-    pprint(broker.get_account_info(args.account, args.pos, args.order))
+    account_info = broker.get_account_info(args.account, args.pos, args.order)
+    print(to_json(account_info))
 
 @subcommand(
     *data_options,

@@ -18,7 +18,36 @@ Home
 {% include 'account.html' %}
 
 <div id="account_template" style="display: none;">
-    <section>
+    <section class="broker">
+        <table class="total">
+            <tbody>
+                <tr>
+                    <th>Total</th>
+                    <th>Profit</th>
+                    <th>Profit(%)</th>
+                    <th>Securities</th>
+                    <th>Cash</th>
+                    <th>Investment</th>
+                    <th>Interest</th>
+                    <th>Dividend</th>
+                    <th>Buying Power</th>
+                </tr>
+                <tr>
+                    <td class="money amount" name="account_value"></td>
+                    <td class="money amount" name="profit"></td>
+                    <td class="amount percent" name="profit_rate"></td> 
+                    <td class="money amount" name="total_securities_value"></td>
+                    <td class="money amount" name="cash_value"></td>
+                    <td class="money amount" name="total_investment"></td>
+                    <td class="money amount" name="total_interest"></td>
+                    <td class="money amount" name="total_dividend"></td>
+                    <td class="money amount" name="buying_power"></td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="derived">
         <table class="total">
             <tbody>
                 <tr>
@@ -45,7 +74,61 @@ Home
         </table>
     </section>
 
-    <section>
+    <section class="broker">
+        <table class="total">
+            <tbody>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Quanity</th>
+                    <th>Cost</th>
+                    <th>Price</th>
+                    <th>Day Gain</th>
+                    <th>Day Gain(%)</th>
+                    <th>Gain</th>
+                    <th>Gain(%)</th>
+                    <th>Market value</th>
+                </tr>
+                <tr>
+                    <td class="label" colspan="9">Stocks</td>
+                </tr>
+                <tr name="position">
+                    <td class="symbol" name="symbol"></td>
+                    <td class="quantity" name="quantity"></td>
+                    <td class="money amount" name="cost"></td>
+                    <td class="money amount" name="price"></td>
+                    <td class="money amount" name="day_gain"></td>
+                    <td class="amount percent" name="day_gain_percent"></td>
+                    <td class="money amount" name="gain"></td>
+                    <td class="amount percent" name="gain_percent"></td>
+                    <td class="money amount" name="value"></td>
+                </tr>
+                <tr>
+                    <td colspan="8">Total value</td>
+                    <td class="money amount" name="total_value"></td>
+                </tr>
+                <tr>
+                    <td class="label" colspan="9">Options</td>
+                </tr>
+                <tr name="position">
+                    <td class="symbol" name="symbol"></td>
+                    <td class="quantity" name="quantity"></td>
+                    <td class="money amount" name="cost"></td>
+                    <td class="money amount" name="price"></td>
+                    <td class="money amount" name="day_gain"></td>
+                    <td class="amount percent" name="day_gain_percent"></td>
+                    <td class="money amount" name="gain"></td>
+                    <td class="amount percent" name="gain_percent"></td>
+                    <td class="money amount" name="value"></td>
+                </tr>
+                <tr>
+                    <td colspan="8">Total value</td>
+                    <td class="money amount" name="total_value"></td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="derived">
         <table class="total">
             <tbody>
                 <tr>

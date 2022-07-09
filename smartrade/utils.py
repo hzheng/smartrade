@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from collections.abc import Iterable
+from enum import Enum
 import os
 
 import pymongo
@@ -36,3 +38,15 @@ def get_value(obj, *attrs):
         if attr in obj:
             return obj[attr]
     return None
+
+def to_json(obj):
+    if callable(getattr(obj, "to_json", None)): return obj.to_json()
+
+    if isinstance(obj, Iterable) and not isinstance(obj, str):
+        return [to_json(item) for item in obj]
+
+    if not hasattr(obj, '__dict__'): return obj
+
+    clazz = obj.__class__
+    return {prop: to_json(getattr(obj, prop)) for prop in dir(clazz)
+            if isinstance(getattr(clazz, prop), property)}

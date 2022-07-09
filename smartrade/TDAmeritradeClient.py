@@ -65,7 +65,7 @@ class TDAmeritradeClient(BrokerClient):
         cur_bal = self._get_balance(res['currentBalances'])
         pre_bal = self._get_balance(res['initialBalances'])
         positions = self._get_positions(res['positions']) if include_pos else None
-        orders = self._get_orders(res['orderStrategies']) if include_order else None
+        orders = self._get_orders(res.get('orderStrategies', None)) if include_order else None
         return AccountInfo(res['accountId'], cur_bal, pre_bal, 
                            positions=positions, orders=orders,
                            account_type=res['type'],
@@ -74,19 +74,19 @@ class TDAmeritradeClient(BrokerClient):
     @classmethod
     def _get_balance(cls, bal):
         return BalanceInfo(
-             account_value=bal['liquidationValue'],
-             cash_value=bal['cashBalance'] + bal['moneyMarketFund'], # + bal['accruedInterest'],
-             buying_power=bal['availableFundsNonMarginableTrade'], # better than bal['buyingPower']?
-             long_margin_value=bal['longMarginValue'],
-             long_stock_value=get_value(bal, 'longStockValue', 'longMarketValue'),
-             short_stock_value=get_value(bal, 'shortStockValue', 'shortMarketValue'),
-             long_option_value=bal['longOptionMarketValue'],
-             short_option_value=bal['shortOptionMarketValue'],
-             total_interest=bal['accruedInterest'],
-             margin_equity=bal['equity'],
-             maint_req=bal['maintenanceRequirement'],
-             margin_balance=bal['marginBalance']
-             )
+            account_value=bal['liquidationValue'],
+            cash_value=bal['cashBalance'] + bal['moneyMarketFund'],  # + bal['accruedInterest'],
+            buying_power=get_value(bal, 'availableFundsNonMarginableTrade', 'buyingPower', 'cashAvailableForTrading'),
+            long_margin_value=get_value(bal, 'longMarginValue'),
+            long_stock_value=get_value(bal, 'longStockValue', 'longMarketValue'),
+            short_stock_value=get_value(bal, 'shortStockValue', 'shortMarketValue'),
+            long_option_value=bal['longOptionMarketValue'],
+            short_option_value=bal['shortOptionMarketValue'],
+            total_interest=bal['accruedInterest'],
+            margin_equity=get_value(bal, 'equity'),
+            maint_req=get_value(bal, 'maintenanceRequirement'),
+            margin_balance=get_value(bal, 'marginBalance')
+        )
 
     @classmethod
     def _get_positions(cls, positions):
@@ -100,7 +100,7 @@ class TDAmeritradeClient(BrokerClient):
                 qty = -p['shortQuantity']
             pre_qty = p.get('previousSessionLongQuantity', 0.0)
             if pre_qty == 0.0:
-                pre_qty = -p['previousSessionShortQuantity']
+                pre_qty = -p.get('previousSessionShortQuantity', 0.0)
             pos = PositionInfo(
                 symbol=Symbol(instrument['symbol']),
                 quantity=qty,
@@ -128,7 +128,7 @@ class TDAmeritradeClient(BrokerClient):
                 status=o['status'],
                 strategy_type=o['orderStrategyType'],
                 duration=o['duration'],
-                cancel_time=o['cancelTime']
+                cancel_time=o.get('cancelTime', None)
             )
             res.append(order)
         return res

@@ -40,11 +40,9 @@ const app = {
     },
 
     _loadAccountSummary: function (data, $tab, $tabContent) {
-        for (const [key, value] of Object.entries(data.summary)) {
-            app.setValue($('td[name="' + key + '"]', $tabContent), value);
-        }
-        const $rows = $('tr[name="position"]', $tabContent);
-        const $total = $('td[name="total_value"]', $tabContent);
+        const $derived = $('section.derived', $tabContent);
+        let $rows = $('tr[name="position"]', $derived);
+        let $total = $('td[name="total_value"]', $derived);
         for (let i = 0; i < 2; i++) {
             const $row = $rows.eq(i);
             for (const [symbol, [quantity, price, value]] of Object.entries(data.values[i])) {
@@ -56,6 +54,57 @@ const app = {
             }
             app.setValue($total.eq(i), data.values[i + 2]);
             $row.remove();
+        }
+
+        const accountInfo = data.accountInfo;
+        const balance = accountInfo.balance;
+        const $broker = $('section.broker', $tabContent);
+        if (balance) {
+            $broker.show();
+            const stockValue = balance.stock_value;
+            const optionValue = balance.option_value;
+            for (const [key, value] of Object.entries(balance)) {
+                //console.log(key, "=>", value);
+                app.setValue($('td[name="' + key + '"]', $broker), value);
+            }
+            const marketValue = balance.account_value;
+            const cost = data.summary.total_investment;
+            const profit = marketValue - cost;
+            app.setValue($('td[name="profit"]', $broker), profit);
+            app.setValue($('td[name="profit_rate"]', $broker), profit / cost);
+            // show positions
+            $rows = $('tr[name="position"]', $broker);
+            $total = $('td[name="total_value"]', $broker);
+            const positions = accountInfo.positions;
+            positions.sort((p, q) => p.symbol > q.symbol ? 1 : -1);
+            for (let i = 0; i < 2; i++) {
+                const $row = $rows.eq(i);
+                for (const pos of positions) {
+                    const symbol = pos.symbol;
+                    const isOption = symbol.indexOf("_") >= 0;
+                    if (isOption ^ (i > 0)) { continue; }
+
+                    const $newRow = $row.clone().insertBefore($row);
+                    const k = isOption ? 100 : 1;
+                    app.setValue($("td[name='symbol']", $newRow), symbol);
+                    app.setValue($("td[name='quantity']", $newRow), pos.quantity);
+                    app.setValue($("td[name='cost']", $newRow), pos.cost);
+                    app.setValue($("td[name='price']", $newRow), pos.price / k);
+                    app.setValue($("td[name='day_gain']", $newRow), pos.day_gain);
+                    app.setValue($("td[name='day_gain_percent']", $newRow), pos.day_gain_percent / 100);
+                    const marketValue = pos.quantity * pos.price;
+                    const totalCost = pos.cost * pos.quantity * k;
+                    const gain = marketValue - totalCost;
+                    app.setValue($("td[name='gain']", $newRow), gain);
+                    app.setValue($("td[name='gain_percent']", $newRow), gain / totalCost);
+                    app.setValue($("td[name='value']", $newRow), marketValue);
+                }
+                app.setValue($total.eq(i), i == 0 ? stockValue : optionValue);
+                $row.remove();
+            }
+        }
+        for (const [key, value] of Object.entries(data.summary)) { // may override the above values
+            app.setValue($('td[name="' + key + '"]', $tabContent), value);
         }
         app._commonLoad(data, $tab, $tabContent);
     },

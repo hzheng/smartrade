@@ -116,6 +116,9 @@ section {
   border-style: groove;
   margin: 6px;
   border-radius: 8px;
+  &.broker {
+    display: none;
+  }
 }
 
 %amount {
