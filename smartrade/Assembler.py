@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from datetime import timedelta
+
 from smartrade import app_logger
 from smartrade.TransactionGroup import TransactionGroup
 from smartrade.utils import get_database, ASC, check
@@ -48,16 +50,19 @@ class Assembler:
         effective_cond = self.effective_condition()
         ungrouped_cond = {**effective_cond, **self._account_cond, 'ui': ticker, 'grouped': {'$ne': True}, 'valid': 1}
 
-        close_action_cond = {'action': {'$in': ['STC', 'BTC', 'EXPIRED', 'ASSIGNED', 'EXERCISE']},
+        close_action_cond = {'action': {'$in': ['STC', 'BTC', 'SPLIT_FROM', 'EXPIRED', 'ASSIGNED', 'EXERCISE']},
                              **ungrouped_cond}
         following_dates = {res['date']
                            for res in tx_collection.find(close_action_cond, {'date': 1})}
-
+        following_dates_before = {d - timedelta(seconds=1) for d in following_dates}
+        following_dates_after = {d + timedelta(seconds=1) for d in following_dates}
+        following_dates |= following_dates_before
+        following_dates |= following_dates_after
         leading_cond = {**self._account_cond, 'action': {'$in': ['STO', 'BTO']},
                         'date': {'$nin': list(following_dates)},
                         **ungrouped_cond}
         following_cond = {**self._account_cond,
-                          'action': {'$in': ['STC', 'BTC', 'EXPIRED', 'ASSIGNED', 'EXERCISE', 'STO', 'BTO']},
+                          'action': {'$in': ['STC', 'BTC', 'EXPIRED', 'ASSIGNED', 'EXERCISE', 'STO', 'BTO', 'SPLIT_FROM', 'SPLIT_TO']},
                           'date': {'$in': list(following_dates)},
                           **ungrouped_cond}
         order = [('date', ASC), ('action', ASC), ('expired', ASC), ('strike', ASC), ('type', ASC)]

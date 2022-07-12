@@ -19,18 +19,20 @@ class Validity(IntEnum):
     VALID = 1
 
 class Action(IntEnum):
+    SPLIT_TO = -3
     BTO = -2
     STO = -1
     STC = 1
     BTC = 2
-    EXPIRED = 3
-    ASSIGNED = 4
-    EXERCISE = 5
-    TRANSFER = 6
-    INTEREST = 7
-    DIVIDEND = 8
-    JOURNAL = 9
-    INVALID = 10
+    SPLIT_FROM = 3
+    EXPIRED = 4
+    ASSIGNED = 5
+    EXERCISE = 6
+    TRANSFER = 7
+    INTEREST = 8
+    DIVIDEND = 9
+    JOURNAL = 10
+    INVALID = 11
  
     def is_open(self):
         return self <= Action.STO
@@ -55,6 +57,10 @@ class Action(IntEnum):
             return cls.STO
         if name in ('BTC', 'BUY TO CLOSE', 'BUY_TO_CLOSE'):
             return cls.BTC
+        if name in ('SPLIT_FROM', ):
+            return cls.SPLIT_FROM
+        if name in ('SPLIT_TO', ):
+            return cls.SPLIT_TO
         if name in ('EXPIRED', ):
             # return cls.BTC if qty > 0 else cls.STC
             return cls.EXPIRED
@@ -350,7 +356,7 @@ class Transaction:
         return (not self.is_merged()) and (self.slice_parent != self.id)
  
     def same_group(self, other):
-        return self.account == other.account and self.date == other.date and self.symbol.ui == other.symbol.ui
+        return self.account == other.account and self.symbol.ui == other.symbol.ui and abs((self.date - other.date).total_seconds()) < 2
 
     def is_option(self):
         return self._symbol.is_option()

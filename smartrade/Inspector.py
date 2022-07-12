@@ -110,7 +110,7 @@ class Inspector:
         elif grouped >= 0:
             cond['grouped'] = grouped > 0
         if action:
-            cond['action'] = action
+            cond['action'] = {'$in': action.split(",")}
         expr = None
         if effective >= 0:
             expr = Assembler.effective_condition() if effective else Assembler.ineffective_condition()

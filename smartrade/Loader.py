@@ -120,6 +120,8 @@ class Loader:
                     action = "EXPIRED"
                 elif subtype == 'MI':
                     action = "INTEREST"
+                elif subtype in ('SE', 'SO', 'SP'):
+                    action = "SPLIT_TO" if 'symbol' in instrument else "SPLIT_FROM" #TODO: find a better condition
                 elif subtype in ('PM', 'RM'): # ignore Money Market Purchase
                     ignored = True
                 elif subtype in ('TI', 'TO'): # ignore transfer in/out
