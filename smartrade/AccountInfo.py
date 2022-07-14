@@ -25,6 +25,11 @@ class BalanceInfo:
         return self._buying_power
 
     @property
+    def nonmarginable_buying_power(self):
+        """Nonmarginable buying power (i.e. purchasing power without borrowing)."""
+        return self._nonmarginable_buying_power
+
+    @property
     def long_stock_value(self):
         return self._long_stock_value
 
@@ -70,7 +75,7 @@ class BalanceInfo:
 
     @property
     def margin_balance(self):
-        return self._margin_balance
+        return self._margin_balance or 0
 
     @property
     def margin_equity(self):

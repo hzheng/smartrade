@@ -76,7 +76,8 @@ class TDAmeritradeClient(BrokerClient):
         return BalanceInfo(
             account_value=bal['liquidationValue'],
             cash_value=bal['cashBalance'] + bal['moneyMarketFund'],  # + bal['accruedInterest'],
-            buying_power=get_value(bal, 'availableFundsNonMarginableTrade', 'buyingPower', 'cashAvailableForTrading'),
+            buying_power=get_value(bal, 'buyingPower', 'cashAvailableForTrading', 'availableFundsNonMarginableTrade'),
+            nonmarginable_buying_power=get_value(bal, 'availableFundsNonMarginableTrade', 'buyingPower', 'cashAvailableForTrading'),
             long_margin_value=get_value(bal, 'longMarginValue'),
             long_stock_value=get_value(bal, 'longStockValue', 'longMarketValue'),
             short_stock_value=get_value(bal, 'shortStockValue', 'shortMarketValue'),
