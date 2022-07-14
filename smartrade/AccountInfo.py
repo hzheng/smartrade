@@ -6,8 +6,8 @@ class BalanceInfo:
     def __init__(self, **vals):
         for key, val in vals.items():
             setattr(self, "_" + key, val)
-        check(abs(self.account_value - self.cash_value - self.total_securities_value) < 1e-9,
-              f"{self.account_value} should be almost equal to {self.cash_value} + {self.total_securities_value}")
+        check(abs(self.account_value - self.cash_value - self.total_securities_value - self.margin_balance) < 1e-9,
+              f"{self.account_value} should be almost equal to {self.cash_value} + {self.total_securities_value} + {self.margin_balance}")
 
     @property
     def account_value(self):
