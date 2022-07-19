@@ -18,10 +18,6 @@ from smartrade.utils import check, to_json
 logger = app_logger.get_logger(__name__)
 BAL_HIST_PATTERN = re.compile('.*"([^"]+)","([^"]+)"')
 
-@app.route("/")
-def home():
-    return redirect("/home")
-
 @app.route("/home")
 def account_home():
     account = request.args.get('account')

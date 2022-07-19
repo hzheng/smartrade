@@ -7,6 +7,9 @@ services:
       - FLASK_ENV=production
       - MONGODB_URI=mongodb://smartrade:smartradeProd@mongo_db:27017
     command: gunicorn -w 1 -b 0.0.0.0:8000 smartrade.wsgi:app
+    build:
+      args:
+        ENV: production
 
   mongodb:
     restart: always

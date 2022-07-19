@@ -57,7 +57,7 @@ const app = {
         }
 
         const accountInfo = data.accountInfo;
-        const balance = accountInfo.balance;
+        const balance = accountInfo && accountInfo.balance;
         const $broker = $('section.broker', $tabContent);
         if (balance) {
             $broker.show();

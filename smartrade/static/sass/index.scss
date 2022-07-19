@@ -1,0 +1,89 @@
+body {
+  // max-width: 1280px;
+  margin: 0 auto;
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: serif;
+    color: #117a2b;
+    margin: 1rem 0;
+  }
+
+  header,
+  footer {
+    left: 0;
+    width: 100%;
+    text-align: center;
+  }
+
+  header {
+    top: 0;
+    /* color: white; */
+  }
+
+  footer {
+    bottom: 0;
+    color: white;
+    background-color: gray;
+  }
+
+  .app {
+    margin: 40px 100px;
+
+    .app-menu {
+      float: right;
+    }
+
+    .app-main {
+      // background-color: green;
+      // height: 800px;
+      // border: 1px red solid;
+    }
+  }
+
+  section {
+    border-style: groove;
+    margin: 6px;
+    border-radius: 8px;
+
+    table td {
+      text-align: center;
+      &.label {
+          font-weight: 700;
+          font-style: italic;
+          text-align: left;
+          padding-left: 2em;
+        }
+      }
+  }
+
+  %amount {
+    color: green;
+  }
+
+  .negative {
+    color: red !important;
+  }
+
+  %money {
+    &:before {
+      content: "$";
+    }
+
+    text-align: right;
+    // font-size: small;
+    font-family: Verdana;
+  }
+
+  .amount {
+    @extend %amount;
+  }
+
+  .money {
+    @extend %money;
+  }
+}

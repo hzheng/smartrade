@@ -6,7 +6,7 @@ __author__ = "Hui Zheng"
 __copyright__ = "Copyright 2022 Hui Zheng"
 __credits__ = ["Hui Zheng"]
 __license__ = "MIT <http://www.opensource.org/licenses/mit-license.php>"
-__version__ = "0.2.24"
+__version__ = "0.3.0"
 __maintainer__ = "Hui Zheng"
 __email__ = "XYZ.DLL[AT]gmail[DOT]com"
 __url__ = "https://github.com/hzheng/smartrade"
@@ -75,3 +75,4 @@ if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
     jobs.run(app)
 
 import smartrade.views, smartrade.template_utils
+import smartrade.rest_api

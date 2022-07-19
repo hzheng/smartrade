@@ -10,6 +10,9 @@ services:
     volumes:
       - code:/app/smartrade
     command: python3 -m flask run
+    build:
+      args:
+        ENV: development
 
   mongodb:
     environment:

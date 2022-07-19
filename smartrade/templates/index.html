@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+
+{% set env = config['ENV'] %}
+
+{% set account_map = {"data-default_account": session['default_account']} %}
+{% set all_accounts = config.broker_client[0].accounts %}
+{% for accounts in all_accounts %}
+{% set key = "data-accounts-" + loop.index0|string %}
+{% for alias, full_account in accounts.items() %}
+{% set _ = account_map.update({ key:  alias + ":" + full_account[-4:]}) %}
+{% endfor %}
+{% endfor %}
+
+<head>
+  <meta charset="utf-8">
+  <title>Smartrade ({{env}})</title>
+  <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+</head>
+<body>
+  <header>
+    <h1>Smartrade</h1>
+  </header>
+  <div id="root" {{ account_map |xmlattr }}></div>
+
+  <script src="{{url_for('static', filename='generated/bundle.js')}}"></script>
+
+  <footer> Copyright © 2022 All Rights Reserved ({{config['ENV']}} v{{config['version']}})</footer>
+</body>
+
+</html>

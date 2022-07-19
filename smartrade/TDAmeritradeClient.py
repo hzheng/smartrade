@@ -46,7 +46,7 @@ class TDAmeritradeClient(BrokerClient):
         account_id = self.get_account_id(account_alias)
         if len(account_id) <= 4:
             logger.info("skipping get_account for account: %s", account_id)
-            return {}
+            return None
 
         logger.debug("BEGIN: get_account for account %s", account_id)
         fields = []

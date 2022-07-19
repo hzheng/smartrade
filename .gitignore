@@ -1,5 +1,6 @@
 # generated static files
 smartrade/static/generated
+node_modules
 .webassets-cache
 
 # Temporary files
