@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
 
+import { Divider, Header, Segment } from 'semantic-ui-react'
+
 import AccountSummaryPanel from './account_summary_panel';
 import PositionsPanel from './positions_panel';
 
@@ -11,14 +13,21 @@ function PositionsPane() {
   }, []);
 
   return (
-    <div className="PositionsPane">
+    <Segment className="PositionsPane">
+      <Header as='h3'>Summary</Header>
+
       <section className="summary">
         <AccountSummaryPanel />
       </section>
+
+      <Divider section />
+
+      <Header as='h3'>Positions</Header>
+
       <section className="positions">
         <PositionsPanel />
       </section>
-    </div >
+    </Segment>
   )
 }
 
