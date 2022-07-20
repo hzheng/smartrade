@@ -58,11 +58,11 @@ class Assembler:
         following_dates_after = {d + timedelta(seconds=1) for d in following_dates}
         following_dates |= following_dates_before
         following_dates |= following_dates_after
-        leading_cond = {**self._account_cond, 'action': {'$in': ['STO', 'BTO']},
+        leading_cond = {**self._account_cond, 'action': {'$in': ['STO', 'BTO', 'SPLIT']},
                         'date': {'$nin': list(following_dates)},
                         **ungrouped_cond}
         following_cond = {**self._account_cond,
-                          'action': {'$in': ['STC', 'BTC', 'EXPIRED', 'ASSIGNED', 'EXERCISE', 'STO', 'BTO', 'SPLIT_FROM', 'SPLIT_TO']},
+                          'action': {'$in': ['STC', 'BTC', 'EXPIRED', 'ASSIGNED', 'EXERCISE', 'STO', 'BTO', 'SPLIT', 'SPLIT_FROM', 'SPLIT_TO']},
                           'date': {'$in': list(following_dates)},
                           **ungrouped_cond}
         order = [('date', ASC), ('action', ASC), ('expired', ASC), ('strike', ASC), ('type', ASC)]

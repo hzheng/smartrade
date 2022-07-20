@@ -19,6 +19,7 @@ class Validity(IntEnum):
     VALID = 1
 
 class Action(IntEnum):
+    SPLIT = -4
     SPLIT_TO = -3
     BTO = -2
     STO = -1
@@ -57,6 +58,8 @@ class Action(IntEnum):
             return cls.STO
         if name in ('BTC', 'BUY TO CLOSE', 'BUY_TO_CLOSE'):
             return cls.BTC
+        if name in ('SPLIT', ):
+            return cls.SPLIT
         if name in ('SPLIT_FROM', ):
             return cls.SPLIT_FROM
         if name in ('SPLIT_TO', ):

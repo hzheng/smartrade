@@ -15,12 +15,13 @@ def get_database(db_name):
     client = pymongo.MongoClient(os.environ.get('MONGODB_URI', "mongodb://127.0.0.1:27017"))
     return client[db_name]
 
-def check(assertion, error_message, logger=None):
+def check(assertion, error_message, log=None, throw_error=True):
     if assertion: return
 
-    if logger:
-        logger.error(error_message)
-    raise AssertionError(error_message)
+    if log:
+        log(error_message)
+    if throw_error:
+        raise AssertionError(error_message)
     
 def http_response(response):
     code = response.status_code

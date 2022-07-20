@@ -152,14 +152,14 @@ class TransactionGroup:
         self._total = total
         self._positions = positions
         cost = self._cost = self._get_cost()
-        check(cost > 0, f"cost {cost} should be positive")
+        check(cost >= 0, f"cost {cost} should be nonnegative")
         profit = self._profit = total + (self._get_market_value() if include_quotes else 0)
         if positions:
             last_date = datetime.today()
         days = self._duration = (last_date.date() - first_date.date()).days + 1
         if positions: return
 
-        roi = profit / cost
+        roi = 0 if cost == 0 else profit / cost
         if profit > 0:
             if days < 365:
                 roi = (1 + roi) ** (52 / math.ceil(days / 7)) - 1
