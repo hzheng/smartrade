@@ -1,0 +1,38 @@
+.TickerTransactionGroupsPanel {}
+
+.TickerTransactionGroupsPanel table.transaction {
+  background: #D5F5E3;
+  border-collapse: collapse;
+  border-style: hidden;
+  width: 95%;
+  margin: 8px auto;
+}
+
+.TickerTransactionGroupsPanel table.transaction th,
+.TickerTransactionGroupsPanel table.transaction td {
+  border: 1px solid gray;
+  padding: 4px;
+  text-align: center;
+}
+
+.TickerTransactionGroupsPanel .transaction th {
+  background: #eee;
+}
+
+.TickerTransactionGroupsPanel .transaction tr.close {
+  background-color: gainsboro;
+}
+
+.TickerTransactionGroupsPanel .transaction td.symbol {
+  background-color: rgb(197, 206, 235);
+}
+
+.TickerTransactionGroupsPanel.completed {
+  border-style: dotted;
+  border-color: gray;
+}
+
+.TickerTransactionGroupsPanel .summary label {
+  font-weight: bold;
+  padding: 2px 1em;
+}

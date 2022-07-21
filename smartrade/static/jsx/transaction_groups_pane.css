@@ -1,0 +1,6 @@
+.TransactionGroupsPane {}
+
+.TransactionGroupsPane .TickersSelect {
+  width: 60%;
+  margin-right: 1em;
+}

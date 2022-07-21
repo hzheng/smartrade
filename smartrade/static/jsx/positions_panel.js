@@ -3,7 +3,7 @@ import React, { useContext, useEffect } from 'react';
 import $ from 'jquery';
 
 import AppContext from "./app_context";
-import { resetValues, setValue } from "./util";
+import { fetchData, resetValues, setValue } from "./util";
 
 function PositionsPanel() {
   const { account } = useContext(AppContext);
@@ -49,12 +49,11 @@ function PositionsPanel() {
   useEffect(() => {
     const $self = $(".PositionsPanel");
     resetValues($self, "???");
-    const fetchData = async () => {
-      const res = await fetch(`/account/${account}/positions`);
+    (async () => {
+      const res = await fetchData(`/account/${account}/positions`);
       const data = await res.json();
       loadPositions(data.positions, $self);
-    };
-    fetchData();
+    })();
   }, [account]);
 
   return (

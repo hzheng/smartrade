@@ -61,3 +61,24 @@ def positions(account):
     account_info = broker.get_account_info(account, include_pos=True)
     positions = account_info.positions if account_info else {}
     return {'positions': to_json(positions)}
+
+@app.route('/account/<account>/traded_tickers', methods=['GET'])
+def traded_tickers(account):
+    db_name = app.config['DATABASE']
+    inspector = Inspector(db_name, account)
+    return {symbol: bool(pos) for symbol, pos in inspector.summarize(False)[2].items()}
+    
+@app.route('/account/<account>/transaction_groups/<ticker>', methods=['GET'])
+def ticker_transaction_groups(account, ticker):
+    db_name = app.config['DATABASE']
+    inspector = Inspector(db_name, account)
+    tx_groups = inspector.ticker_transaction_groups(ticker)
+    total, profit, positions, prices = TransactionGroup.summarize(
+        tx_groups, True)
+    return {
+        'transactionGroups': [tx_group.to_json(True) for tx_group in tx_groups],
+        'positions': positions,
+        'prices': prices,
+        'profit': profit,
+        'total': total
+    }

@@ -1,6 +1,13 @@
 import $ from 'jquery';
 
-export function get_data(element) {
+export function fetchData(url) {
+  console.log(`fetching data from ${url}...`);
+  const data = fetch(url);
+  console.log("fetched data");
+  return data;
+}
+
+export function getElementData(element) {
   const data = {};
   for (const attr of element.attributes) {
     const [prefix, key, key2] = attr.nodeName.split("-");

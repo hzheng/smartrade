@@ -3,7 +3,7 @@ import React, { useContext, useEffect } from 'react';
 import $ from 'jquery';
 
 import AppContext from "./app_context";
-import { resetValues, setValue } from "./util";
+import { fetchData, resetValues, setValue } from "./util";
 
 function AccountSummaryPanel() {
   const { account } = useContext(AppContext);
@@ -29,12 +29,11 @@ function AccountSummaryPanel() {
   useEffect(() => {
     const $self = $(".AccountSummaryPanel");
     resetValues($self, "???");
-    const fetchData = async () => {
-      const res = await fetch(`/account/${account}/summary`);
+    (async () => {
+      const res = await fetchData(`/account/${account}/summary`);
       const data = await res.json();
       loadAccountSummary(data, $self);
-    };
-    fetchData();
+    })();
   }, [account]);
 
   return (
