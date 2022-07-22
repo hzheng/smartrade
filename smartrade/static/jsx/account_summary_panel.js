@@ -24,6 +24,12 @@ function AccountSummaryPanel() {
     for (const [key, value] of Object.entries(data.summary)) { // may override the above values
       accountSummary[key] = value;
     }
+    if (!balance) {
+      accountSummary['account_value'] = accountSummary['total_market_value'];
+      accountSummary['cash_value'] = accountSummary['total_cash'];
+      accountSummary['profit'] = accountSummary['total_profit'];
+      accountSummary['profit_rate'] = accountSummary['total_profit_rate'];
+    }
     setSummary(accountSummary);
   }
 

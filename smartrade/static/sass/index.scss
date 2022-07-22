@@ -80,11 +80,15 @@ body {
     @extend %amount;
   }
 
+  .date {
+    @extend %amount;
+  }
+
   .currency {
     @extend %currency;
   }
 
   .duration {
-    color: green;
+    @extend %amount;
   }
 }
