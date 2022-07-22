@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 
-import { FormattedNumber } from 'react-intl';
+import { FormattedField } from './format';
 
 import AppContext from "./app_context";
 import { fetchData } from "./util";
@@ -53,17 +53,17 @@ function AccountSummaryPanel() {
             <th>Option Buying Power</th>
           </tr>
           <tr>
-            <td className="money amount"><FormattedNumber value={summary.account_value} style="currency" currency="USD" /></td>
-            <td className="money amount"><FormattedNumber value={summary.profit} style="currency" currency="USD" /></td>
-            <td className="amount"><FormattedNumber value={summary.profit_rate} style='percent' minimumFractionDigits={2} /></td>
-            <td className="money amount"><FormattedNumber value={summary.total_securities_value} style="currency" currency="USD" /></td>
-            <td className="money amount"><FormattedNumber value={summary.cash_value} style="currency" currency="USD" /></td>
-            <td className="money amount"><FormattedNumber value={summary.margin_balance} style="currency" currency="USD" /></td>
-            <td className="money amount"><FormattedNumber value={summary.total_investment} style="currency" currency="USD" /></td>
-            <td className="money amount"><FormattedNumber value={summary.total_interest} style="currency" currency="USD" /></td>
-            <td className="money amount"><FormattedNumber value={summary.total_dividend} style="currency" currency="USD" /></td>
-            <td className="money amount"><FormattedNumber value={summary.buying_power} style="currency" currency="USD" /></td>
-            <td className="money amount"><FormattedNumber value={summary.nonmarginable_buying_power} style="currency" currency="USD" /></td>
+            <FormattedField value={summary.account_value} style="currency" />
+            <FormattedField value={summary.profit} style="currency" />
+            <FormattedField value={summary.profit_rate} style="percent" />
+            <FormattedField value={summary.total_securities_value} style="currency" />
+            <FormattedField value={summary.cash_value} style="currency" />
+            <FormattedField value={summary.margin_balance} style="currency" />
+            <FormattedField value={summary.total_investment} style="currency" />
+            <FormattedField value={summary.total_interest} style="currency" />
+            <FormattedField value={summary.total_dividend} style="currency" />
+            <FormattedField value={summary.buying_power} style="currency" />
+            <FormattedField value={summary.nonmarginable_buying_power} style="currency" />
           </tr>
         </tbody>
       </table>

@@ -52,13 +52,14 @@ body {
 
     table td {
       text-align: center;
+
       &.label {
-          font-weight: 700;
-          font-style: italic;
-          text-align: left;
-          padding-left: 2em;
-        }
+        font-weight: 700;
+        font-style: italic;
+        text-align: left;
+        padding-left: 2em;
       }
+    }
   }
 
   %amount {
@@ -69,7 +70,7 @@ body {
     color: red !important;
   }
 
-  %money {
+  %currency {
     text-align: right;
     // font-size: small;
     font-family: Verdana;
@@ -79,7 +80,11 @@ body {
     @extend %amount;
   }
 
-  .money {
-    @extend %money;
+  .currency {
+    @extend %currency;
+  }
+
+  .duration {
+    color: green;
   }
 }

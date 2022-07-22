@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 
-import { FormattedNumber } from 'react-intl';
+import { FormattedField } from './format';
 
 import AppContext from "./app_context";
 import { fetchData } from "./util";
@@ -10,13 +10,13 @@ function PositionItem({ position }) {
     <tr className="position">
       <td className="symbol">{position.symbol}</td>
       <td className="quantity">{position.quantity}</td>
-      <td className="money amount"><FormattedNumber value={position.cost} style="currency" currency="USD" /></td>
-      <td className="money amount"><FormattedNumber value={position.price} style="currency" currency="USD" /></td>
-      <td className="money amount"><FormattedNumber value={position.day_gain} style="currency" currency="USD" /></td>
-      <td className="amount"><FormattedNumber value={position.day_gain_percent} style='percent' minimumFractionDigits={2} /></td>
-      <td className="money amount"><FormattedNumber value={position.gain} style="currency" currency="USD" /></td>
-      <td className="amount"><FormattedNumber value={position.gain_percent} style='percent' minimumFractionDigits={2} /></td>
-      <td className="money amount"><FormattedNumber value={position.value} style="currency" currency="USD" /></td>
+      <FormattedField value={position.cost} style="currency" />
+      <FormattedField value={position.price} style="currency" />
+      <FormattedField value={position.day_gain} style="currency" />
+      <FormattedField value={position.day_gain_percent} style="percent" />
+      <FormattedField value={position.gain} style="currency" />
+      <FormattedField value={position.gain_percent} style="percent" />
+      <FormattedField value={position.value} style="currency" />
     </tr>
   );
 }
@@ -86,7 +86,7 @@ function PositionsPanel() {
           }
           <tr>
             <th colSpan="8">Total value</th>
-            <td className="money amount"><FormattedNumber value={stockPositions.total_value} style="currency" currency="USD" /></td>
+            <FormattedField value={stockPositions.total_value} style="currency" />
           </tr>
           <tr>
             <td className="label" colSpan="9">Options</td>
@@ -96,7 +96,7 @@ function PositionsPanel() {
           }
           <tr>
             <th colSpan="8">Total value</th>
-            <td className="money amount"><FormattedNumber value={optionPositions.total_value} style="currency" currency="USD" /></td>
+            <FormattedField value={optionPositions.total_value} style="currency" />
           </tr>
         </tbody>
       </table>

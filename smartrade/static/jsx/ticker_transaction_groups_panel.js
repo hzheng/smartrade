@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react';
 
-import { FormattedDate, FormattedNumber } from 'react-intl';
+import { FormattedField } from './format';
 
 import AppContext from './app_context';
 
@@ -13,12 +13,12 @@ function SymbolTransactionPanel({ transaction }) {
       {isOpen &&
         <td className="symbol" rowSpan="100">{transaction.symbol}</td>
       }
-      <td className="date"><FormattedDate value={transaction.date} day="2-digit" month="2-digit" year="numeric" /></td>
+      <FormattedField value={transaction.date} style="date" />
       <td>{transaction.action}</td>
-      <td className="money amount"><FormattedNumber value={transaction.price} style="currency" currency="USD" /></td>
+      <FormattedField value={transaction.price} style="currency" />
       <td className="quantity">{transaction.quantity}</td>
-      <td className="money amount"><FormattedNumber value={transaction.fee} style="currency" currency="USD" /></td>
-      <td className="money amount"><FormattedNumber value={transaction.amount} style="currency" currency="USD" /></td>
+      <FormattedField value={transaction.fee} style="currency" />
+      <FormattedField value={transaction.amount} style="currency" />
     </tr>
   );
 }
@@ -70,11 +70,11 @@ function TickerTransactionGroupsPanel({ chains, completed, showCompleted, ...pro
       }
       <div className="summary">
         <label>Profit:</label>
-        <span className="money amount"><FormattedNumber value={props.profit} style="currency" currency="USD" /></span>
+        <FormattedField tag="span" value={props.profit} style="currency" />
         <label>ROI:</label>
-        <span className="amount"><FormattedNumber value={props.roi} style='percent' minimumFractionDigits={2} /></span>
+        <FormattedField tag="span" value={props.roi} style="percent" />
         <label>Cost:</label>
-        <span className="money amount"><FormattedNumber value={props.cost} style="currency" currency="USD" /></span>
+        <FormattedField tag="span" value={props.cost} style="currency" />
         <label>Duration:</label>
         <span className="duration">{props.duration}</span> day(s)
       </div>
