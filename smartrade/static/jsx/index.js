@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
+import { IntlProvider } from 'react-intl'
+
 import App from './app';
 import { getElementData } from './util';
 
@@ -11,6 +13,8 @@ const root = document.getElementById('root');
 
 ReactDOM.createRoot(root).render(
   <React.StrictMode>
-    <App {...getElementData(root)} />
+    <IntlProvider locale="en">
+      <App {...getElementData(root)} />
+    </IntlProvider>
   </React.StrictMode>
 );

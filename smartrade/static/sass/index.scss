@@ -70,10 +70,6 @@ body {
   }
 
   %money {
-    &:before {
-      content: "$";
-    }
-
     text-align: right;
     // font-size: small;
     font-family: Verdana;

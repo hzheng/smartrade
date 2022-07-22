@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react';
 
-import $ from 'jquery';
+import { FormattedDate, FormattedNumber } from 'react-intl';
 
 import AppContext from './app_context';
 
@@ -11,14 +11,14 @@ function SymbolTransactionPanel({ transaction }) {
   return (
     <tr className={isOpen ? 'open' : 'close'}>
       {isOpen &&
-        <td name="symbol" className="symbol" rowSpan="100">{transaction.symbol}</td>
+        <td className="symbol" rowSpan="100">{transaction.symbol}</td>
       }
-      <td name="date" className="date">{transaction.date}</td>
-      <td name="action">{transaction.action}</td>
-      <td name="price" className="money amount">{transaction.price}</td>
-      <td name="quantity" className="quantity">{transaction.quantity}</td>
-      <td name="fee" className="money amount">{transaction.fee}</td>
-      <td name="amount" className="money amount">{transaction.amount}</td>
+      <td className="date"><FormattedDate value={transaction.date} day="2-digit" month="2-digit" year="numeric" /></td>
+      <td>{transaction.action}</td>
+      <td className="money amount"><FormattedNumber value={transaction.price} style="currency" currency="USD" /></td>
+      <td className="quantity">{transaction.quantity}</td>
+      <td className="money amount"><FormattedNumber value={transaction.fee} style="currency" currency="USD" /></td>
+      <td className="money amount"><FormattedNumber value={transaction.amount} style="currency" currency="USD" /></td>
     </tr>
   );
 }
@@ -59,7 +59,6 @@ function TickerTransactionGroupsPanel({ chains, completed, showCompleted, ...pro
   const { account } = useContext(AppContext);
 
   useEffect(() => {
-    const $self = $(".TransactionGroupsPanel");
   }, [account]);
 
   const classAttr = { className: `TickerTransactionGroupsPanel${completed ? ' completed' : ''}` };
@@ -71,13 +70,13 @@ function TickerTransactionGroupsPanel({ chains, completed, showCompleted, ...pro
       }
       <div className="summary">
         <label>Profit:</label>
-        <span name="profit" className="money amount">{props.profit}</span>
+        <span className="money amount"><FormattedNumber value={props.profit} style="currency" currency="USD" /></span>
         <label>ROI:</label>
-        <span name="roi" className="amount percent">{props.roi}</span>
+        <span className="amount"><FormattedNumber value={props.roi} style='percent' minimumFractionDigits={2} /></span>
         <label>Cost:</label>
-        <span name="cost" className="money amount">{props.cost}</span>
+        <span className="money amount"><FormattedNumber value={props.cost} style="currency" currency="USD" /></span>
         <label>Duration:</label>
-        <span name="duration" className="duration">{props.duration}</span> day(s)
+        <span className="duration">{props.duration}</span> day(s)
       </div>
     </section>
   )

@@ -1,38 +1,37 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
-import $ from 'jquery';
+import { FormattedNumber } from 'react-intl';
 
 import AppContext from "./app_context";
-import { fetchData, resetValues, setValue } from "./util";
+import { fetchData } from "./util";
 
 function AccountSummaryPanel() {
   const { account } = useContext(AppContext);
+  const [summary, setSummary] = useState({});
 
-  function loadAccountSummary(data, $self) {
+  function loadAccountSummary(data) {
     const accountInfo = data.accountInfo;
     const balance = accountInfo && accountInfo.balance;
+    let accountSummary = {};
     if (balance) {
-      for (const [key, value] of Object.entries(balance)) {
-        setValue($('td[name="' + key + '"]', $self), value);
-      }
+      accountSummary = { ...balance };
       let marketValue = balance.account_value;
       const cost = data.summary.total_investment;
       const profit = marketValue - cost;
-      setValue($('td[name="profit"]', $self), profit);
-      setValue($('td[name="profit_rate"]', $self), profit / cost);
+      accountSummary['profit'] = profit;
+      accountSummary['profit_rate'] = profit / cost;
     }
     for (const [key, value] of Object.entries(data.summary)) { // may override the above values
-      setValue($('td[name="' + key + '"]', $self), value);
+      accountSummary[key] = value;
     }
+    setSummary(accountSummary);
   }
 
   useEffect(() => {
-    const $self = $(".AccountSummaryPanel");
-    resetValues($self, "???");
     (async () => {
       const res = await fetchData(`/account/${account}/summary`);
       const data = await res.json();
-      loadAccountSummary(data, $self);
+      loadAccountSummary(data);
     })();
   }, [account]);
 
@@ -54,17 +53,17 @@ function AccountSummaryPanel() {
             <th>Option Buying Power</th>
           </tr>
           <tr>
-            <td className="money amount" name="account_value"></td>
-            <td className="money amount" name="profit"></td>
-            <td className="amount percent" name="profit_rate"></td>
-            <td className="money amount" name="total_securities_value"></td>
-            <td className="money amount" name="cash_value"></td>
-            <td className="money amount" name="margin_balance"></td>
-            <td className="money amount" name="total_investment"></td>
-            <td className="money amount" name="total_interest"></td>
-            <td className="money amount" name="total_dividend"></td>
-            <td className="money amount" name="buying_power"></td>
-            <td className="money amount" name="nonmarginable_buying_power"></td>
+            <td className="money amount"><FormattedNumber value={summary.account_value} style="currency" currency="USD" /></td>
+            <td className="money amount"><FormattedNumber value={summary.profit} style="currency" currency="USD" /></td>
+            <td className="amount"><FormattedNumber value={summary.profit_rate} style='percent' minimumFractionDigits={2} /></td>
+            <td className="money amount"><FormattedNumber value={summary.total_securities_value} style="currency" currency="USD" /></td>
+            <td className="money amount"><FormattedNumber value={summary.cash_value} style="currency" currency="USD" /></td>
+            <td className="money amount"><FormattedNumber value={summary.margin_balance} style="currency" currency="USD" /></td>
+            <td className="money amount"><FormattedNumber value={summary.total_investment} style="currency" currency="USD" /></td>
+            <td className="money amount"><FormattedNumber value={summary.total_interest} style="currency" currency="USD" /></td>
+            <td className="money amount"><FormattedNumber value={summary.total_dividend} style="currency" currency="USD" /></td>
+            <td className="money amount"><FormattedNumber value={summary.buying_power} style="currency" currency="USD" /></td>
+            <td className="money amount"><FormattedNumber value={summary.nonmarginable_buying_power} style="currency" currency="USD" /></td>
           </tr>
         </tbody>
       </table>

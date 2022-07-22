@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import render_template, session
+from flask import jsonify, render_template, session
 
 from smartrade import app, app_logger
 from smartrade.Assembler import Assembler
@@ -60,7 +60,7 @@ def positions(account):
     broker = app.config['broker']
     account_info = broker.get_account_info(account, include_pos=True)
     positions = account_info.positions if account_info else {}
-    return {'positions': to_json(positions)}
+    return jsonify(to_json(positions))
 
 @app.route('/account/<account>/traded_tickers', methods=['GET'])
 def traded_tickers(account):
