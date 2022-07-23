@@ -82,7 +82,7 @@ function PositionsPanel() {
             <td className="label" colSpan="9">Stocks</td>
           </tr>
           {
-            stockPositions.positions.map((pos) => (<PositionItem position={pos} />))
+            stockPositions.positions.map((pos, index) => (<PositionItem position={pos} key={`stock${index}`} />))
           }
           <tr>
             <th colSpan="8">Total value</th>
@@ -92,7 +92,7 @@ function PositionsPanel() {
             <td className="label" colSpan="9">Options</td>
           </tr>
           {
-            optionPositions.positions.map((pos) => (<PositionItem position={pos} />))
+            optionPositions.positions.map((pos, index) => (<PositionItem position={pos} key={`option${index}`} />))
           }
           <tr>
             <th colSpan="8">Total value</th>

@@ -35,22 +35,24 @@ function TransactionGroupPanel({ groupTransaction, isFirst }) {
         <col span="1" style={{ width: '10%' }} />
         <col span="1" style={{ width: '20%' }} />
       </colgroup>
-      {isFirst &&
-        <tr name="header">
-          <th>Symbol</th>
-          <th>Date</th>
-          <th>Action</th>
-          <th>Price</th>
-          <th>Quantity</th>
-          <th>Fee</th>
-          <th>Amount</th>
-        </tr>
-      }
-      {
-        groupTransaction.map((symbolTx) => (
-          <SymbolTransactionPanel transaction={symbolTx} />
-        ))
-      }
+      <tbody>
+        {isFirst &&
+          <tr name="header">
+            <th>Symbol</th>
+            <th>Date</th>
+            <th>Action</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Fee</th>
+            <th>Amount</th>
+          </tr>
+        }
+        {
+          groupTransaction.map((symbolTx, index) => (
+            <SymbolTransactionPanel key={`symbolTx-${index}`} transaction={symbolTx} />
+          ))
+        }
+      </tbody>
     </table>
   );
 }
@@ -66,7 +68,7 @@ function TickerTransactionGroupsPanel({ chains, completed, showCompleted, ...pro
     (showCompleted || !completed) &&
     <section {...classAttr}>
       {
-        chains.map((groupTx, index) => (<TransactionGroupPanel groupTransaction={groupTx} isFirst={index == 0} />))
+        chains.map((groupTx, index) => (<TransactionGroupPanel key={`txGroup-${index}`} groupTransaction={groupTx} isFirst={index == 0} />))
       }
       <div className="summary">
         <label>Profit:</label>

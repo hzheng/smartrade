@@ -21,8 +21,8 @@ function TransactionGroupsPanel({ ticker, showCompleted }) {
     <div className="TransactionGroupsPanel">
       <div>Transations for {ticker}</div>
       {
-        txGroups.map((group) => (
-          <TickerTransactionGroupsPanel {...group} showCompleted={showCompleted} />
+        txGroups.map((group, index) => (
+          <TickerTransactionGroupsPanel key={`tickerTxGroup-${index}`} {...group} showCompleted={showCompleted} />
         ))
       }
     </div >

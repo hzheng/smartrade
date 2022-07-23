@@ -19,7 +19,7 @@ function AccountSelect({ onAccountChange }) {
         icon="user"
         defaultValue={account}
         options={options}
-        onChange={(e, { value }) => onAccountChange(value)}
+        onChange={(_, { value }) => onAccountChange(value)}
       />
     </Form>);
 }

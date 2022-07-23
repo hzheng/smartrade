@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 
 import { IntlProvider } from 'react-intl'
 
@@ -9,9 +9,9 @@ import { getElementData } from './util';
 import 'semantic-ui-css/semantic.min.css'
 import '../sass/index.scss';
 
-const root = document.getElementById('root');
+const rootElement = document.getElementById('root');
 
-ReactDOM.createRoot(root).render(
+createRoot(rootElement).render(
   <React.StrictMode>
     <IntlProvider locale="en">
       <App {...getElementData(root)} />

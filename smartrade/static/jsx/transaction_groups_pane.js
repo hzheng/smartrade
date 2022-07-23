@@ -25,11 +25,10 @@ function TransactionGroupsPane() {
 
       <Header as='h3'>Transactions</Header>
       {
-        tickers.map((ticker) => (
-          <>
-            <Divider section />
+        tickers.map((ticker, index) => (
+          <React.Fragment key={`txGroups-${index}`}>
             <TransactionGroupsPanel ticker={ticker} showCompleted={showCompleted} />
-          </>
+          </React.Fragment>
         ))
       }
     </Segment>

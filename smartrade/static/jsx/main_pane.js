@@ -16,7 +16,7 @@ function MainPane(props) {
     const panes = Object.entries(menu).map(
         ([title, MenuPane]) => ({ menuItem: title, render: () => <Tab.Pane><MenuPane {...extendedProps} /></Tab.Pane> }));
 
-    return <Tab panes={panes} />;
+    return <Tab panes={panes} defaultActiveIndex={0} />;
 }
 
 export default MainPane;
