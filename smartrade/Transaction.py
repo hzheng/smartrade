@@ -177,7 +177,7 @@ class Symbol:
         return f"{self.ui} {self.expired.strftime('%m/%d/%Y')} {self.strike:.2f} {self.type}"
 
     def __format__(self, spec):
-        if not self.expired: return self.ui
+        if not self.expired: return self.ui or ""
 
         if not spec:
             return f"{self.ui}_{self.expired.strftime('%m%d%y')}{self.type}{self.strike:g}"
@@ -224,6 +224,7 @@ class Transaction:
         self = cls()
         self._valid = doc.get('valid', True)
         self._id = doc.get('_id', None)
+        self._tx_id = doc.get('tx_id', None)
         for attr in ['account', 'date', 'quantity', 'price', 'fee', 'amount', 'ui', 'strike', 'expired', 'description', 'merge_parent', 'slice_parent', 'grouped']:
             setattr(self, "_" + attr, doc.get(attr, None))
         check(self.quantity is None or self.quantity >= 0, f"quantity {self.quantity} can't be negative")
@@ -244,6 +245,7 @@ class Transaction:
     def from_dict(cls, **map):
         self = cls()
         self._account = map['account']
+        self._tx_id = map.get('tx_id', None)
         qty = self._get_quantity(map['quantity'])
         self._action = Action.from_str(map['action'].strip())
         self._quantity = None if qty is None else abs(qty) 
@@ -392,6 +394,7 @@ class Transaction:
 
         symbol = self.symbol
         json = {
+            'tx_id': self.tx_id,
             'date': self.date,
             'quantity': self.quantity,
             'price': self.price,
@@ -424,7 +427,7 @@ class Transaction:
         return (f"account={self.account}, date={self.date}, action={str(self.action)}, symbol={self.symbol},"
                 f" price={self.price:.4f}, quantity={self.quantity},"
                 f" fee={self.fee:.2f}, amount={self.amount}, desc={self.description}, valid={self.valid}"
-                f" id={self.id}, merge_parent={self.merge_parent}, slice_parent={self.slice_parent}")
+                f" id={self.id}, tx_id={self.tx_id}, merge_parent={self.merge_parent}, slice_parent={self.slice_parent}")
 
     def __str__(self):
         return self.__repr__()
@@ -432,6 +435,10 @@ class Transaction:
     @property
     def id(self):
         return self._id
+
+    @property
+    def tx_id(self):
+        return self._tx_id
 
     @property
     def merge_parent(self):

@@ -367,7 +367,8 @@ const app = {
                         app.setValue($('<td>'), tx.quantity, 'quantity'),
                         app.setValue($('<td>'), tx.fee, 'amount'),
                         app.setValue($('<td>'), tx.amount, 'amount'),
-                        $('<td>').text(tx.description)
+                        $('<td>').text(tx.description),
+                        $('<td>').text(tx.tx_id)
                     ).appendTo($tbody);
                     if (isVirtual) {
                         $row.addClass("virtual");

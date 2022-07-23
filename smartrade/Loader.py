@@ -86,6 +86,7 @@ class Loader:
             if str(account)[-4:] != self._account:
                 continue
  
+            tx_id = obj['transactionId']
             description = obj['description']
             ignored = (description.upper() == "CASH ALTERNATIVES PURCHASE")
             date = obj['transactionDate']
@@ -160,11 +161,15 @@ class Loader:
                     action = "TRANSFER"
                 else:
                     ignored = True
+            elif tx_type == "ELECTRONIC_FUND":
+                action = "TRANSFER" #if subtype == 'FI':
             else:
                 ignored = True
 
             if action == "INTEREST":
                 symbol = "" # ignore symbol MMDA1
+            elif tx_type == "ELECTRONIC_FUND":
+                symbol = ""
             else:
                 symbol = self._get_symbol(instrument)
                 if not symbol and tx_type != "JOURNAL":
@@ -173,7 +178,7 @@ class Loader:
             tx = Transaction.from_dict(account=self._account, date=date, action=action,
                                        symbol=symbol, quantity=quantity, price=price,
                                        fee=total_fee, amount=amount, description=description,
-                                       ignored=ignored)
+                                       tx_id=tx_id, ignored=ignored)
             transactions.append(tx)
         return transactions
 
