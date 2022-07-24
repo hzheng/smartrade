@@ -77,11 +77,12 @@ def ticker_transaction_groups(account, tickers):
         tx_groups = inspector.ticker_transaction_groups(ticker)
         total, profit, positions, prices = TransactionGroup.summarize(
             tx_groups, True)
-        res[ticker] = {
-            'groups': [tx_group.to_json(True) for tx_group in tx_groups],
-            'positions': positions[ticker],
-            'prices': prices,
-            'profit': profit,
-            'investment': -total
-        }
+        if ticker in positions:
+            res[ticker] = {
+                'groups': [tx_group.to_json(True) for tx_group in tx_groups],
+                'positions': positions[ticker],
+                'prices': prices,
+                'profit': profit,
+                'investment': -total
+            }
     return res

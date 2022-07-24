@@ -15,7 +15,7 @@ function AccountPane({ activeIndices, setActiveIndex }) {
     { menuItem: "Watch Lists", render: () => <Tab.Pane><WatchListsPane /> </Tab.Pane> },
   ];
   
-  const changeTab = (e, { activeIndex }) => {
+  const changeTab = (_, { activeIndex }) => {
     setActiveIndex("Account", activeIndex);
   };
 

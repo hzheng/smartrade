@@ -11,7 +11,7 @@ function TransactionPane({ activeIndices, setActiveIndex }) {
     { menuItem: "Transaction History", render: () => <Tab.Pane><TransactionHistoryPane /></Tab.Pane> },
   ];
 
-  const changeTab = (e, { activeIndex }) => {
+  const changeTab = (_, { activeIndex }) => {
     setActiveIndex("Transaction", activeIndex);
   };
 

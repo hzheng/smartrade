@@ -13,7 +13,7 @@ function TradePane({ activeIndices, setActiveIndex }) {
     { menuItem: "Place Order", render: () => <Tab.Pane><PlaceOrderPane /></Tab.Pane> },
   ];
 
-  const changeTab = (e, { activeIndex }) => {
+  const changeTab = (_, { activeIndex }) => {
     setActiveIndex("Trade", activeIndex);
   };
 
