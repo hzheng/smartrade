@@ -28,11 +28,12 @@ export function FormattedField({ value, style, className, tag }) {
     classVal += " negative";
   }
   const fieldProps = { className: classVal };
-  const CustomTag = tag || 'td';
-  if (value == null) {
-    return (<CustomTag {...fieldProps}>N/A</CustomTag>);
+  if (tag == "") {
+    return (<>{value == null ? "N/A" : <Formatter {...props} />}</>);
   }
-  return (
-    <CustomTag {...fieldProps}><Formatter {...props} /></CustomTag>
-  );
+
+  const CustomTag = tag || 'td';
+  return (<CustomTag {...fieldProps}>
+    {value == null ? "N/A" : <Formatter {...props} />}
+  </CustomTag>);
 }

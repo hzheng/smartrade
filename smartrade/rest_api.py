@@ -68,17 +68,20 @@ def traded_tickers(account):
     inspector = Inspector(db_name, account)
     return {symbol: bool(pos) for symbol, pos in inspector.summarize(False)[2].items()}
     
-@app.route('/account/<account>/transaction_groups/<ticker>', methods=['GET'])
-def ticker_transaction_groups(account, ticker):
+@app.route('/account/<account>/transaction_groups/<tickers>', methods=['GET'])
+def ticker_transaction_groups(account, tickers):
     db_name = app.config['DATABASE']
     inspector = Inspector(db_name, account)
-    tx_groups = inspector.ticker_transaction_groups(ticker)
-    total, profit, positions, prices = TransactionGroup.summarize(
-        tx_groups, True)
-    return {
-        'transactionGroups': [tx_group.to_json(True) for tx_group in tx_groups],
-        'positions': positions,
-        'prices': prices,
-        'profit': profit,
-        'total': total
-    }
+    res = {}
+    for ticker in tickers.split(","):
+        tx_groups = inspector.ticker_transaction_groups(ticker)
+        total, profit, positions, prices = TransactionGroup.summarize(
+            tx_groups, True)
+        res[ticker] = {
+            'groups': [tx_group.to_json(True) for tx_group in tx_groups],
+            'positions': positions[ticker],
+            'prices': prices,
+            'profit': profit,
+            'investment': -total
+        }
+    return res

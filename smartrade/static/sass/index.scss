@@ -50,14 +50,22 @@ body {
     margin: 6px;
     border-radius: 8px;
 
-    table td {
-      text-align: center;
+    table {
+      tr {
+        &.open {
+          background-color: #d3e4dc;
+        }
+      }
 
-      &.label {
-        font-weight: 700;
-        font-style: italic;
-        text-align: left;
-        padding-left: 2em;
+      td {
+        text-align: center;
+
+        &.label {
+          font-weight: 700;
+          font-style: italic;
+          text-align: left;
+          padding-left: 2em;
+        }
       }
     }
   }

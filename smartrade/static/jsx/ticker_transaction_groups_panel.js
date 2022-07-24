@@ -35,9 +35,9 @@ function TransactionGroupPanel({ groupTransaction, isFirst }) {
         <col span="1" style={{ width: '10%' }} />
         <col span="1" style={{ width: '20%' }} />
       </colgroup>
-      <tbody>
-        {isFirst &&
-          <tr name="header">
+      {isFirst &&
+        <thead>
+          <tr>
             <th>Symbol</th>
             <th>Date</th>
             <th>Action</th>
@@ -46,7 +46,9 @@ function TransactionGroupPanel({ groupTransaction, isFirst }) {
             <th>Fee</th>
             <th>Amount</th>
           </tr>
-        }
+        </thead>
+      }
+      <tbody>
         {
           groupTransaction.map((symbolTx, index) => (
             <SymbolTransactionPanel key={`symbolTx-${index}`} transaction={symbolTx} />
