@@ -34,11 +34,8 @@ function AccountSummaryPanel() {
   }
 
   useEffect(() => {
-    (async () => {
-      const res = await fetchData(`/account/${account}/summary`);
-      const data = await res.json();
-      loadAccountSummary(data);
-    })();
+    fetchData(`/account/${account}/summary`,
+      data => { loadAccountSummary(data); });
   }, [account]);
 
   return (

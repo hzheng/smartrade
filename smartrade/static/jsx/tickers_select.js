@@ -13,13 +13,12 @@ function TickersSelect({ onTickersChange }) {
 
   useEffect(() => {
     changeTickers([]);
-    (async () => {
-      const res = await fetchData(`/account/${account}/traded_tickers`);
-      const data = await res.json();
-      const options = Object.entries(data).map(
-        ([ticker, open]) => ({ key: ticker, value: ticker, text: (open ? "*" : "") + ticker }));
-      setTickersOptions(options);
-    })();
+    fetchData(`/account/${account}/traded_tickers`,
+      data => {
+        const options = Object.entries(data).map(
+          ([ticker, open]) => ({ key: ticker, value: ticker, text: (open ? "*" : "") + ticker }));
+        setTickersOptions(options);
+      });
   }, [account]);
 
   function changeTickers(value) {

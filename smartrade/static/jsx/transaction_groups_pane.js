@@ -24,20 +24,18 @@ function TransactionGroupsPane() {
       setGroupData({});
       return;
     }
-
-    (async () => {
-      const res = await fetchData(`/account/${account}/transaction_groups/${tickers.join(",")}`);
-      const data = await res.json();
-      setGroupData(data);
-      const summaryData = {};
-      const totalData = [0, 0];
-      for (const [ticker, {investment, profit}] of Object.entries(data)) {
-        totalData[0] += investment;
-        totalData[1] += profit;
-        summaryData[ticker] = [investment, profit]
-      }
-      setSummary([summaryData, totalData]);
-    })();
+    fetchData(`/account/${account}/transaction_groups/${tickers.join(",")}`,
+      data => {
+        setGroupData(data);
+        const summaryData = {};
+        const totalData = [0, 0];
+        for (const [ticker, { investment, profit }] of Object.entries(data)) {
+          totalData[0] += investment;
+          totalData[1] += profit;
+          summaryData[ticker] = [investment, profit]
+        }
+        setSummary([summaryData, totalData]);
+      });
   }, [account, tickers]);
 
   return (

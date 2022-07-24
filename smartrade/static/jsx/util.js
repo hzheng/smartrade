@@ -1,10 +1,31 @@
 import $ from 'jquery';
 
-export function fetchData(url) {
+export async function fetchData(url, onOk, onError, onException) {
   console.log(`fetching data from ${url}...`);
-  const data = fetch(url);
-  console.log("fetched data");
-  return data;
+  await fetch(url).then((response) => {
+    if (response.ok) {
+      console.log("OK response from ", url, ":", response);
+      response.json().then((data) => {
+        console.log("OK data=", data);
+        if (onOk) {
+          onOk(data);
+        }
+      });
+    } else {
+      console.log("Error response from ", url, ":", response);
+      response.text().then((data) => {
+        console.log("Error data:", data);
+        if (onError) {
+          onError(data, response);
+        }
+      });
+    }
+  }).catch((error) => {
+    console.log("No response from the server.", error);
+    if (onException) {
+      onException(error);
+    }
+  });
 }
 
 export function getElementData(element) {

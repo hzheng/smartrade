@@ -86,3 +86,7 @@ def ticker_transaction_groups(account, tickers):
                 'investment': -total
             }
     return res
+
+@app.errorhandler(404)
+def page_not_found(err):
+    return f"Exception happened: {err}", 404

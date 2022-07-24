@@ -56,11 +56,8 @@ function PositionsPanel() {
   }
 
   useEffect(() => {
-    (async () => {
-      const res = await fetchData(`/account/${account}/positions`);
-      const data = await res.json();
-      loadPositions(data);
-    })();
+      fetchData(`/account/${account}/positions`,
+      data => { loadPositions(data); });
   }, [account]);
 
   return (
