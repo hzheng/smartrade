@@ -1,8 +1,10 @@
 import React, { useMemo, useState, useEffect } from 'react';
 
+import { fetchData } from "./util";
 import AppContext from "./app_context";
 import AccountSelect from './account_select';
 import MainPane from "./main_pane";
+import StatusPanel from './status_panel';
 
 function App({ accounts, default_account }) {
     const [account, setAccount] = useState(default_account);
@@ -12,7 +14,25 @@ function App({ accounts, default_account }) {
         return prev;
     }, {});
 
-    const context = useMemo(() => ({ accountMap, account, setAccount }), [account]);
+    const [status, setStatus] = useState({});
+    function load(url, onOk, target) {
+        console.log("loading url:", url);
+        setStatus({ type: 'progress', message: `Loading ${target}...` });
+        fetchData(url,
+            (data) => {
+                setStatus({ type: 'ok', message: `Loaded ${target}.` });
+                onOk(data);
+            },
+            (err) => {
+                setStatus({ type: 'error', message: `Failed to load ${target}.`, detail: `Reason: ${err}` });
+            },
+            (err) => {
+                setStatus({ type: 'error', message: `No response for ${target}.`, detail: `Please Check your network. Reason: ${err}` });
+            }
+        );
+    }
+
+    const context = useMemo(() => ({ accountMap, account, setAccount, load }), [account]);
     const changeAccount = (acct) => { setAccount(acct) };
 
     useEffect(() => {
@@ -23,6 +43,9 @@ function App({ accounts, default_account }) {
         <AppContext.Provider value={context}>
             <div className="app-menu">
                 <AccountSelect onAccountChange={changeAccount} />
+            </div>
+            <div className="app-status">
+                <StatusPanel {...status} />
             </div>
             <div className='app-main'>
                 <MainPane />

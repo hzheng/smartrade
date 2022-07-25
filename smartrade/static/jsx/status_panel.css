@@ -1,0 +1,27 @@
+.StatusPanel {
+  width: 40em;
+}
+
+.StatusPanel div {
+  width: 100%;
+}
+
+.StatusPanel.progress {
+    color: black;
+}
+
+.StatusPanel.ok {
+    color: green;
+}
+
+.StatusPanel.error {
+    color: red;
+}
+
+.StatusPanel loader {
+  padding-right: 1em;
+}
+
+.StatusPanel span {
+  padding-left: 1em;
+}

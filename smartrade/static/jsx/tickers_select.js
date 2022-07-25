@@ -3,22 +3,21 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Dropdown } from 'semantic-ui-react';
 
 import AppContext from "./app_context";
-import { fetchData } from "./util";
 
 function TickersSelect({ onTickersChange }) {
-  const { account } = useContext(AppContext);
+  const { account, load } = useContext(AppContext);
 
   const [selectedOptions, setOptions] = useState([]);
   const [tickersOptions, setTickersOptions] = useState([]);
 
   useEffect(() => {
     changeTickers([]);
-    fetchData(`/account/${account}/traded_tickers`,
+    load(`/account/${account}/traded_tickers`,
       data => {
         const options = Object.entries(data).map(
           ([ticker, open]) => ({ key: ticker, value: ticker, text: (open ? "*" : "") + ticker }));
         setTickersOptions(options);
-      });
+      }, "traded tickers");
   }, [account]);
 
   function changeTickers(value) {

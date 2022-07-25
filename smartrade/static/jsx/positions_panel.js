@@ -3,7 +3,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { FormattedField } from './format';
 
 import AppContext from "./app_context";
-import { fetchData } from "./util";
 
 function PositionItem({ position }) {
   return (
@@ -22,7 +21,7 @@ function PositionItem({ position }) {
 }
 
 function PositionsPanel() {
-  const { account } = useContext(AppContext);
+  const { account, load } = useContext(AppContext);
   const [stockPositions, setStockPositions] = useState({ positions: [] });
   const [optionPositions, setOptionPositions] = useState({ positions: [] });
 
@@ -56,8 +55,8 @@ function PositionsPanel() {
   }
 
   useEffect(() => {
-      fetchData(`/account/${account}/positions`,
-      data => { loadPositions(data); });
+      load(`/account/${account}/positions`,
+      data => { loadPositions(data); }, "positions");
   }, [account]);
 
   return (

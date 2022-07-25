@@ -3,10 +3,9 @@ import React, { useContext, useEffect, useState } from 'react';
 import { FormattedField } from './format';
 
 import AppContext from "./app_context";
-import { fetchData } from "./util";
 
 function AccountSummaryPanel() {
-  const { account } = useContext(AppContext);
+  const { account, load } = useContext(AppContext);
   const [summary, setSummary] = useState({});
 
   function loadAccountSummary(data) {
@@ -34,8 +33,8 @@ function AccountSummaryPanel() {
   }
 
   useEffect(() => {
-    fetchData(`/account/${account}/summary`,
-      data => { loadAccountSummary(data); });
+    load(`/account/${account}/summary`,
+      data => { loadAccountSummary(data); }, "account summary");
   }, [account]);
 
   return (

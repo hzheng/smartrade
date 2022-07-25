@@ -38,10 +38,21 @@ body {
       float: right;
     }
 
+    .app-status {
+      float: left;
+      height: 1em;
+    }
+
     .app-main {
       // background-color: green;
       // height: 800px;
       // border: 1px red solid;
+      div.menu {
+        padding-top: 2em;
+      }
+      div.menu.secondary {
+        padding-top: 4px;
+      }
     }
   }
 

@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from 'react';
 
 import { Checkbox, Divider, Header, Segment } from 'semantic-ui-react';
 
-import { fetchData } from "./util";
 import AppContext from "./app_context";
 import TickersSelect from './tickers_select';
 import TransactionGroupsSummaryPanel from './transaction_groups_summary_panel';
@@ -11,7 +10,7 @@ import TransactionGroupsPanel from './transaction_groups_panel';
 import './transaction_groups_pane.css';
 
 function TransactionGroupsPane() {
-  const { account } = useContext(AppContext);
+  const { account, load } = useContext(AppContext);
 
   const [tickers, setTickers] = useState([]);
   const [showCompleted, toggleCompleted] = useState(false);
@@ -24,7 +23,8 @@ function TransactionGroupsPane() {
       setGroupData({});
       return;
     }
-    fetchData(`/account/${account}/transaction_groups/${tickers.join(",")}`,
+    const tickerList = tickers.join(",");
+    load(`/account/${account}/transaction_groups/${tickerList}`,
       data => {
         setGroupData(data);
         const summaryData = {};
@@ -35,7 +35,7 @@ function TransactionGroupsPane() {
           summaryData[ticker] = [investment, profit]
         }
         setSummary([summaryData, totalData]);
-      });
+      }, `transaction groups(${tickerList})`);
   }, [account, tickers]);
 
   return (
