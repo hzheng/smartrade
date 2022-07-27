@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 
-import { Button, Divider, Header, Message, Segment } from 'semantic-ui-react';
+import { Button, Header, Icon, Message, Segment } from 'semantic-ui-react';
 
 import { FormattedField } from './format';
 import AppContext from "./app_context";
@@ -70,6 +70,7 @@ function TransactionHistoryPane() {
   const { account, load } = useContext(AppContext);
 
   const [filters, setFilters] = useState({});
+  const [dateOrder, setDateOrder] = useState(0);
   const [historyData, setHistoryData] = useState([]);
 
   function search(values) {
@@ -79,6 +80,13 @@ function TransactionHistoryPane() {
     const params = Object.entries(options).map(([key, val]) => (val === "" || val == null) ? "" : `${key}=${val}`);
     const url = `/account/${account}/transactions/${tickerList}?${params.join('&')}`;
     load(url, data => { setHistoryData(data); }, `transaction history(${tickerList})`);
+  }
+
+  function toggleDateOrder() {
+    const newOrder = dateOrder ^ 1;
+    setDateOrder(newOrder);
+    filters['dateOrder'] = newOrder;
+    search(filters);
   }
 
   useEffect(() => {
@@ -123,7 +131,7 @@ function TransactionHistoryPane() {
         <thead>
           <tr>
             <th>No.</th>
-            <th>Date</th>
+            <th>Date<Icon name={`caret ${dateOrder == 1 ? 'up' : 'down'}`} onClick={toggleDateOrder} /></th>
             <th>Symbol</th>
             <th>Action</th>
             <th>Price</th>

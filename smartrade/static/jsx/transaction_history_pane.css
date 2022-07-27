@@ -48,3 +48,7 @@
 .TransactionHistoryPane button.button {
   margin: 2px 5px;
 }
+
+.TransactionHistoryPane table.history i.icon {
+  cursor: pointer;
+}
