@@ -10,10 +10,11 @@ from smartrade.Assembler import Assembler
 from smartrade.Inspector import Inspector
 from smartrade.Loader import Loader
 from smartrade.TransactionGroup import TransactionGroup
-from smartrade.utils import parse_date_range, to_json
+from smartrade.utils import CustomJsonEncoder, parse_date_range, to_json
 
 logger = app_logger.get_logger(__name__)
 
+app.json_encoder = CustomJsonEncoder
 
 @app.route("/")
 def index():

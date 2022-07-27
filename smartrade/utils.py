@@ -6,6 +6,7 @@ import datetime
 import os
 
 from dateutil.relativedelta import relativedelta
+from flask.json import JSONEncoder
 import pymongo
 
 from smartrade.exceptions import BadRequestError, TooManyRequestsError
@@ -53,6 +54,12 @@ def to_json(obj):
     clazz = obj.__class__
     return {prop: to_json(getattr(obj, prop)) for prop in dir(clazz)
             if isinstance(getattr(clazz, prop), property)}
+
+class CustomJsonEncoder(JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime.date):
+            return obj.isoformat()
+        return JSONEncoder.default(self, obj)
 
 def parse_date_range(date_range):
     start_date = end_date = None

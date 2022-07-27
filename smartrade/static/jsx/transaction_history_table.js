@@ -21,7 +21,7 @@ function TransactionHistoryTable({ historyData }) {
         }
         return {
           column: action.column,
-          data: _.sortBy(state.data, [action.column]),
+          data: _.orderBy(state.data, [action.column]),
           direction: 'ascending',
         }
       default:
