@@ -118,7 +118,7 @@ def ticker_transaction_history(account, tickers):
     inspector = Inspector(db_name, account)
 
     start_date, end_date = _get_date_range("transaction_history")
-    order = request.args.get('dateOrder') or "0"
+    order = request.args.get('dateOrder') or "1"
     valid = int(request.args.get('valid', "-2"))
     completed = int(request.args.get('completed', "-2"))
     effective = int(request.args.get('effective', "-1"))

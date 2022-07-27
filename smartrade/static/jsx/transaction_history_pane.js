@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
 
-import { Button, Header, Icon, Message, Segment } from 'semantic-ui-react';
+import { Button, Message, Segment } from 'semantic-ui-react';
 
-import { FormattedField } from './format';
 import AppContext from "./app_context";
-import TickersSelect from './tickers_select';
 import DateRangeSelect from './date_range_select';
 import FilterSelect from './filter_select';
+import TickersSelect from './tickers_select';
+import TransactionHistoryTable from './transaction_history_table';
 
 import './transaction_history_pane.css';
 
@@ -70,7 +70,6 @@ function TransactionHistoryPane() {
   const { account, load } = useContext(AppContext);
 
   const [filters, setFilters] = useState({});
-  const [dateOrder, setDateOrder] = useState(0);
   const [historyData, setHistoryData] = useState([]);
 
   function search(values) {
@@ -82,87 +81,16 @@ function TransactionHistoryPane() {
     load(url, data => { setHistoryData(data); }, `transaction history(${tickerList})`);
   }
 
-  function toggleDateOrder() {
-    const newOrder = dateOrder ^ 1;
-    setDateOrder(newOrder);
-    filters['dateOrder'] = newOrder;
-    search(filters);
-  }
-
   useEffect(() => {
-    console.log("history render");
+    console.log("Rendering transaction history...");
     setHistoryData([]);
   }, [account, filters]);
-
-  function getClasses(tx) {
-    const isSliced = tx.slice_parent && tx.slice_parent != tx._id;
-    const isMerged = tx.merge_parent && tx.merge_parent != tx._id && tx.merge_parent != tx.slice_parent
-    const isVirtual = tx.merge_parent == tx._id || isSliced;
-    const isEffective = !isMerged && (tx.slice_parent != tx._id);
-    let classes = isEffective ? "effective" : "ineffective";
-    if (isVirtual) {
-      classes += " virtual";
-    } else {
-      classes += " original";
-    }
-    if (isMerged) {
-      classes += " merged";
-    }
-    if (isSliced) {
-      classes += " sliced";
-    }
-    if (tx.valid <= 0) {
-      classes += (tx.valid == 0 ? ' ignored' : ' invalid');
-    }
-    if (tx.grouped) {
-      classes += " completed";
-    } else if (tx.grouped === false) {
-      classes += " uncompleted";
-    }
-    return classes;
-  }
 
   return (
     <Segment className="TransactionHistoryPane">
       <TransactionFilterPanel filters={filters} onCommand={search} />
       <TransactionSummaryPanel />
-      <Header as='h3'>{historyData.length} Result(s)</Header>
-      <table className="history">
-        <thead>
-          <tr>
-            <th>No.</th>
-            <th>Date<Icon name={`caret ${dateOrder == 1 ? 'up' : 'down'}`} onClick={toggleDateOrder} /></th>
-            <th>Symbol</th>
-            <th>Action</th>
-            <th>Price</th>
-            <th>Quantity</th>
-            <th>Fee</th>
-            <th>Amount</th>
-            <th>Description</th>
-            <th>Tx Id</th>
-          </tr>
-        </thead>
-        <tbody>
-          {
-            historyData.map((tx, index) => (
-              <React.Fragment key={`txHistory-${index}`}>
-                <tr className={getClasses(tx)}>
-                  <td>{index + 1}</td>
-                  <FormattedField value={tx.date} style="date" />
-                  <td>{tx.symbol}</td>
-                  <td>{tx.action}</td>
-                  <FormattedField value={tx.price} style="currency" />
-                  <td>{tx.quantity}</td>
-                  <FormattedField value={tx.fee} style="currency" />
-                  <FormattedField value={tx.amount} style="currency" />
-                  <td>{tx.description}</td>
-                  <td>{tx.tx_id}</td>
-                </tr>
-              </React.Fragment>
-            ))
-          }
-        </tbody>
-      </table>
+      <TransactionHistoryTable historyData={historyData} />
     </Segment>
   )
 }
