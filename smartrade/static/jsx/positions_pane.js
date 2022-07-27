@@ -5,7 +5,7 @@ import { Divider, Header, Segment } from 'semantic-ui-react'
 import AccountSummaryPanel from './account_summary_panel';
 import PositionsPanel from './positions_panel';
 
-import './positions_pane.css';
+import './positions_pane.scss';
 
 function PositionsPane() {
   useEffect(() => {

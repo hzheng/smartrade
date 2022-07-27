@@ -7,7 +7,7 @@ import TickersSelect from './tickers_select';
 import TransactionGroupsSummaryPanel from './transaction_groups_summary_panel';
 import TransactionGroupsPanel from './transaction_groups_panel';
 
-import './transaction_groups_pane.css';
+import './transaction_groups_pane.scss';
 
 function TransactionGroupsPane() {
   const { account, load } = useContext(AppContext);

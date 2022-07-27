@@ -1,0 +1,38 @@
+.TickerTransactionGroupsPanel {
+  table.transaction {
+    background: #D5F5E3;
+    border-collapse: collapse;
+    border-style: hidden;
+    width: 99%;
+    margin: 6px auto;
+
+    th,
+    td {
+      border: 1px solid gray;
+      padding: 4px;
+      text-align: center;
+    }
+
+    th {
+      background: #eee;
+    }
+
+    tr.close {
+      background-color: gainsboro;
+    }
+
+    td.symbol {
+      background-color: rgb(197, 206, 235);
+    }
+  }
+
+  &.completed {
+    border-style: dotted;
+    border-color: gray;
+  }
+
+  .summary label {
+    font-weight: bold;
+    padding: 2px 1em;
+  }
+}

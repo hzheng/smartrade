@@ -1,0 +1,37 @@
+.TransactionGroupsPane {
+  .TickersSelect {
+    width: 60%;
+    margin-right: 1em;
+  }
+
+  table {
+
+    &.TransactionGroupsSummaryPanel,
+    &.positions {
+      width: 80%;
+      border-collapse: collapse;
+    }
+
+    td {
+      text-align: center;
+    }
+
+    &.TransactionGroupsSummaryPanel th,
+    &.TransactionGroupsSummaryPanel td,
+    &.positions th,
+    &.positions td {
+      border: 1px solid white;
+      border-collapse: collapse;
+      background-color: #dceae4;
+    }
+
+    &.TransactionGroupsSummaryPanel tbody tr:last-child {
+      font-weight: bold;
+      border-top: solid 1px;
+
+      td {
+        background-color: #bfded0;
+      }
+    }
+  }
+}

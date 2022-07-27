@@ -1,0 +1,16 @@
+.PositionsPane {
+  table {
+    border-collapse: collapse;
+    border-style: hidden;
+    border-radius: 4px;
+    width: 95%;
+    margin: 8px auto;
+
+    th,
+    td {
+      border: 1px solid gray;
+      padding: 1px;
+      text-align: center;
+    }
+  }
+}

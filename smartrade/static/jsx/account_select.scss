@@ -1,0 +1,24 @@
+.AccountSelect {
+  label {
+    float: left;
+    padding-right: 1em;
+    padding-top: 0.5em;
+  }
+
+  .dropdown {
+    float: left;
+    width: 20em !important;
+
+    &>.text {
+      padding-left: 1em;
+    }
+
+    &>.icon {
+      float: left;
+    }
+  }
+
+  .selected:before {
+    content: "✓ ";
+  }
+}

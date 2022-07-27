@@ -8,7 +8,7 @@ import FilterSelect from './filter_select';
 import TickersSelect from './tickers_select';
 import TransactionHistoryTable from './transaction_history_table';
 
-import './transaction_history_pane.css';
+import './transaction_history_pane.scss';
 
 function TransactionFilterPanel({ filters, onCommand }) {
   function update(name, value) {

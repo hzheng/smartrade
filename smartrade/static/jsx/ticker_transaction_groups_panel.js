@@ -4,7 +4,7 @@ import { FormattedField } from './format';
 
 import AppContext from './app_context';
 
-import './ticker_transaction_groups_panel.css';
+import './ticker_transaction_groups_panel.scss';
 
 function SymbolTransactionPanel({ transaction }) {
   const isOpen = !!transaction.symbol;

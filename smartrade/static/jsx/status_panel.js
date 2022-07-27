@@ -4,7 +4,7 @@ import { Icon, Loader, Popup } from 'semantic-ui-react';
 
 import AppContext from './app_context';
 
-import './status_panel.css'
+import './status_panel.scss'
 
 function StatusPanel({ type, message, detail }) {
   const { account } = useContext(AppContext);

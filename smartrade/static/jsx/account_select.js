@@ -4,7 +4,7 @@ import { Form } from 'semantic-ui-react';
 
 import AppContext from "./app_context";
 
-import './account_select.css';
+import './account_select.scss';
 
 function AccountSelect({ onAccountChange }) {
   const { accountMap, account } = useContext(AppContext);
