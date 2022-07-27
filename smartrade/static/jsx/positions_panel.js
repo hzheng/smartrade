@@ -65,7 +65,7 @@ function PositionsPanel() {
         <tbody>
           <tr>
             <th>Symbol</th>
-            <th>Quanity</th>
+            <th>Quantity</th>
             <th>Cost</th>
             <th>Price</th>
             <th>Day Gain</th>

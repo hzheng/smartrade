@@ -40,7 +40,7 @@ function TransactionGroupsPane() {
 
   return (
     <Segment className="TransactionGroupsPane">
-      <TickersSelect onTickersChange={(t) => setTickers(t)} />
+      <TickersSelect onChange={(t) => setTickers(t)} />
       <Checkbox label="Show completed" onChange={(_, { checked }) => toggleCompleted(checked)} />
 
       <Header as='h3'>Summary</Header>

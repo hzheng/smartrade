@@ -98,11 +98,11 @@ class Inspector:
             condition['date'] = date_limit
         return condition
 
-    def transaction_list(self, start_date=None, end_date=None, ticker=None, asc=False,
+    def transaction_list(self, start_date=None, end_date=None, tickers=None, asc=False,
                          valid=-2, grouped=-2, effective=-1, original=-1, action=""):
         cond = {**self._account_cond}
-        if ticker:
-            cond['ui'] = ticker.upper()
+        if tickers:
+            cond['ui'] = {'$in': tickers.split(",")}
         if valid >= -1:
             cond['valid'] = valid
         if grouped == -1:

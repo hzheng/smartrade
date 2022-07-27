@@ -1,0 +1,50 @@
+.TransactionHistoryPane {}
+
+.TransactionHistoryPane .TransactionFilterPanel>div {
+  clear: both;
+}
+
+.TransactionHistoryPane .TransactionSummaryPanel {
+  clear: both;
+}
+
+.TransactionHistoryPane .TickersSelect {
+  width: calc(80% - 1em);
+  margin-right: 1em;
+  float: left;
+}
+
+.TransactionHistoryPane .DateRangeSelect {
+  width: 95%;
+  float: left;
+}
+
+.TransactionHistoryPane .FilterSelect.dropdown,
+.TransactionHistoryPane button.button {
+  float: left;
+}
+
+.TransactionHistoryPane table.history {
+  width: 95%;
+  margin: auto;
+}
+
+.TransactionHistoryPane table.history td {
+  border: 1px solid gray;
+  padding: 4px;
+  text-align: center;
+}
+
+.TransactionHistoryPane .legend .note {
+  font-style: italic;
+  font-weight: bold;
+}
+
+.TransactionHistoryPane .legend span {
+  padding: 1em 5px;
+}
+
+.TransactionHistoryPane .dropdown,
+.TransactionHistoryPane button.button {
+  margin: 2px 5px;
+}
