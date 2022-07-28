@@ -16,6 +16,7 @@ logger = app_logger.get_logger(__name__)
 
 app.json_encoder = CustomJsonEncoder
 
+
 @app.route("/")
 def index():
     accounts = app.config['broker_client'][0]['accounts']
@@ -113,6 +114,7 @@ def _get_date_range(context):
                  context, start_date, end_date)
     return start_date, end_date
 
+
 @app.route("/account/<account>/transactions/<tickers>", methods=['GET'])
 def ticker_transaction_history(account, tickers):
     db_name = app.config['DATABASE']
@@ -125,10 +127,19 @@ def ticker_transaction_history(account, tickers):
     effective = int(request.args.get('effective', "-1"))
     original = int(request.args.get('original', "-1"))
     action = request.args.get('action')
-    transactions = inspector.transaction_list(start_date, end_date, 
+    transactions = inspector.transaction_list(start_date, end_date,
                                               None if tickers == 'all' else tickers,
                                               order == "1", valid, completed, effective, original, action)
     return jsonify([tx.to_json(serialize=True) for tx in transactions])
+
+
+@app.route('/account/<account>/balances', methods=['GET'])
+def balances(account):
+    db_name = app.config['DATABASE']
+    provider = app.config['provider']
+    inspector = Inspector(db_name, account, provider)
+    start_date, end_date = _get_date_range("balance_history")
+    return inspector.balance_history(start_date, end_date)
 
 
 @app.errorhandler(404)

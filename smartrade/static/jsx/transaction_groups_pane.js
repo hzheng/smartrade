@@ -43,6 +43,7 @@ function TransactionGroupsPane() {
       <TickersSelect onChange={(t) => setTickers(t)} />
       <Checkbox label="Show completed" onChange={(_, { checked }) => toggleCompleted(checked)} />
 
+      <Divider />
       <Header as='h3'>Summary</Header>
       <TransactionGroupsSummaryPanel summary={summary[0]} total={summary[1]} />
 

@@ -75,20 +75,21 @@
 
   .TransactionFilterPanel>div {
     clear: both;
+    width: calc(100% - 5px);
+    margin: 2px auto;
   }
 
   .TransactionSummaryPanel {
     clear: both;
+    border: none;
   }
 
   .TickersSelect {
-    width: calc(80% - 1em);
-    margin-right: 1em;
+    width: 100%;
     float: left;
   }
 
   .DateRangeSelect {
-    width: 95%;
     float: left;
   }
 

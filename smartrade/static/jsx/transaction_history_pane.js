@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 
-import { Button, Message, Segment } from 'semantic-ui-react';
+import { Button, Divider, Message, Segment } from 'semantic-ui-react';
 
 import AppContext from "./app_context";
 import DateRangeSelect from './date_range_select';
@@ -17,11 +17,11 @@ function TransactionFilterPanel({ filters, onCommand }) {
 
   return <div className="TransactionFilterPanel">
     <div>
-      <TickersSelect onChange={(t) => update('tickers', t)} />
-      <Button icon="search" content="Search" onClick={() => onCommand(filters)} />
+      <Button icon="find" content="View" onClick={() => onCommand(filters)} />
+      <DateRangeSelect onChange={(range) => update('dateRange', range)} />
     </div>
     <div>
-      <DateRangeSelect onChange={(range) => update('dateRange', range)} />
+      <TickersSelect onChange={(t) => update('tickers', t)} />
     </div>
     <div>
       <FilterSelect title="validity" name="valid" options={{ valid: 1, ignored: 0, invalid: -1 }} defaultValue={1} onChange={update} />
@@ -82,7 +82,7 @@ function TransactionHistoryPane() {
   }
 
   useEffect(() => {
-    console.log("Rendering transaction history...");
+    console.log("Rendering TransactionHistoryPane for account:", account);
     setHistoryData([]);
   }, [account, filters]);
 
@@ -90,6 +90,7 @@ function TransactionHistoryPane() {
     <Segment className="TransactionHistoryPane">
       <TransactionFilterPanel filters={filters} onCommand={search} />
       <TransactionSummaryPanel />
+      <Divider />
       <TransactionHistoryTable historyData={historyData} />
     </Segment>
   )
