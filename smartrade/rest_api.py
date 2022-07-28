@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import datetime
+import re
 
 from dateutil.parser import parse
 from flask import jsonify, render_template, request, session
@@ -140,6 +140,28 @@ def balances(account):
     inspector = Inspector(db_name, account, provider)
     start_date, end_date = _get_date_range("balance_history")
     return inspector.balance_history(start_date, end_date)
+
+
+@app.route('/account/<account>/balances', methods=['POST'])
+def upload_balance_history(account):
+    db_name = app.config['DATABASE']
+    provider = app.config['provider']
+    inspector = Inspector(db_name, account, provider)
+    upload_file = request.files.get('file')
+    logger.debug("uploading file: %s", upload_file)
+    if account not in upload_file.filename:
+        return f"uploaded file name should contain account#: {account}", 406
+
+    balance_map = {}
+    bal_pattern = re.compile('.*"([^"]+)","([^"]+)"')
+    for row in upload_file:
+        line = row.decode("utf-8").strip()
+        date_str, balance_str = bal_pattern.match(line).groups()
+        balance = float(balance_str.replace(',',''))
+        logger.debug("date %s %s", date_str, balance)
+        balance_map[date_str] = balance
+    inspector.save_actual_balance(balance_map)
+    return {"uploaded": len(balance_map)}
 
 
 @app.errorhandler(404)

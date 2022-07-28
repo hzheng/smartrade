@@ -1,5 +1,6 @@
 .BalanceHistoryPane {
 
+  .FileSelect,
   .DateRangeSelect,
   button.button {
     float: left;
@@ -7,6 +8,18 @@
     margin-bottom: 1em;
   }
 
+  .FileSelect {
+    div {
+      float: left;
+    }
+
+    div.message {
+      margin-top: -1px;
+      padding: 6px;
+    }
+  }
+
+  button.button,
   .divider {
     clear: both;
   }

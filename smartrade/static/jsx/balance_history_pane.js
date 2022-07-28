@@ -4,6 +4,7 @@ import { Button, Divider, Segment, Table } from 'semantic-ui-react';
 
 import AppContext from './app_context';
 import { FormattedField } from './format';
+import FileSelect from './file_select';
 import DateRangeSelect from './date_range_select';
 
 import './balance_history_pane.scss';
@@ -45,6 +46,19 @@ function BalanceHistoryPane() {
     setHistoryData({});
   }, [account]);
 
+  function uploadFile(fileOptions) {
+    console.log("uploading file ", fileOptions);
+    const url = `/account/${account}/balances`;
+    load(url, data => { console.log("response=",data); }, "balance history", fileOptions);
+  }
+
+  function validateFile(file) {
+    const fileName = file.name;
+    if (fileName.indexOf(account) < 0) {
+      return `file name ${fileName} should contains account#: ${account}`;
+    }
+  }
+
   function search() {
     const url = `/account/${account}/balances?dateRange=${dateRange}`;
     load(url, data => { setHistoryData(data); }, "balance history");
@@ -52,6 +66,7 @@ function BalanceHistoryPane() {
 
   return (
     <Segment className="BalanceHistoryPane">
+      <FileSelect title="Upload balance history file" icon="upload" validate={validateFile} onSubmit={uploadFile} />
       <Button icon="find" content="View" onClick={search} />
       <DateRangeSelect onChange={setDateRange} />
       <Divider />

@@ -15,10 +15,10 @@ function App({ accounts, default_account }) {
     }, {});
 
     const [status, setStatus] = useState({});
-    function load(url, onOk, target) {
+    function load(url, onOk, target, options) {
         console.log("loading url:", url);
         setStatus({ type: 'progress', message: `Loading ${target}...` });
-        fetchData(url,
+        fetchData(url, options,
             (data) => {
                 setStatus({ type: 'ok', message: `Loaded ${target}.` });
                 onOk(data);
