@@ -173,6 +173,10 @@ class OrderInfo:
         return self._legs
 
     @property
+    def order_id(self):
+        return self._order_id
+
+    @property
     def order_type(self):
         return self._order_type
 
@@ -201,11 +205,27 @@ class OrderInfo:
         return self._duration
 
     @property
+    def cancelable(self):
+        return self._cancelable
+
+    @property
+    def editable(self):
+        return self._editable
+
+    @property
     def cancel_time(self):
         return self._cancel_time
 
+    @property
+    def entered_time(self):
+        return self._entered_time
+
+    @property
+    def close_time(self):
+        return self._close_time
+
     def __repr__(self):
-        return (f"legs={{{self.legs}}}, price={self.price}, quantity={self.quantity}, "
+        return (f"id={self.order_id}, legs={{{self.legs}}}, price={self.price}, quantity={self.quantity}, "
                 f"filled_quantity={self.filled_quantity}, order_type={self.order_type}, "
                 f"status={self.status}, strategy_type={self.strategy_type}, "
                 f"duration={self.duration}, cancel_time={self.cancel_time}")

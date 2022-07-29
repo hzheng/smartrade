@@ -126,10 +126,15 @@ class TDAmeritradeClient(BrokerClient):
                 quantity=o['quantity'],
                 filled_quantity=o['filledQuantity'],
                 order_type=o['orderType'],
+                order_id=o['orderId'],
                 status=o['status'],
                 strategy_type=o['orderStrategyType'],
                 duration=o['duration'],
-                cancel_time=o.get('cancelTime', None)
+                cancelable=(o.get('cancelable', 0) == 1),
+                editable=(o.get('editable', 0) == 1),
+                cancel_time=o.get('cancelTime', None),
+                entered_time=o.get('enteredTime', None),
+                close_time=o.get('closeTime', None)
             )
             res.append(order)
         return res
@@ -141,7 +146,7 @@ class TDAmeritradeClient(BrokerClient):
             res.append(LegInfo(
                 symbol=Symbol(leg['instrument']['symbol']),
                 quantity=leg['quantity'],
-                action=Action.from_str(leg['instruction']),
+                action=leg['instruction'],
             ))
         return res
 

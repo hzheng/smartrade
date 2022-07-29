@@ -24,7 +24,7 @@ function BalanceHistoryTable({ data }) {
         {
           Object.entries(data).map(([date, [bal, actualBal]]) => (
             <Table.Row key={`bal-${date}`}>
-              <FormattedField value={date} style="date" />
+              <FormattedField value={date} style="date" timeZone="UTC" />
               <FormattedField value={bal} style="currency" />
               <FormattedField value={actualBal} style="currency" />
               <FormattedField value={actualBal ? (bal - actualBal) / actualBal : null} style="percent" />

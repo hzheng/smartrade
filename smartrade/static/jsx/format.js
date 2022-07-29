@@ -2,7 +2,7 @@ import React from 'react';
 
 import { FormattedDate, FormattedNumber } from 'react-intl';
 
-export function FormattedField({ value, style, className, tag }) {
+export function FormattedField({ value, style, className, tag, timeZone, time }) {
   const props = { style, value };
   let Formatter = FormattedNumber;
   let classVal = className || "";
@@ -20,7 +20,14 @@ export function FormattedField({ value, style, className, tag }) {
       props['day'] = "2-digit";
       props['month'] = "2-digit";
       props['year'] = "numeric";
-      props['timeZone'] = "utc";
+      if (time) {
+        props['hour'] = "2-digit";
+        props['minute'] = "2-digit";
+        props['second'] = "2-digit";
+      }
+      if (timeZone) {
+        props['timeZone'] = timeZone;
+      }
       classVal += " date"
       break;
     default:

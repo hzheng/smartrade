@@ -25,12 +25,11 @@
       background-color: #dceae4;
     }
 
-    &.TransactionGroupsSummaryPanel tbody tr:last-child {
-      font-weight: bold;
+    &.TransactionGroupsSummaryPanel tfoot tr {
       border-top: solid 1px;
 
-      td {
-        background-color: #bfded0;
+      th {
+        font-weight: bold;
       }
     }
   }

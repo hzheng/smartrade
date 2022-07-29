@@ -66,7 +66,7 @@ def account_summary(account):
 
 
 @app.route('/account/<account>/positions', methods=['GET'])
-def positions(account):
+def get_positions(account):
     broker = app.config['broker']
     account_info = broker.get_account_info(account, include_pos=True)
     positions = account_info.positions if account_info else {}
@@ -165,9 +165,18 @@ def upload_balance_history(account):
     return {"uploaded": len(balance_map)}
 
 
+@app.route('/account/<account>/orders', methods=['GET'])
+def get_orders(account):
+    broker = app.config['broker']
+    account_info = broker.get_account_info(account, include_order=True)
+    orders = account_info.orders if account_info else {}
+    return jsonify(to_json(orders))
+
+
 @app.errorhandler(404)
 def page_not_found(err):
     return f"Page not found: {err}", 404
+
 
 @app.errorhandler(Exception)
 def server_error(err):
@@ -176,4 +185,3 @@ def server_error(err):
         return f"Too many requests: {err}", 429
 
     return f"Exception happened: {err}", 500
-

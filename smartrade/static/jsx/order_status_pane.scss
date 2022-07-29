@@ -1,0 +1,15 @@
+.OrderStatusPane {
+  table {
+    tr {
+      background-color: #ededed;
+      &.editable {
+        background-color: #d8e8da;
+      }
+
+      &.filled {
+        color: rgb(25, 45, 119);
+        font-weight: bold;
+      }
+    }
+  }
+}
