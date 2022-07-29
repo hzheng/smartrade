@@ -20,6 +20,7 @@ export function FormattedField({ value, style, className, tag }) {
       props['day'] = "2-digit";
       props['month'] = "2-digit";
       props['year'] = "numeric";
+      props['timeZone'] = "utc";
       classVal += " date"
       break;
     default:

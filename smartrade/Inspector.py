@@ -22,7 +22,8 @@ class Inspector:
         self._account_cond = Assembler.account_condition(account)
         self._valid_tx_cond = {**self._account_cond, 'valid': 1}
         self._effective_tx_cond = {**self._valid_tx_cond, **Assembler.effective_condition()}
-        self._trading_tx_cond = {'action': {'$in': ['BTO', 'STO', 'STC', 'BTC', 'EXPIRED', 'ASSIGNED', 'EXERCISE']}}
+        self._trading_tx_cond = {'action': {'$in': ['BTO', 'STO', 'STC', 'BTC', 'EXPIRED', 'ASSIGNED', 'EXERCISE',
+                                                    'SPLIT', 'SPLIT_FROM', 'SPLIT_TO']}}
 
     def transaction_period(self):
         start_date = end_date = datetime.now()

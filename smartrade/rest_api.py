@@ -7,6 +7,7 @@ from flask import jsonify, render_template, request, session
 
 from smartrade import app, app_logger
 from smartrade.Assembler import Assembler
+from smartrade.exceptions import TooManyRequestsError 
 from smartrade.Inspector import Inspector
 from smartrade.Loader import Loader
 from smartrade.TransactionGroup import TransactionGroup
@@ -166,4 +167,13 @@ def upload_balance_history(account):
 
 @app.errorhandler(404)
 def page_not_found(err):
-    return f"Exception happened: {err}", 404
+    return f"Page not found: {err}", 404
+
+@app.errorhandler(Exception)
+def server_error(err):
+    logger.exception(err)
+    if isinstance(err, TooManyRequestsError):
+        return f"Too many requests: {err}", 429
+
+    return f"Exception happened: {err}", 500
+

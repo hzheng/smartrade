@@ -60,7 +60,8 @@ function BalanceHistoryPane() {
   }
 
   function search() {
-    const url = `/account/${account}/balances?dateRange=${dateRange}`;
+    const arg = (dateRange == "" || dateRange == null) ? "" : `dateRange=${dateRange}`;
+    const url = `/account/${account}/balances?${arg}`;
     load(url, data => { setHistoryData(data); }, "balance history");
   }
 
