@@ -9,7 +9,7 @@ import './positions_pane.scss';
 
 function PositionsPane() {
   useEffect(() => {
-    console.log("render PositionsPane");
+    console.log("Rendering PositionsPane");
   }, []);
 
   return (
