@@ -55,7 +55,7 @@ function OrderStatusTable({ statusData }) {
   ]
 
   return (
-    <SortedTable tableData={statusData} columns={columns} name="orderStatusTable" celled className="history">
+    <SortedTable tableData={statusData} columns={columns} name="orderStatusTable" celled structured className="history">
       <TableBody />
     </SortedTable>
   )

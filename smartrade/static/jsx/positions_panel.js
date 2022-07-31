@@ -22,7 +22,7 @@ function PositionItem({ position }) {
 
 function PositionsPanel() {
   const { account, load } = useContext(AppContext);
-  const [stockPositions, setStockPositions] = useState({ positions: [] });
+  const [equityPositions, setEquityPositions] = useState({ positions: [] });
   const [optionPositions, setOptionPositions] = useState({ positions: [] });
 
   function loadPositions(positions) {
@@ -50,7 +50,7 @@ function PositionsPanel() {
       }
       p['total_value'] = total_value;
     }
-    setStockPositions(posArray[0]);
+    setEquityPositions(posArray[0]);
     setOptionPositions(posArray[1]);
   }
 
@@ -75,14 +75,14 @@ function PositionsPanel() {
             <th>Market value</th>
           </tr>
           <tr>
-            <td className="label" colSpan="9">Stocks</td>
+            <td className="label" colSpan="9">Equities</td>
           </tr>
           {
-            stockPositions.positions.map((pos, index) => (<PositionItem position={pos} key={`stock${index}`} />))
+            equityPositions.positions.map((pos, index) => (<PositionItem position={pos} key={`equity${index}`} />))
           }
           <tr>
             <th colSpan="8">Total value</th>
-            <FormattedField value={stockPositions.total_value} style="currency" />
+            <FormattedField value={equityPositions.total_value} style="currency" />
           </tr>
           <tr>
             <td className="label" colSpan="9">Options</td>
