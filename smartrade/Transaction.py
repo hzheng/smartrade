@@ -82,6 +82,9 @@ class Action(IntEnum):
 
         logger.warning("invalid Action name: %s", name)
         return cls.INVALID
+    
+    def to_json(self):
+        return format(self)
 
 
 class InstrumentType(Enum):

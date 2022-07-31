@@ -146,7 +146,7 @@ class TDAmeritradeClient(BrokerClient):
             res.append(LegInfo(
                 symbol=Symbol(leg['instrument']['symbol']),
                 quantity=leg['quantity'],
-                action=leg['instruction'],
+                action=Action.from_str(leg['instruction'])
             ))
         return res
 
